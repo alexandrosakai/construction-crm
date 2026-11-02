@@ -1,0 +1,3 @@
+Este repositório não inclui imagens nem identidade visual.
+Coloque aqui os seus próprios arquivos com estes nomes:
+  PLACEHOLDER-LOGO.png (logo), PLACEHOLDER-FAVICON.png (favicon)

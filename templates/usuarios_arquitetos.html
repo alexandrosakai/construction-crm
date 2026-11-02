@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>Arquitetos | Portal Empresa Exemplo</title>
+  <link rel="icon" type="image/png" href="{{ url_for('static', filename='img/PLACEHOLDER-FAVICON.png') }}">
+
+  <!-- Bootstrap e ícones -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
+
+  <!-- Tema base + menu (mesmo padrão do modelo) -->
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/base.css') }}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/menu.css') }}">
+
+  <style>
+    :root{ scroll-behavior:smooth; }
+    body{ margin:0; min-height:100dvh; background:var(--bg); color:var(--text); display:flex; }
+    .layout{ display:flex; gap:0; align-items:stretch; min-height:100vh; width:100%; }
+    .main{ flex:1; min-width:0; order:1; overflow-x:hidden; background:var(--bg); display:flex; flex-direction:column; }
+    .page{ flex:1; min-width:0; display:flex; justify-content:center; align-items:flex-start; padding:24px; }
+    .container-modern{ width:clamp(320px, 92vw, 1100px); margin-inline:auto; }
+
+    .card{
+      background:var(--surface) !important; border:1px solid var(--border) !important;
+      border-radius:14px !important; box-shadow:0 10px 30px -10px var(--shadow) !important; overflow:hidden;
+    }
+    .card-header{
+      background:transparent !important; border-bottom:1px solid var(--border) !important;
+      color:var(--text); padding:14px 18px !important;
+    }
+    .card-header h3{ margin:0; font-size:16px; font-weight:600; color:var(--text); }
+    .card-body{ padding:18px !important; color:var(--text); }
+
+    .btn-primary{ background:linear-gradient(180deg, var(--primary), var(--primary-600)) !important; border:none !important; color:#fff !important; }
+    .btn-secondary{ background:var(--surface-2) !important; color:var(--text) !important; border-color:var(--border) !important; }
+
+    /* ====== Tabela azul escura – TODO TEXTO BRANCO ====== */
+    .table-darkish{ 
+      --tbl-bg:var(--surface);
+      --tbl-bg-alt:var(--field);
+      --tbl-head:var(--surface-2);
+      --tbl-hover:rgba(58,133,25,0.08);
+      --tbl-border:var(--border);
+    }
+    .table-darkish.table{
+      --bs-table-bg: transparent;
+      --bs-table-color: var(--text);
+      --bs-table-striped-bg: transparent;
+      --bs-table-striped-color: var(--text);
+      --bs-table-hover-bg: transparent;
+      --bs-table-hover-color: var(--text);
+      color:var(--text) !important;
+      border-color:var(--tbl-border) !important;
+    }
+    .table-darkish thead th{
+      background:var(--tbl-head) !important;
+      color:var(--text) !important;
+      border-bottom:1px solid var(--tbl-border) !important;
+      font-weight:600; font-size:13px;
+    }
+    .table-darkish tbody td{
+      background:var(--tbl-bg) !important;
+      color:var(--text) !important;
+      border-top:1px solid var(--tbl-border) !important;
+      vertical-align: middle;
+    }
+    .table-darkish tbody tr:nth-child(odd) td{
+      background:var(--tbl-bg-alt) !important;
+      color:var(--text) !important;
+    }
+    .table-darkish tbody tr:hover td{
+      background:var(--tbl-hover) !important;
+      color:var(--text) !important;
+    }
+    .table-darkish, .table-darkish *{ color:var(--text) !important; }
+    .table-darkish a:not(.btn){ color:var(--text) !important; }
+
+    @media (max-width:768px){
+      .layout{ flex-direction:column; }
+      .page{ padding:16px; }
+      .card-body{ padding:14px !important; }
+    }
+  </style>
+</head>
+<body>
+  <div class="layout">
+    {% include 'menu.html' %}
+
+    <main class="main">
+      <section class="page">
+        <div class="container-modern">
+          <div class="d-flex align-items-center justify-content-between mb-3">
+            <h2 class="mb-0">Arquitetos</h2>
+            <a href="{{ url_for('register') }}" class="btn btn-primary">
+              <i class="fa-solid fa-user-plus"></i> Novo Cadastro
+            </a>
+          </div>
+
+          <div class="card">
+            <div class="card-header">
+              <h3>Lista de Arquitetos</h3>
+            </div>
+            <div class="card-body">
+              <div class="table-responsive">
+                <table class="table table-hover align-middle table-darkish">
+                  <thead>
+                    <tr>
+                      <th>Nome</th>
+                      <th>Telefone</th>
+                      <th>Email</th>
+                      <th>Cidade</th>
+                      <th>Idade</th>
+                      <th>Data Nascimento</th>
+                      <th>Razão Social</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {% if usuarios and usuarios|length %}
+                      {% for u in usuarios %}
+                        <tr>
+                          <td>{{ u.nome or '-' }}</td>
+                          <td>{{ u.telefone or '-' }}</td>
+                          <td>{{ u.email or '-' }}</td>
+                          <td>{{ u.cidade or '-' }}</td>
+                          <td>{{ u.idade if u.idade is not none else '-' }}</td>
+                          <td>
+                            {% if u.data_nascimento %}
+                              {{ u.data_nascimento.strftime('%d/%m/%Y') if u.data_nascimento.__class__.__name__ != 'str' else u.data_nascimento }}
+                            {% else %}-{% endif %}
+                          </td>
+                          <td>{{ u.razao_social or '-' }}</td>
+                        </tr>
+                      {% endfor %}
+                    {% else %}
+                      <tr><td colspan="7" class="text-center">Nenhum arquiteto encontrado.</td></tr>
+                    {% endif %}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

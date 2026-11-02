@@ -1,0 +1,15 @@
+[Unit]
+Description=Empresa Exemplo (Flask via Gunicorn)
+After=network.target mysql.service
+
+[Service]
+User=construction-crm
+Group=www-data
+WorkingDirectory=/opt/construction-crm
+EnvironmentFile=/opt/construction-crm/.env
+ExecStart=/opt/construction-crm/venv/bin/gunicorn --workers 3 --bind 127.0.0.1:8000 --timeout 120 --access-logfile - app:app
+Restart=always
+RestartSec=3
+
+[Install]
+WantedBy=multi-user.target

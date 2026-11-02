@@ -1,0 +1,22 @@
+{% extends "base_auth.html" %}
+{% block title %}Login{% endblock %}
+{% block content %}
+  <h2 class="auth__title">Login</h2>
+
+  <form method="POST" class="form">
+    <label class="form__label">Usuário
+      <input class="form__input" type="text" name="username" placeholder="Seu usuário" required>
+    </label>
+
+    <label class="form__label">Senha
+      <input class="form__input" type="password" name="password" placeholder="Sua senha" required>
+    </label>
+
+    <button class="btn btn--primary" type="submit">Acessar</button>
+  </form>
+
+  <p class="auth__hint">
+    Não tem conta?
+    <a class="link" href="{{ url_for('register') }}">Registre-se</a>
+  </p>
+{% endblock %}

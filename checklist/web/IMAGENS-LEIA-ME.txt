@@ -1,0 +1,3 @@
+Este repositório não inclui imagens nem identidade visual.
+Coloque aqui os seus próprios arquivos com estes nomes:
+  PLACEHOLDER-ICON-192.png e PLACEHOLDER-ICON-512.png (ícones do PWA)

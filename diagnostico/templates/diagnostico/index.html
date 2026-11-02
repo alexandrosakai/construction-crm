@@ -1,0 +1,247 @@
+<!doctype html>
+<html lang="pt-br">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Diagnóstico Empresarial</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css">
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.3/dist/chart.umd.min.js"></script>
+<style>
+  .opt{display:inline-flex;gap:4px}
+  .opt input{display:none}
+  .opt label{min-width:38px;text-align:center;padding:4px 8px;border:1px solid #ced4da;border-radius:6px;cursor:pointer;font-size:.85rem;user-select:none}
+  .opt input:checked+label{background:#0d6efd;color:#fff;border-color:#0d6efd}
+  .opt input[value="-1"]:checked+label{background:#6c757d;border-color:#6c757d}
+  .q-row{padding:.6rem 0;border-bottom:1px solid #eee}
+  .q-row.baixa{background:#fff5f5}
+  .mod-pill{cursor:pointer}
+  .nav-scroll{overflow-x:auto;flex-wrap:nowrap;white-space:nowrap}
+  .nav-scroll .nav-link{font-size:.85rem}
+  table.acoes td,table.acoes th{vertical-align:top;font-size:.85rem}
+  table.acoes textarea,table.acoes input,table.acoes select{font-size:.8rem}
+  table.acoes textarea{min-width:170px;resize:vertical}
+  .badge-st{cursor:pointer}
+  .bar{height:10px}
+</style>
+</head>
+<body class="bg-light">
+<nav class="navbar navbar-dark bg-dark mb-3">
+  <div class="container-fluid">
+    <span class="navbar-brand">📊 Diagnóstico Empresarial</span>
+    <div class="d-flex gap-2 align-items-center">
+      <select id="selDiag" class="form-select form-select-sm" style="min-width:260px"></select>
+      <button class="btn btn-sm btn-success" onclick="novoDiag()">+ Novo</button>
+      <button class="btn btn-sm btn-outline-danger" onclick="excluirDiag()">Excluir</button>
+    </div>
+  </div>
+</nav>
+
+<div class="container-fluid pb-5" id="app" style="display:none">
+  <ul class="nav nav-tabs mb-3" id="mainTabs">
+    <li class="nav-item"><a class="nav-link active" data-tab="q" href="#">1. Questionário</a></li>
+    <li class="nav-item"><a class="nav-link" data-tab="t" href="#">2. Tabulação</a></li>
+    <li class="nav-item"><a class="nav-link" data-tab="c" href="#">3. Conclusões</a></li>
+    <li class="nav-item"><a class="nav-link" data-tab="a" href="#">4. Plano de Ação <span class="badge text-bg-danger" id="cntAcoes"></span></a></li>
+  </ul>
+
+  <!-- QUESTIONÁRIO -->
+  <section id="tab-q">
+    <ul class="nav nav-pills nav-scroll mb-3" id="modTabs"></ul>
+    <div class="card"><div class="card-body" id="modBody"></div></div>
+  </section>
+
+  <!-- TABULAÇÃO -->
+  <section id="tab-t" style="display:none">
+    <div class="row g-3">
+      <div class="col-lg-6"><div class="card"><div class="card-body"><canvas id="radar" height="320"></canvas></div></div></div>
+      <div class="col-lg-6"><div class="card"><div class="card-body">
+        <table class="table table-sm align-middle mb-0" id="tabTab"></table>
+        <div class="small text-muted mt-2">Desempenho = pontos obtidos ÷ (itens aplicáveis × 4). Itens “NA” saem do cálculo; itens não respondidos contam 0, como na planilha original.</div>
+      </div></div></div>
+    </div>
+  </section>
+
+  <!-- CONCLUSÕES -->
+  <section id="tab-c" style="display:none">
+    <div class="card"><div class="card-body">
+      <div class="row g-3" id="conclForm"></div>
+      <div class="mt-3"><button class="btn btn-primary" onclick="salvarConcl()">Salvar conclusões</button> <span id="conclOk" class="text-success small"></span></div>
+    </div></div>
+  </section>
+
+  <!-- PLANO DE AÇÃO -->
+  <section id="tab-a" style="display:none">
+    <div class="card mb-3"><div class="card-body d-flex flex-wrap gap-3 align-items-center">
+      <div class="d-flex align-items-center gap-2">
+        <span>Gerar ações para notas até</span>
+        <select id="limite" class="form-select form-select-sm w-auto"><option value="1">1</option><option value="2" selected>2</option><option value="3">3</option></select>
+        <button class="btn btn-sm btn-primary" onclick="gerarAcoes()">⚡ Gerar plano</button>
+      </div>
+      <div class="d-flex gap-2">
+        <select id="fStatus" class="form-select form-select-sm w-auto" onchange="renderAcoes()"><option value="">Status: todos</option><option>A fazer</option><option>Em andamento</option><option>Concluída</option></select>
+        <select id="fPrio" class="form-select form-select-sm w-auto" onchange="renderAcoes()"><option value="">Prioridade: todas</option><option>Alta</option><option>Média</option><option>Baixa</option></select>
+      </div>
+      <div class="flex-grow-1" style="min-width:200px"><div class="progress bar"><div class="progress-bar bg-success" id="progAcoes"></div></div><div class="small text-muted" id="progTxt"></div></div>
+      <a class="btn btn-sm btn-outline-secondary" id="btnCsv">⬇ CSV</a>
+      <button class="btn btn-sm btn-outline-secondary" onclick="window.print()">🖨 Imprimir</button>
+    </div></div>
+    <ul class="nav nav-tabs nav-scroll mb-2" id="acaoTabs"></ul>
+    <div class="table-responsive"><table class="table table-bordered bg-white acoes" id="acoesTab"></table></div>
+    <button class="btn btn-sm btn-outline-primary" onclick="novaAcao()">+ Adicionar ação ao módulo</button>
+  </section>
+</div>
+
+<div id="vazio" class="container text-center text-muted py-5">Crie um diagnóstico para começar.</div>
+
+<script>
+const BASE = location.pathname.replace(/\/$/, '');
+const ESC = s => String(s ?? '').replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const api = (u, m = 'GET', b) => fetch(BASE + u, {method: m, headers: {'Content-Type': 'application/json'},
+  body: b === undefined ? undefined : JSON.stringify(b)}).then(r => { if (!r.ok) throw new Error(r.status); return r.status === 204 ? null : r.json(); });
+const debounce = (f, ms = 500) => { let t; return (...a) => { clearTimeout(t); t = setTimeout(() => f(...a), ms); }; };
+const CONCL = [['fortes','Pontos fortes'],['melhoria','Pontos para melhoria'],['oportunidades','Oportunidades'],
+  ['ameacas','Ameaças'],['recomendacoes','Recomendações do consultor'],['consultor','Assinatura do consultor']];
+const ST = {'A fazer':'secondary','Em andamento':'warning','Concluída':'success'};
+let MODS = [], D = null, modAtual = null, acaoMod = 'todos', chart = null;
+
+const nome = id => MODS.find(m => m.id === id).nome;
+
+function calc(m) {
+  const r = D.resp[m.id] || {}; let soma = 0, na = 0, resp = 0;
+  m.perguntas.forEach((_, i) => { const v = r[i]; if (v === undefined) return; resp++; if (v === -1) na++; else soma += v; });
+  const poss = (m.perguntas.length - na) * 4;
+  return {soma, poss, resp, total: m.perguntas.length, pct: poss ? soma / poss * 100 : 0};
+}
+const faixa = p => p < 50 ? ['Crítico','danger'] : p < 70 ? ['Atenção','warning'] : p < 85 ? ['Bom','primary'] : ['Excelente','success'];
+
+async function init() {
+  MODS = await api('/api/modulos');
+  modAtual = MODS[0].id;
+  await listar();
+  document.querySelectorAll('#mainTabs a').forEach(a => a.onclick = e => { e.preventDefault(); aba(a.dataset.tab); });
+}
+async function listar(sel) {
+  const l = await api('/api/diagnosticos'), s = document.getElementById('selDiag');
+  s.innerHTML = l.map(d => `<option value="${d.id}">${ESC(d.empresa)} — ${ESC(d.data)}</option>`).join('');
+  s.onchange = () => carregar(s.value);
+  document.getElementById('vazio').style.display = l.length ? 'none' : '';
+  document.getElementById('app').style.display = l.length ? '' : 'none';
+  if (l.length) { s.value = sel || l[0].id; carregar(s.value); }
+}
+async function carregar(id) { D = await api('/api/diagnosticos/' + id); renderTudo(); }
+async function novoDiag() {
+  const empresa = prompt('Nome da empresa:'); if (!empresa) return;
+  const consultor = prompt('Consultor responsável:') || '';
+  const d = await api('/api/diagnosticos', 'POST', {empresa, consultor}); listar(d.id);
+}
+async function excluirDiag() {
+  if (!D || !confirm(`Excluir o diagnóstico de "${D.empresa}" e todo o plano de ação?`)) return;
+  await api('/api/diagnosticos/' + D.id, 'DELETE'); listar();
+}
+function aba(t) {
+  document.querySelectorAll('#mainTabs a').forEach(a => a.classList.toggle('active', a.dataset.tab === t));
+  ['q','t','c','a'].forEach(x => document.getElementById('tab-' + x).style.display = x === t ? '' : 'none');
+  if (t === 't') renderTab(); if (t === 'a') renderAcoes();
+}
+function renderTudo() { renderMods(); renderModulo(); renderConcl(); renderTab(); renderAcoes(); }
+
+/* ---------- Questionário ---------- */
+function renderMods() {
+  const g = (grp) => MODS.filter(m => m.grupo === grp).map(m => {
+    const c = calc(m), ok = c.resp === c.total;
+    return `<li class="nav-item"><a href="#" class="nav-link ${m.id===modAtual?'active':''}" onclick="event.preventDefault();modAtual='${m.id}';renderMods();renderModulo()">${ok?'✓ ':''}${ESC(m.nome)} <small>${c.resp}/${c.total}</small></a></li>`;
+  }).join('');
+  document.getElementById('modTabs').innerHTML = g('Gestão') + '<li class="nav-item px-2 text-muted">|</li>' + g('Operações');
+}
+function renderModulo() {
+  const m = MODS.find(x => x.id === modAtual), r = D.resp[m.id] || {}, meta = D.meta[m.id] || {};
+  const c = calc(m), [fx, cor] = faixa(c.pct);
+  document.getElementById('modBody').innerHTML = `
+    <div class="d-flex justify-content-between align-items-center mb-2">
+      <h5 class="mb-0">${ESC(m.nome)} <small class="text-muted">(${ESC(m.grupo)})</small></h5>
+      <span class="badge text-bg-${cor} fs-6">${c.pct.toFixed(1)}% · ${fx}</span></div>
+    <div class="small text-muted mb-2">Escala: 0 = não atende · 1 · 2 · 3 · 4 = atende plenamente · NA = não se aplica</div>
+    ${m.perguntas.map((p, i) => `<div class="q-row ${r[i]!==undefined&&r[i]>=0&&r[i]<=2?'baixa':''} d-flex flex-wrap justify-content-between gap-2">
+      <div style="flex:1;min-width:260px"><b>${i+1}.</b> ${ESC(p)}</div>
+      <div class="opt">${[0,1,2,3,4,-1].map(v => `<input type="radio" name="q${i}" id="q${i}_${v}" value="${v}" ${r[i]===v?'checked':''} onchange="resp(${i},${v})"><label for="q${i}_${v}">${v===-1?'NA':v}</label>`).join('')}</div></div>`).join('')}
+    <div class="row g-3 mt-2">
+      <div class="col-md-6"><label class="form-label fw-bold">Evidências</label><textarea class="form-control" rows="3" id="ev" oninput="salvaMeta()">${ESC(meta.evidencias)}</textarea></div>
+      <div class="col-md-6"><label class="form-label fw-bold">Parecer</label><textarea class="form-control" rows="3" id="pa" oninput="salvaMeta()">${ESC(meta.parecer)}</textarea></div></div>`;
+}
+async function resp(i, v) {
+  (D.resp[modAtual] ||= {})[i] = v;
+  renderMods(); const y = scrollY; renderModulo(); scrollTo(0, y);
+  await api(`/api/diagnosticos/${D.id}/resposta`, 'PUT', {mod: modAtual, idx: i, valor: v});
+}
+const salvaMeta = debounce(() => {
+  const mod = modAtual, evidencias = document.getElementById('ev').value, parecer = document.getElementById('pa').value;
+  D.meta[mod] = {evidencias, parecer};
+  api(`/api/diagnosticos/${D.id}/meta`, 'PUT', {mod, evidencias, parecer});
+});
+
+/* ---------- Tabulação ---------- */
+function renderTab() {
+  const rows = MODS.map(m => ({m, c: calc(m)}));
+  document.getElementById('tabTab').innerHTML = `<thead><tr><th>Módulo</th><th class="text-end">Pontos</th><th class="text-end">%</th><th>Situação</th></tr></thead><tbody>` +
+    rows.map(({m, c}) => { const [fx, cor] = faixa(c.pct);
+      return `<tr><td>${ESC(m.nome)} <small class="text-muted">${m.grupo}</small></td><td class="text-end">${c.soma}/${c.poss}</td><td class="text-end">${c.pct.toFixed(1)}%</td><td><span class="badge text-bg-${cor}">${fx}</span>${c.resp<c.total?' <small class="text-muted">incompleto</small>':''}</td></tr>`; }).join('') + '</tbody>';
+  if (!window.Chart) return;
+  chart && chart.destroy();
+  chart = new Chart(document.getElementById('radar'), {type: 'radar',
+    data: {labels: rows.map(r => r.m.nome), datasets: [{label: D.empresa, data: rows.map(r => +r.c.pct.toFixed(1)),
+      backgroundColor: 'rgba(13,110,253,.2)', borderColor: '#0d6efd'}]},
+    options: {scales: {r: {min: 0, max: 100, ticks: {stepSize: 25}}}, plugins: {legend: {display: false}}}});
+}
+
+/* ---------- Conclusões ---------- */
+function renderConcl() {
+  document.getElementById('conclForm').innerHTML = CONCL.map(([k, t]) =>
+    `<div class="col-md-6"><label class="form-label fw-bold">${t}</label><textarea class="form-control" rows="4" data-k="${k}">${ESC(D.concl[k])}</textarea></div>`).join('');
+}
+async function salvarConcl() {
+  const o = {}; document.querySelectorAll('#conclForm textarea').forEach(t => o[t.dataset.k] = t.value);
+  D.concl = o; await api(`/api/diagnosticos/${D.id}/conclusoes`, 'PUT', o);
+  const ok = document.getElementById('conclOk'); ok.textContent = 'Salvo ✓'; setTimeout(() => ok.textContent = '', 2000);
+}
+
+/* ---------- Plano de ação ---------- */
+function renderAcoes() {
+  const A = D.acoes, fS = fStatus.value, fP = fPrio.value;
+  const cnt = id => A.filter(a => id === 'todos' || a.mod === id).length;
+  acaoTabs.innerHTML = [{id: 'todos', nome: 'Todos'}, ...MODS.filter(m => cnt(m.id))].map(m =>
+    `<li class="nav-item"><a href="#" class="nav-link ${m.id===acaoMod?'active':''}" onclick="event.preventDefault();acaoMod='${m.id}';renderAcoes()">${ESC(m.nome)} <span class="badge text-bg-secondary">${cnt(m.id)}</span></a></li>`).join('');
+  const lista = A.filter(a => (acaoMod === 'todos' || a.mod === acaoMod) && (!fS || a.status === fS) && (!fP || a.prioridade === fP));
+  const campo = (a, k, rows = 2) => `<textarea class="form-control" rows="${rows}" onchange="edAcao(${a.id},'${k}',this.value)">${ESC(a[k])}</textarea>`;
+  const sel = (a, k, ops) => `<select class="form-select form-select-sm" onchange="edAcao(${a.id},'${k}',this.value)">${ops.map(o => `<option ${a[k]===o?'selected':''}>${o}</option>`).join('')}</select>`;
+  acoesTab.innerHTML = `<thead class="table-dark"><tr><th>Módulo</th><th>O quê</th><th>Por quê</th><th>Quem</th><th>Quando</th><th>Como</th><th>Quanto</th><th>Prioridade</th><th>Status</th><th></th></tr></thead><tbody>` +
+    (lista.map(a => `<tr class="${a.status==='Concluída'?'table-success':''}"><td>${ESC(nome(a.mod))}</td><td>${campo(a,'acao',3)}</td><td>${campo(a,'motivo',3)}</td>
+      <td><input class="form-control" value="${ESC(a.responsavel)}" onchange="edAcao(${a.id},'responsavel',this.value)"></td>
+      <td><input type="date" class="form-control" value="${ESC(a.prazo)}" onchange="edAcao(${a.id},'prazo',this.value)"></td>
+      <td>${campo(a,'como',3)}</td><td><input class="form-control" value="${ESC(a.custo)}" onchange="edAcao(${a.id},'custo',this.value)"></td>
+      <td>${sel(a,'prioridade',['Alta','Média','Baixa'])}</td><td>${sel(a,'status',Object.keys(ST))}</td>
+      <td><button class="btn btn-sm btn-outline-danger" title="Remover" onclick="delAcao(${a.id})">✕</button></td></tr>`).join('')
+      || `<tr><td colspan="10" class="text-center text-muted py-4">Nenhuma ação. Use “Gerar plano” ou adicione manualmente.</td></tr>`) + '</tbody>';
+  const feitas = A.filter(a => a.status === 'Concluída').length, pct = A.length ? feitas / A.length * 100 : 0;
+  progAcoes.style.width = pct + '%'; progTxt.textContent = `${feitas} de ${A.length} concluídas (${pct.toFixed(0)}%)`;
+  cntAcoes.textContent = A.length || ''; btnCsv.href = `${BASE}/api/diagnosticos/${D.id}/acoes.csv`;
+}
+async function gerarAcoes() {
+  const r = await api(`/api/diagnosticos/${D.id}/gerar-acoes`, 'POST', {limite: +limite.value});
+  D.acoes = r.acoes; renderAcoes(); alert(r.criadas ? `${r.criadas} ações criadas.` : 'Nenhuma ação nova (responda o questionário ou aumente a nota limite).');
+}
+async function novaAcao() {
+  const mod = acaoMod === 'todos' ? modAtual : acaoMod;
+  D.acoes.push(await api(`/api/diagnosticos/${D.id}/acoes`, 'POST', {mod})); renderAcoes();
+}
+async function edAcao(id, k, v) {
+  D.acoes.find(a => a.id === id)[k] = v; await api('/api/acoes/' + id, 'PUT', {[k]: v});
+  if (k === 'status' || k === 'prioridade') renderAcoes();
+}
+async function delAcao(id) {
+  if (!confirm('Remover esta ação?')) return;
+  await api('/api/acoes/' + id, 'DELETE'); D.acoes = D.acoes.filter(a => a.id !== id); renderAcoes();
+}
+init();
+</script>
+</body>
+</html>

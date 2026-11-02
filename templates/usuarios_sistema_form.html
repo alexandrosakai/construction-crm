@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>{{ 'Novo usuário' if novo else 'Editar usuário' }} | Portal Empresa Exemplo</title>
+  <link rel="icon" type="image/png" href="{{ url_for('static', filename='img/PLACEHOLDER-FAVICON.png') }}">
+
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/base.css') }}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/menu.css') }}">
+
+  <style>
+    [hidden]{ display:none !important; }
+    body{ margin:0; min-height:100dvh; background:var(--bg); color:var(--text); display:flex; }
+    .layout{ display:flex; align-items:stretch; min-height:100vh; width:100%; }
+    .main{ flex:1; min-width:0; order:1; overflow-x:hidden; background:var(--bg); display:flex; flex-direction:column; }
+    .page{ flex:1; min-width:0; display:flex; justify-content:center; align-items:flex-start; padding:24px; }
+    .container-modern{ width:clamp(320px, 92vw, 960px); margin-inline:auto; }
+
+    .card{ background:var(--surface) !important; border:1px solid var(--border) !important;
+      border-radius:14px !important; box-shadow:0 10px 30px -10px var(--shadow) !important; overflow:hidden; margin-bottom:16px; }
+    .card-header{ background:transparent !important; border-bottom:1px solid var(--border) !important; color:var(--text); padding:14px 18px !important; }
+    .card-header h3{ margin:0; font-size:16px; font-weight:600; color:var(--text); }
+    .card-header p{ margin:4px 0 0; color:var(--muted); font-size:13px; }
+    .card-body{ padding:18px !important; color:var(--text); }
+
+    .form-control,.form-select{ background:var(--field) !important; border:1px solid var(--border) !important; color:var(--text) !important; height:40px; border-radius:10px; }
+    .form-control::placeholder{ color:var(--muted); }
+    .form-control:focus,.form-select:focus{ border-color:var(--accent) !important; box-shadow:0 0 0 4px rgba(58,133,25,.15) !important; }
+    .form-control.is-invalid{ border-color:var(--error) !important; }
+    .form-label{ color:var(--muted); font-size:13px; margin-bottom:6px; }
+    .erro{ color:var(--error-text); font-size:12px; margin-top:4px; }
+    .dica{ color:var(--muted); font-size:12px; margin-top:4px; }
+
+    .btn-primary{ background:linear-gradient(180deg, var(--primary), var(--primary-600)) !important; border:none !important; color:#fff !important; }
+    .btn-outline-secondary{ background:var(--surface-2) !important; color:var(--text) !important; border-color:var(--border) !important; }
+
+    .flash{ padding:10px 14px; border-radius:10px; border:1px solid var(--border); background:var(--surface-2); margin-bottom:8px; }
+    .flash--error{ border-color:rgba(239,68,68,.35); color:var(--error-text); }
+    .flash--success{ border-color:rgba(34,197,94,.35); color:var(--success-text); }
+
+    /* níveis de acesso */
+    .perfis{ display:grid; grid-template-columns:repeat(auto-fit, minmax(170px, 1fr)); gap:10px; }
+    .perfil{ position:relative; display:block; cursor:pointer; border:1px solid var(--border); border-radius:12px; padding:12px 14px; background:var(--field); }
+    .perfil input{ position:absolute; opacity:0; }
+    .perfil strong{ display:block; font-size:14px; }
+    .perfil span{ display:block; color:var(--muted); font-size:12px; margin-top:2px; }
+    .perfil:has(input:checked){ border-color:var(--accent); box-shadow:0 0 0 3px rgba(58,133,25,.18); }
+    .perfil:has(input:focus-visible){ outline:2px solid var(--accent); outline-offset:2px; }
+
+    /* grade de permissões */
+    .grade{ width:100%; border-collapse:collapse; font-size:14px; }
+    .grade th{ color:var(--muted); font-weight:600; font-size:12px; text-transform:uppercase; letter-spacing:.04em; padding:8px 10px; text-align:center; }
+    .grade th:first-child, .grade td:first-child{ text-align:left; }
+    .grade td{ padding:10px; border-top:1px solid var(--border); text-align:center; }
+    .grade input[type=checkbox]{ width:18px; height:18px; accent-color:var(--primary); cursor:pointer; }
+    .grade input[type=checkbox]:disabled{ cursor:not-allowed; opacity:.7; }
+    .grade .na{ color:rgba(159,176,209,.35); }
+    .aviso{ font-size:13px; color:var(--muted); margin-bottom:10px; }
+
+    @media (max-width:768px){
+      .layout{ flex-direction:column; }
+      .page{ padding:16px; }
+      .card-body{ padding:14px !important; }
+    }
+  </style>
+</head>
+<body>
+  <div class="layout">
+    {% include 'menu.html' %}
+
+    <main class="main">
+      <section class="page">
+        <div class="container-modern">
+          <div class="d-flex flex-wrap gap-2 align-items-center justify-content-between mb-3">
+            <h2 class="mb-0">{{ 'Novo usuário' if novo else 'Editar usuário' }}</h2>
+            <a href="{{ url_for('lista_usuarios') }}" class="btn btn-outline-secondary"><i class="fa-solid fa-arrow-left me-1"></i> Voltar</a>
+          </div>
+
+          {% with messages = get_flashed_messages(with_categories=true) %}
+            {% for category, message in messages %}
+              <div class="flash {{ 'flash--error' if category=='error' else ('flash--success' if category=='success' else '') }}">{{ message }}</div>
+            {% endfor %}
+          {% endwith %}
+          {% if erros %}<div class="flash flash--error">Confira os campos marcados abaixo.</div>{% endif %}
+
+          <form method="POST" novalidate
+                action="{{ url_for('novo_usuario') if novo else url_for('editar_usuario', user_id=usuario.id) }}">
+
+            <div class="card">
+              <div class="card-header"><h3>Dados de acesso</h3></div>
+              <div class="card-body">
+                <div class="row g-3">
+                  <div class="col-md-6">
+                    <label for="name" class="form-label">Nome completo</label>
+                    <input type="text" class="form-control {{ 'is-invalid' if erros.name }}" id="name" name="name" value="{{ usuario.name or '' }}" required>
+                    {% if erros.name %}<div class="erro">{{ erros.name }}</div>{% endif %}
+                  </div>
+                  <div class="col-md-6">
+                    <label for="username" class="form-label">Nome de usuário (para entrar no sistema)</label>
+                    <input type="text" class="form-control {{ 'is-invalid' if erros.username }}" id="username" name="username" value="{{ usuario.username or '' }}" autocomplete="off" required>
+                    {% if erros.username %}<div class="erro">{{ erros.username }}</div>{% else %}<div class="dica">Sem espaços. Ex.: maria.silva</div>{% endif %}
+                  </div>
+                  <div class="col-md-6">
+                    <label for="email" class="form-label">E-mail</label>
+                    <input type="email" class="form-control {{ 'is-invalid' if erros.email }}" id="email" name="email" value="{{ usuario.email or '' }}" required>
+                    {% if erros.email %}<div class="erro">{{ erros.email }}</div>{% endif %}
+                  </div>
+                  <div class="col-md-6">
+                    <label for="telefone" class="form-label">Telefone (opcional)</label>
+                    <input type="text" class="form-control" id="telefone" name="telefone" value="{{ usuario.telefone or '' }}" placeholder="(00) 00000-0000">
+                  </div>
+                  <div class="col-md-6">
+                    <label for="password" class="form-label">{{ 'Senha' if novo else 'Nova senha' }}</label>
+                    <input type="password" class="form-control {{ 'is-invalid' if erros.password }}" id="password" name="password" autocomplete="new-password" {{ 'required' if novo }}>
+                    {% if erros.password %}<div class="erro">{{ erros.password }}</div>{% else %}<div class="dica">{{ 'Mínimo de 6 caracteres.' if novo else 'Deixe em branco para manter a senha atual.' }}</div>{% endif %}
+                  </div>
+                  <div class="col-md-6">
+                    <label for="password_confirm" class="form-label">Confirmar senha</label>
+                    <input type="password" class="form-control {{ 'is-invalid' if erros.password_confirm }}" id="password_confirm" name="password_confirm" autocomplete="new-password">
+                    {% if erros.password_confirm %}<div class="erro">{{ erros.password_confirm }}</div>{% endif %}
+                  </div>
+                  <div class="col-md-6">
+                    <label for="status" class="form-label">Situação</label>
+                    <select class="form-select" id="status" name="status">
+                      {% for chave, nome in status_opcoes.items() %}
+                        <option value="{{ chave }}" {{ 'selected' if usuario.status == chave }}>{{ nome }}</option>
+                      {% endfor %}
+                    </select>
+                    <div class="dica">Só usuários ativos conseguem entrar.</div>
+                    {% if erros.status %}<div class="erro">{{ erros.status }}</div>{% endif %}
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="card">
+              <div class="card-header">
+                <h3>Nível de acesso</h3>
+                <p>Escolha um nível pronto ou "Personalizado" para marcar as permissões uma a uma.
+                   Cada usuário vê só as obras e os profissionais que ele mesmo cadastrou; o Administrador vê tudo.</p>
+              </div>
+              <div class="card-body">
+                <div class="perfis" role="radiogroup" aria-label="Nível de acesso">
+                  {% for chave, p in perfis.items() %}
+                  <label class="perfil">
+                    <input type="radio" name="perfil" value="{{ chave }}" id="perfil_{{ chave }}" {{ 'checked' if usuario.perfil == chave }}>
+                    <strong>{{ p.nome }}</strong>
+                    <span>{{ p.descricao }}</span>
+                  </label>
+                  {% endfor %}
+                </div>
+                {% if erros.perfil %}<div class="erro mt-2">{{ erros.perfil }}</div>{% endif %}
+              </div>
+            </div>
+
+            <div class="card">
+              <div class="card-header">
+                <h3>O que este usuário pode fazer</h3>
+                <p>Inserir, alterar ou excluir já libera ver a tela.</p>
+              </div>
+              <div class="card-body" style="overflow-x:auto">
+                <div class="aviso" id="avisoPerfil"></div>
+                <table class="grade">
+                  <thead>
+                    <tr>
+                      <th>Tela</th>
+                      {% for a, nome in acoes.items() %}<th>{{ nome }}</th>{% endfor %}
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {% for m, nome_mod, acoes_mod in modulos %}
+                    <tr>
+                      <td>{{ nome_mod }}</td>
+                      {% for a, nome_acao in acoes.items() %}
+                      <td>
+                        {% if a in acoes_mod %}
+                          <input type="checkbox" name="perm_{{ m }}_{{ a }}" id="perm_{{ m }}_{{ a }}" data-mod="{{ m }}" data-acao="{{ a }}"
+                                 aria-label="{{ nome_acao }} em {{ nome_mod }}"
+                                 {{ 'checked' if permissoes is none or a in permissoes.get(m, []) }}>
+                        {% else %}
+                          <span class="na" aria-hidden="true">—</span>
+                        {% endif %}
+                      </td>
+                      {% endfor %}
+                    </tr>
+                    {% endfor %}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+
+            <div class="d-flex gap-2 justify-content-end mb-4">
+              <a href="{{ url_for('lista_usuarios') }}" class="btn btn-outline-secondary">Cancelar</a>
+              <button type="submit" class="btn btn-primary"><i class="fa-solid fa-floppy-disk me-1"></i> {{ 'Cadastrar usuário' if novo else 'Salvar alterações' }}</button>
+            </div>
+          </form>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <script>
+  (function(){
+    const PERFIS = {{ perfis_json|safe }};
+    const NOMES = { {% for chave, p in perfis.items() %}"{{ chave }}": "{{ p.nome }}",{% endfor %} };
+    const radios = [...document.querySelectorAll('input[name=perfil]')];
+    const caixas = [...document.querySelectorAll('.grade input[type=checkbox]')];
+    const aviso = document.getElementById('avisoPerfil');
+
+    function perfilAtual(){ const r = radios.find(r => r.checked); return r ? r.value : 'personalizado'; }
+
+    function aplicarPerfil(preencher){
+      const p = perfilAtual();
+      const perm = PERFIS[p];
+      const travado = p !== 'personalizado';
+      caixas.forEach(c => {
+        if (preencher && travado) c.checked = perm === null || (perm[c.dataset.mod] || []).includes(c.dataset.acao);
+        c.disabled = travado;
+      });
+      aviso.textContent = p === 'admin'
+        ? 'Administrador tem acesso a tudo.'
+        : travado
+          ? 'Estas são as permissões do nível ' + NOMES[p] + '. Para mudar alguma, escolha "Personalizado".'
+          : 'Marque o que este usuário pode fazer.';
+    }
+
+    radios.forEach(r => r.addEventListener('change', () => aplicarPerfil(true)));
+
+    // Inserir/Alterar/Excluir marca "Ver"; desmarcar "Ver" desmarca o resto da linha
+    caixas.forEach(c => c.addEventListener('change', () => {
+      const linha = caixas.filter(x => x.dataset.mod === c.dataset.mod);
+      const ver = linha.find(x => x.dataset.acao === 'ver');
+      if (c.checked && c.dataset.acao !== 'ver' && ver) ver.checked = true;
+      if (!c.checked && c.dataset.acao === 'ver') linha.forEach(x => x.checked = false);
+    }));
+
+    aplicarPerfil(false);
+  })();
+  </script>
+</body>
+</html>

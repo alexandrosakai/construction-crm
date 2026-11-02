@@ -1,0 +1,593 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>Editar Obra</title>
+  <link rel="icon" type="image/png" href="{{ url_for('static', filename='img/PLACEHOLDER-FAVICON.png') }}">
+
+  <!-- Bootstrap e ícones -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
+
+  <!-- Tema base -->
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/base.css') }}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/menu.css') }}">
+
+  <style>
+    :root{ scroll-behavior:smooth; }
+    body{ margin:0; min-height:100dvh; background:var(--bg); color:var(--text); display:flex; }
+    .layout{ display:flex; gap:0; align-items:stretch; min-height:100vh; width:100%; }
+    .main{ flex:1; min-width:0; order:1; overflow-x:hidden; background:var(--bg); display:flex; flex-direction:column; }
+    .page{ flex:1; min-width:0; display:flex; justify-content:center; align-items:flex-start; padding:24px; }
+    .container-modern{ width:clamp(320px, 92vw, 1100px); margin-inline:auto; }
+
+    .card{ background:var(--surface) !important; border:1px solid var(--border) !important;
+      border-radius:14px !important; box-shadow:0 10px 30px -10px var(--shadow) !important; overflow:hidden; }
+    .card-header{ background:transparent !important; border-bottom:1px solid var(--border) !important; color:var(--text); padding:14px 18px !important; }
+    .card-header h3{ margin:0; font-size:16px; font-weight:600; }
+    .card-body{ padding:18px !important; color:var(--text); }
+
+    .form-control,.form-select{ background:var(--field) !important; border:1px solid var(--border) !important; color:var(--text) !important;
+      box-shadow:none !important; outline:none !important; height:40px; border-radius:10px; padding:0 12px; }
+    .form-control::placeholder{ color:var(--muted); }
+    textarea.form-control{ min-height:84px; height:auto; padding:10px 12px; resize:vertical; }
+    .form-control:focus,.form-select:focus{ border-color:var(--accent) !important; box-shadow:0 0 0 4px rgba(58,133,25,.15) !important; }
+    .form-label{ color:var(--muted); font-size:13px; margin-bottom:6px; }
+
+    .btn:active{ transform:scale(0.99); }
+    .btn-primary{ background:linear-gradient(180deg, var(--primary), var(--primary-600)) !important; border:none !important; color:#fff !important; }
+    .btn-outline-secondary{ background:var(--surface-2) !important; color:var(--text) !important; border-color:var(--border) !important; }
+    .btn-success{ background:var(--primary) !important; border-color:transparent !important; color:#fff !important; }
+    .btn-danger{ background:#7a1c1c !important; border-color:transparent !important; }
+    .btn-light{ background:var(--surface-2) !important; color:var(--text) !important; border:1px solid var(--border) !important; }
+
+    .badge.bg-secondary{ background:var(--surface-2) !important; color:var(--text) !important; border:1px solid var(--border);
+      border-radius:999px; padding:8px 10px; }
+
+    .toast-fixed{ position: fixed; bottom: 16px; right: 16px; z-index: 9999;
+      background:var(--surface-2); color:var(--text); border:1px solid var(--border); border-radius:10px; padding:10px 14px; display:none; }
+    .toast-fixed.show{ display:block; }
+
+    .muted{ color:var(--muted); font-size:12px; }
+  </style>
+</head>
+
+<body>
+  <div class="layout">
+    {% include 'menu.html' %}
+
+    <main class="main">
+      <section class="page">
+        <div class="container-modern">
+
+          {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+              <div class="mb-3">
+                {% for category, message in messages %}
+                  <div class="alert alert-{{ 'danger' if category=='error' else ('success' if category=='success' else 'secondary') }}">{{ message }}</div>
+                {% endfor %}
+              </div>
+            {% endif %}
+          {% endwith %}
+
+          <!-- =========================================================
+               FORM PRINCIPAL (POST PURO → /editar_obra)
+               ========================================================= -->
+          <form id="obraForm" class="needs-validation card p-3" novalidate method="POST" action="/editar_obra" target="_self" autocomplete="off">
+            <!-- Hiddens essenciais -->
+            <input type="hidden" name="id"                 id="id"                 value="{{ obra.id }}">
+            <input type="hidden" name="obra_id"            id="obra_id"            value="{{ obra.id }}">
+            <input type="hidden" name="profissionais_json" id="profissionais_json" value="{{ obra.profissionais_json or '[]' }}">
+            <input type="hidden" name="vendedores_json"    id="vendedores_json"    value="{{ obra.vendedores_json or '[]' }}">
+            <input type="hidden" name="etapas_json"        id="etapas_json"        value="{{ obra.etapas_json or '[]' }}">
+            <input type="hidden" name="visitas_json"       id="visitas_json"       value="{{ obra.visitas_json or '[]' }}">
+            <input type="hidden" name="favorito"           id="favorito"           value="{{ 1 if obra.favorito in (1,'1',True) else 0 }}">
+            <input type="hidden" name="latitude"           id="latitude"           value="{{ obra.latitude or '' }}">
+            <input type="hidden" name="longitude"          id="longitude"          value="{{ obra.longitude or '' }}">
+
+            <!-- ======================= CARD: EDITAR OBRA ======================= -->
+            <div class="mb-3">
+              <div class="card-header d-flex justify-content-between align-items-center px-0 py-2">
+                <h3 class="mb-0">Editar Obra — #{{ obra.numero_obra }}</h3>
+                <button type="button" class="btn btn-light" id="btnFavorite" aria-label="Favoritar">
+                  <span id="favLabel">{{ '★ Favorita' if obra.favorito in (1,'1',True) else '☆ Favoritar' }}</span>
+                </button>
+              </div>
+              <div class="card-body px-0">
+                <!-- Nome, Número, Datas -->
+                <div class="row g-3">
+                  <div class="col-md-5">
+                    <label for="endereco_obra" class="form-label">Endereço da Obra <span class="text-danger">*</span></label>
+                    <input type="text" class="form-control" id="endereco_obra" name="endereco_obra"
+                           value="{{ obra.endereco_obra or obra.nome_obra or '' }}" placeholder="Rua, número, bairro onde a obra está" required>
+                    <div class="invalid-feedback">Informe o endereço da obra.</div>
+                  </div>
+                  <div class="col-md-3">
+                    <label for="numeroObra" class="form-label">Número da Obra</label>
+                    <input type="text" class="form-control" id="numeroObra" name="numeroObra"
+                           value="{{ obra.numero_obra or '' }}" inputmode="numeric" autocomplete="off" readonly
+                           title="Gerado automaticamente pelo sistema">
+                    <div class="invalid-feedback">Informe um número válido.</div>
+                  </div>
+                  <div class="col-md-4">
+                    <label for="dataInicio" class="form-label">Data de Início</label>
+                    <input type="date" class="form-control" id="dataInicio" name="dataInicio"
+                           value="{{ obra.data_inicio.strftime('%Y-%m-%d') if obra.data_inicio else '' }}" required>
+                  </div>
+                </div>
+
+                <!-- Tipo, Padrão, Potencial, Metragem e Data de Término (opcional) -->
+                <div class="row g-3 mt-2">
+                  <div class="col-md-3">
+                    <label for="tipoObra" class="form-label">Tipo de Obra</label>
+                    <select class="form-select" id="tipoObra" name="tipoObra" required>
+                      {% set _tipo = (obra.tipo_obra or '') %}
+                      <option value="" disabled {{ ''==_tipo and 'selected' or '' }}>Selecione</option>
+                      {% for opt in ['Residencial','Comercial','Industrial','Reforma','Ampliação','Outro'] %}
+                        <option {{ 'selected' if _tipo==opt else '' }}>{{ opt }}</option>
+                      {% endfor %}
+                    </select>
+                    <div class="invalid-feedback">Selecione o tipo de obra.</div>
+                  </div>
+
+                  <div class="col-md-3">
+                    <label for="padraoObra" class="form-label">Padrão da Obra</label>
+                    {% set _pad = (obra.padrao_obra or '') %}
+                    <select class="form-select" id="padraoObra" name="padraoObra" required>
+                      <option value="" disabled {{ ''==_pad and 'selected' or '' }}>Selecione</option>
+                      <option value="muito_alto" {{ 'selected' if _pad=='muito_alto' else '' }}>Muito Alto</option>
+                      <option value="alto"       {{ 'selected' if _pad=='alto' else '' }}>Alto</option>
+                      <option value="medio"      {{ 'selected' if _pad=='medio' else '' }}>Médio</option>
+                      <option value="baixo"      {{ 'selected' if _pad=='baixo' else '' }}>Baixo</option>
+                    </select>
+                    <div class="invalid-feedback">Selecione o padrão da obra.</div>
+                  </div>
+
+                  <div class="col-md-2">
+                    <label for="potencialObra" class="form-label">Potencial da Obra</label>
+                    {% set _pot = (obra.potencial_obra or '') %}
+                    <select class="form-select" id="potencialObra" name="potencialObra" required>
+                      <option value="" disabled {{ ''==_pot and 'selected' or '' }}>Selecione</option>
+                      {% for opt in ['Alto Potencial','Médio Potencial','Baixo Potencial','Perdido'] %}
+                        <option {{ 'selected' if _pot==opt else '' }}>{{ opt }}</option>
+                      {% endfor %}
+                    </select>
+                    <div class="invalid-feedback">Selecione o potencial.</div>
+                  </div>
+
+                  <div class="col-md-2">
+                    <label for="metragem" class="form-label">Metragem (m²)</label>
+                    <input type="number" class="form-control" id="metragem" name="metragem"
+                           min="0" step="1" value="{{ obra.metragem_m2 or '' }}" required>
+                    <div class="invalid-feedback">Informe a metragem.</div>
+                  </div>
+
+                  <div class="col-md-2">
+                    <label for="dataTermino" class="form-label">Data  Término</label>
+                    <input type="date" class="form-control" id="dataTermino" name="dataTermino"
+                           value="{{ obra.data_termino_prevista.strftime('%Y-%m-%d') if obra.data_termino_prevista else '' }}">
+                  </div>
+                </div>
+              </div>
+            </div>
+            <!-- ======================= FIM CARD ======================= -->
+
+            <!-- Informações Básicas -->
+            <div class="card mb-3">
+              <div class="card-header"><h3>Informações Básicas</h3></div>
+              <div class="card-body">
+                <div class="row">
+                  <div class="col-md-6 mb-3">
+                    <label for="nome" class="form-label">Nome <span class="text-danger">*</span></label>
+                    <input type="text" class="form-control" id="nome" name="nome" value="{{ obra.nome or '' }}" required>
+                    <div class="invalid-feedback">Informe o nome.</div>
+                  </div>
+                  <div class="col-md-6 mb-3">
+                    <label for="sobrenome" class="form-label">Sobrenome <span class="text-danger">*</span></label>
+                    <input type="text" class="form-control" id="sobrenome" name="sobrenome" value="{{ obra.sobrenome or '' }}" required>
+                    <div class="invalid-feedback">Informe o sobrenome.</div>
+                  </div>
+                </div>
+
+                <div class="row">
+                  <div class="col-md-6 mb-3">
+                    <label for="logradouro" class="form-label">Endereço <span class="text-danger">*</span></label>
+                    <input type="text" class="form-control" id="logradouro" name="logradouro" value="{{ obra.logradouro or '' }}" required>
+                    <div class="invalid-feedback">Informe o endereço.</div>
+                  </div>
+                  <div class="col-md-2 mb-3">
+                    <label for="numero" class="form-label">Número <span class="text-danger">*</span></label>
+                    <input type="text" class="form-control" id="numero" name="numero" value="{{ obra.numero or '' }}" required>
+                    <div class="invalid-feedback">Informe o número.</div>
+                  </div>
+                  <div class="col-md-4 mb-3">
+                    <label for="telefone" class="form-label">Telefone <span class="text-danger">*</span></label>
+                    <div class="input-group">
+                      <input type="tel" class="form-control" id="telefone" name="telefone"
+                             placeholder="(00) 00000-0000" maxlength="15" value="{{ obra.telefone or '' }}" required>
+                      <button type="button" class="btn btn-success" id="compartilharWhatsApp" disabled>
+                        <i class="fab fa-whatsapp"></i>
+                      </button>
+                    </div>
+                    <div class="invalid-feedback">Informe um telefone válido.</div>
+                  </div>
+                </div>
+
+                <div class="row">
+                  <div class="col-md-4 mb-3">
+                    <label for="email" class="form-label">E-mail <span class="text-danger">*</span></label>
+                    <input type="email" class="form-control" id="email" name="email"
+                           placeholder="user@example.com" value="{{ obra.email or '' }}" required>
+                    <div class="invalid-feedback">Informe um e-mail válido.</div>
+                  </div>
+                  <div class="col-md-4 mb-3">
+                    <label for="cpf" class="form-label">CPF <span class="text-danger">*</span></label>
+                    <input type="text" class="form-control" id="cpf" name="cpf" value="{{ obra.cpf or '' }}" required>
+                    <div class="invalid-feedback">Informe o CPF.</div>
+                  </div>
+                  <div class="col-md-4 mb-3">
+                    <label for="bairro" class="form-label">Bairro <span class="text-danger">*</span></label>
+                    <input type="text" class="form-control" id="bairro" name="bairro" value="{{ obra.bairro or '' }}" required>
+                    <div class="invalid-feedback">Informe o bairro.</div>
+                  </div>
+                </div>
+
+                <!-- CEP + Região + Cidade + Estado (mesma linha, região menor) -->
+                <div class="row">
+                  <div class="col-md-3 mb-3">
+                    <label for="cep" class="form-label">CEP <span class="text-danger">*</span></label>
+                    <input type="text" class="form-control" id="cep" name="cep" placeholder="00000-000" value="{{ obra.cep or '' }}" required>
+                    <div class="invalid-feedback">Informe um CEP válido.</div>
+                  </div>
+                  <div class="col-md-2 mb-3">
+                    <label for="regiao" class="form-label">Região <span class="text-danger">*</span></label>
+                    {% set _reg = (obra.regiao or '') | lower %}
+                    <select class="form-select" id="regiao" name="regiao" required>
+                      <option value="" {{ ''==_reg and 'selected' or '' }}>Selecione</option>
+                      <option value="norte"  {{ 'selected' if _reg=='norte'  else '' }}>Norte</option>
+                      <option value="sul"    {{ 'selected' if _reg=='sul'    else '' }}>Sul</option>
+                      <option value="leste"  {{ 'selected' if _reg=='leste'  else '' }}>Leste</option>
+                      <option value="oeste"  {{ 'selected' if _reg=='oeste'  else '' }}>Oeste</option>
+                      <option value="centro" {{ 'selected' if _reg=='centro' else '' }}>Centro</option>
+                    </select>
+                    <div class="invalid-feedback">Selecione a região.</div>
+                  </div>
+                  <div class="col-md-4 mb-3">
+                    <label for="cidade" class="form-label">Cidade <span class="text-danger">*</span></label>
+                    <input type="text" class="form-control" id="cidade" name="cidade" value="{{ obra.cidade or '' }}" required>
+                    <div class="invalid-feedback">Informe a cidade.</div>
+                  </div>
+                  <div class="col-md-3 mb-3">
+                    <label for="estado" class="form-label">Estado <span class="text-danger">*</span></label>
+                    <input type="text" class="form-control" id="estado" name="estado" value="{{ obra.estado or '' }}" required>
+                    <div class="invalid-feedback">Informe o estado.</div>
+                  </div>
+                </div>
+
+                <div class="row mt-3">
+                  <div class="col-12 mt-3">
+                    <label for="observacoes" class="form-label">Observações da Obra</label>
+                    <textarea class="form-control" id="observacoes" name="observacoes" rows="4"
+                              placeholder="Anotações gerais, restrições de acesso, referências de localização, etc.">{{ obra.observacoes or '' }}</textarea>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Informações do Profissional (OPCIONAL) -->
+            <div class="card mb-3">
+              <div class="card-header d-flex justify-content-between align-items-center">
+                <h3 class="mb-0">Informações do Profissional (opcional)</h3>
+                <button type="button" class="btn btn-success btn-sm" id="adicionarProfissional">
+                  <i class="fas fa-plus"></i> Adicionar Profissional
+                </button>
+              </div>
+              <div class="card-body">
+                <p class="muted mb-2">Este bloco é opcional. Adicione se necessário.</p>
+                <div id="profissionais-container"></div>
+
+                <!-- mini-form de profissional -->
+                <div class="row g-3 mt-2" id="prof-mini-form" style="display:none;">
+                  <div class="col-md-4">
+                    <label class="form-label">Nome</label>
+                    <input type="text" class="form-control" id="p_nome">
+                  </div>
+                  <div class="col-md-4">
+                    <label class="form-label">Cargo</label>
+                    <input type="text" class="form-control" id="p_cargo">
+                  </div>
+                  <div class="col-md-4">
+                    <label class="form-label">Telefone</label>
+                    <input type="text" class="form-control" id="p_telefone" placeholder="(00) 00000-0000">
+                  </div>
+                  <div class="col-md-4">
+                    <label class="form-label">E-mail</label>
+                    <input type="email" class="form-control" id="p_email">
+                  </div>
+                  <div class="col-md-4">
+                    <label class="form-label">Vínculo</label>
+                    <select class="form-select" id="p_vinculo">
+                      <option value="">Selecione</option>
+                      <option>Parceiro Fixo</option>
+                      <option>Contratado por Obra</option>
+                      <option>Fornecedor Eventual</option>
+                    </select>
+                  </div>
+                  <div class="col-md-4 d-flex align-items-end">
+                    <div class="form-check">
+                      <input class="form-check-input" type="checkbox" id="p_parceiro">
+                      <label class="form-check-label" for="p_parceiro">É Profissional Parceiro?</label>
+                    </div>
+                  </div>
+                  <div class="col-12">
+                    <label class="form-label">Observações</label>
+                    <textarea class="form-control" id="p_obs" rows="3" placeholder="Detalhes, especialidades, etc."></textarea>
+                  </div>
+                  <div class="col-12 d-flex gap-2">
+                    <button type="button" class="btn btn-success" id="p_confirmar"><i class="fas fa-check"></i></button>
+                    <button type="button" class="btn btn-danger" id="p_cancelar"><i class="fas fa-times"></i></button>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Vendedores por Empresa (OPCIONAL) -->
+            <div class="card mb-3">
+              <div class="card-header d-flex justify-content-between align-items-center">
+                <h3 class="mb-0">Vendedores por Empresa (opcional)</h3>
+                <button type="button" class="btn btn-success" id="adicionarVendedor" aria-label="Adicionar vendedor por empresa">
+                  <i class="fas fa-plus"></i>
+                </button>
+              </div>
+              <div class="card-body">
+                <div id="vendedores-container"></div>
+
+                <div class="row" id="vendedor-form" style="display: none;">
+                  <div class="col-md-5 mb-3">
+                    <label class="form-label" for="empresa_nome_input">Empresa (texto livre)</label>
+                    <input type="text" class="form-control" id="empresa_nome_input" placeholder="Digite o nome da empresa">
+                  </div>
+                  <div class="col-md-5 mb-3">
+                    <label class="form-label" for="vendedor_nome_input">Vendedor (texto livre, opcional)</label>
+                    <input type="text" class="form-control" id="vendedor_nome_input" placeholder="Digite o nome do vendedor (opcional)">
+                  </div>
+                  <div class="col-md-2 d-flex align-items-end mb-3 gap-2">
+                    <button type="button" class="btn btn-success" id="confirmarVendedor" aria-label="Confirmar vendedor">
+                      <i class="fas fa-check"></i>
+                    </button>
+                    <button type="button" class="btn btn-danger" id="cancelarVendedor" aria-label="Cancelar inclusão de vendedor">
+                      <i class="fas fa-times"></i>
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Classificações & Vínculos -->
+            <div class="card mb-3">
+              <div class="card-header"><h3>Classificações & Vínculos</h3></div>
+              <div class="card-body">
+                <div class="row g-3">
+                  <div class="col-md-6">
+                    <label for="tipoCliente" class="form-label">Tipo de Cliente</label>
+                    {% set _cli = (obra.tipo_cliente or '') %}
+                    <select class="form-select" id="tipoCliente" name="tipoCliente" required>
+                      <option value="" disabled {{ ''==_cli and 'selected' or '' }}>Selecione</option>
+                      {% for opt in ['Novo Cliente','Cliente Recorrente','Potencial Cliente'] %}
+                        <option {{ 'selected' if _cli==opt else '' }}>{{ opt }}</option>
+                      {% endfor %}
+                    </select>
+                    <div class="invalid-feedback">Selecione o tipo de cliente.</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Ações -->
+            <div class="d-flex flex-wrap gap-2">
+              <button id="btnSalvar" type="submit" class="btn btn-primary">
+                Salvar alterações (POST)
+              </button>
+              <a class="btn btn-outline-secondary" href="{{ url_for('lista_obras') }}">Voltar para Lista</a>
+            </div>
+          </form>
+
+          <div id="toast" class="toast-fixed"></div>
+
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+  <script>
+    // Utils
+    function $(id){ return document.getElementById(id); }
+    function toISO(val){
+      if(!val) return '';
+      val = String(val).trim();
+      const ymd = val.match(/^(\d{4})-(\d{2})-(\d{2})$/);
+      if (ymd) return val;
+      const dmy = val.match(/^(\d{2})[\/\-\.](\d{2})[\/\-\.](\d{4})$/);
+      if (dmy) return `${dmy[3]}-${dmy[2]}-${dmy[1]}`;
+      return '';
+    }
+
+    // Favorito
+    (function(){
+      const fav = $('favorito'), btn = $('btnFavorite'), lab = $('favLabel');
+      if (!fav || !btn || !lab) return;
+      btn.addEventListener('click', ()=>{
+        const isFav = fav.value !== '1';
+        fav.value = isFav ? '1' : '0';
+        lab.textContent = isFav ? '★ Favorita' : '☆ Favoritar';
+      });
+    })();
+
+    // WhatsApp
+    (function(){
+      const tel = $('telefone'), btn = $('compartilharWhatsApp');
+      if (!tel || !btn) return;
+      const check = ()=>{ btn.disabled = !/\([0-9]{2}\) [0-9]{4,5}-[0-9]{4}/.test(tel.value); };
+      tel.addEventListener('input', check); check();
+      btn.addEventListener('click', ()=>{
+        const limpo = (tel.value || '').replace(/\D+/g,'');
+        if (limpo) window.open('https://wa.me/55' + limpo, '_blank');
+      });
+    })();
+
+    // Profissionais
+    (function(){
+      const pAdd=$('adicionarProfissional'), pForm=$('prof-mini-form'), cont=$('profissionais-container'), hidden=$('profissionais_json');
+      const p_nome=$('p_nome'), p_cargo=$('p_cargo'), p_tel=$('p_telefone'), p_mail=$('p_email'),
+            p_vinc=$('p_vinculo'), p_parc=$('p_parceiro'), p_obs=$('p_obs'),
+            ok=$('p_confirmar'), cancel=$('p_cancelar');
+
+      function serialize(){
+        const data = Array.from(cont.querySelectorAll('[data-pro-item="1"]')).map(el => ({
+          nome: el.getAttribute('data-nome') || '',
+          cargo: el.getAttribute('data-cargo') || '',
+          telefone: el.getAttribute('data-telefone') || '',
+          email: el.getAttribute('data-email') || '',
+          observacoes: el.getAttribute('data-obs') || '',
+          vinculo: el.getAttribute('data-vinculo') || '',
+          parceiro: el.getAttribute('data-parceiro') === '1' ? 1 : 0
+        }));
+        hidden.value = JSON.stringify(data);
+      }
+      function chip(p){
+        const w=document.createElement('div');
+        w.className='d-flex align-items-center justify-content-between gap-2 mb-2 p-2 rounded border';
+        w.style.borderColor='var(--border)';
+        w.setAttribute('data-pro-item','1');
+        w.setAttribute('data-nome',(p.nome||'').trim());
+        w.setAttribute('data-cargo',p.cargo||'');
+        w.setAttribute('data-telefone',p.telefone||'');
+        w.setAttribute('data-email',p.email||'');
+        w.setAttribute('data-obs',p.observacoes||'');
+        w.setAttribute('data-vinculo',p.vinculo||'');
+        w.setAttribute('data-parceiro',p.parceiro?'1':'0');
+        const left=document.createElement('div');
+        left.innerHTML=`<div><strong>${(p.nome||'').trim()||'(Sem nome)'}</strong> — ${(p.cargo||'').trim()||'Sem cargo'}</div>
+          <div class="small text-muted">
+            ${p.telefone ? '📞 '+p.telefone+' · ' : ''}${p.email ? '✉️ '+p.email+' · ' : ''}${p.vinculo ? '🔗 '+p.vinculo+' · ' : ''}${p.parceiro ? '🤝 Parceiro' : '—'}
+          </div>${p.observacoes ? `<div class="small">${p.observacoes}</div>` : ''}`;
+        const right=document.createElement('div');
+        const del=document.createElement('button');
+        del.type='button'; del.className='btn btn-light'; del.innerHTML='<i class="fas fa-trash"></i>';
+        del.addEventListener('click',()=>{ w.remove(); serialize(); });
+        right.appendChild(del);
+        w.appendChild(left); w.appendChild(right);
+        return w;
+      }
+      function openForm(){
+        p_nome.value=''; p_cargo.value=''; p_tel.value=''; p_mail.value='';
+        p_vinc.value=''; p_parc.checked=false; p_obs.value='';
+        pForm.style.display=''; p_nome.focus();
+      }
+      function closeForm(){ pForm.style.display='none'; }
+
+      if (pAdd) pAdd.addEventListener('click', openForm);
+      if (cancel) cancel.addEventListener('click', closeForm);
+      if (ok) ok.addEventListener('click', ()=>{
+        const item = {
+          nome:(p_nome.value||'').trim(),
+          cargo:(p_cargo.value||'').trim(),
+          telefone:(p_tel.value||'').trim(),
+          email:(p_mail.value||'').trim(),
+          observacoes:(p_obs.value||'').trim(),
+          vinculo:(p_vinc.value||'').trim(),
+          parceiro: p_parc.checked?1:0
+        };
+        cont.appendChild(chip(item)); serialize(); closeForm();
+      });
+
+      try{ (JSON.parse(hidden.value||'[]')||[]).forEach(p=>cont.appendChild(chip(p))); }catch(e){ hidden.value='[]'; }
+    })();
+
+    // Vendedores
+    (function(){
+      const add=$('adicionarVendedor'), form=$('vendedor-form'),
+            empresa=$('empresa_nome_input'), vendedor=$('vendedor_nome_input'),
+            ok=$('confirmarVendedor'), cancel=$('cancelarVendedor'),
+            cont=$('vendedores-container'), hidden=$('vendedores_json');
+
+      function slugify(txt){
+        return (txt||'').toString().normalize('NFD').replace(/[\u0300-\u036f]/g,'')
+          .toLowerCase().replace(/[^a-z0-9]+/g,'_').replace(/^_+|_+$/g,'').replace(/_{2,}/g,'_');
+      }
+      function serialize(){
+        const items = Array.from(cont.querySelectorAll('[data-vendedor-item="1"]')).map(el => ({
+          empresa_nome: el.getAttribute('data-empresa-nome') || '',
+          empresa_slug: el.getAttribute('data-empresa-slug') || '',
+          vendedor_id: null,
+          vendedor_nome: el.getAttribute('data-vendedor-nome') || null
+        }));
+        hidden.value = JSON.stringify(items);
+      }
+      function chip(empresa_nome, vendedor_nome){
+        const empresa_slug = slugify(empresa_nome);
+        const w=document.createElement('div');
+        w.className='d-inline-flex align-items-center gap-2 mb-2 me-2 badge bg-secondary';
+        w.setAttribute('data-vendedor-item','1');
+        w.setAttribute('data-empresa-nome',empresa_nome);
+        w.setAttribute('data-empresa-slug',empresa_slug);
+        if (vendedor_nome && vendedor_nome.trim()) w.setAttribute('data-vendedor-nome', vendedor_nome.trim());
+        const t=document.createElement('span');
+        t.textContent = vendedor_nome && vendedor_nome.trim() ? `${empresa_nome} — ${vendedor_nome.trim()}` : `${empresa_nome}`;
+        const del=document.createElement('button');
+        del.type='button'; del.className='btn btn-sm btn-light ms-1'; del.innerHTML='<i class="fas fa-times"></i>';
+        del.addEventListener('click',()=>{ w.remove(); serialize(); });
+        w.appendChild(t); w.appendChild(del);
+        return w;
+      }
+      function open(){ form.style.display=''; empresa.value=''; vendedor.value=''; empresa.focus(); }
+      function close(){ form.style.display='none'; }
+
+      if (add) add.addEventListener('click', open);
+      if (cancel) cancel.addEventListener('click', close);
+      if (ok) ok.addEventListener('click', ()=>{
+        const e=(empresa.value||'').trim(); const v=(vendedor.value||'').trim();
+        if (!e){ empresa.focus(); return; }
+        cont.appendChild(chip(e, v)); serialize(); close();
+      });
+
+      try{ (JSON.parse(hidden.value||'[]')||[]).forEach(v=>cont.appendChild(chip(v.empresa_nome||'', v.vendedor_nome||''))); }catch(e){ hidden.value='[]'; }
+    })();
+
+    // Normalizações leves + log de submit (não impede envio)
+    (function(){
+      const form = $('obraForm');
+      const di = $('dataInicio'), dt = $('dataTermino'), num = $('numeroObra');
+      if (di) di.value = toISO(di.value);
+      if (dt) dt.value = toISO(dt.value); // opcional
+      if (num) num.addEventListener('input', ()=>{ num.value = (num.value||'').replace(/\D+/g,''); });
+
+      form.addEventListener('submit', ()=>{
+        // log de diagnóstico (não cancela)
+        const fd = new FormData(form); const obj={}; fd.forEach((v,k)=>obj[k]=v);
+        console.log('[EDITAR_OBRA] POST →', form.action, obj);
+      });
+    })();
+
+    // máscara telefone
+    (function(){
+      const telInput = document.getElementById('telefone');
+      if (!telInput) return;
+      telInput.addEventListener('input', (e) => {
+        let value = e.target.value.replace(/\D/g, '');
+        if (value.length > 11) value = value.slice(0, 11);
+        if (value.length > 6) {
+          e.target.value = `(${value.slice(0,2)}) ${value.slice(2,7)}-${value.slice(7)}`;
+        } else if (value.length > 2) {
+          e.target.value = `(${value.slice(0,2)}) ${value.slice(2)}`;
+        } else if (value.length > 0) {
+          e.target.value = `(${value}`;
+        }
+      });
+    })();
+  </script>
+</body>
+</html>

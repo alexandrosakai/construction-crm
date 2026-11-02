@@ -1,0 +1,95 @@
+<!-- templates/menu.html -->
+<aside class="sidebar" id="sidebar" data-collapsed="false">
+  <a class="sidebar__brand" href="{{ url_for('index') }}" aria-label="Portal Empresa Exemplo – página inicial">
+    <img src="{{ url_for('static', filename='img/PLACEHOLDER-LOGO.png') }}" alt="Empresa Exemplo casa &amp; construção" width="210" height="31">
+    <span class="brand__sub">Portal de obras</span>
+  </a>
+
+  <nav class="sidebar__nav d-flex flex-column p-2 gap-1">
+    {% if pode('obras', 'ver') %}
+    {% set n_pendentes = notificacoes_pendentes() %}
+    <a class="btn btn-light text-start d-flex align-items-center justify-content-between {{ 'active' if request.endpoint=='notificacoes' else '' }}"
+       href="{{ url_for('notificacoes') }}">
+      <span><i class="fa-solid fa-bell me-2"></i>Notificações</span>
+      {% if n_pendentes %}<span class="badge-notif">{{ n_pendentes }}</span>{% endif %}
+    </a>
+    {% endif %}
+
+    {% if pode('obras', 'inserir') %}
+    <a class="btn btn-light text-start {{ 'active' if request.endpoint=='cadastro_obras' else '' }}"
+       href="{{ url_for('cadastro_obras') }}">
+      <i class="fa-solid fa-building me-2"></i>Cadastro de Obras
+    </a>
+    {% endif %}
+
+    {% if pode('obras', 'ver') %}
+    <a class="btn btn-light text-start {{ 'active' if request.endpoint=='lista_obras' else '' }}"
+       href="{{ url_for('lista_obras') }}">
+      <i class="fa-solid fa-list me-2"></i>Lista de Obras
+    </a>
+    {% endif %}
+
+    {% if pode('relatorios', 'ver') %}
+    <a class="btn btn-light text-start {{ 'active' if request.endpoint=='relatorio_obras_page' else '' }}"
+       href="{{ url_for('relatorio_obras_page') }}">
+      <i class="fa-solid fa-chart-line me-2"></i>Relatórios
+    </a>
+    {% endif %}
+
+    {% if pode('visitas', 'ver') and pode('obras', 'ver') %}
+    <a class="btn btn-light text-start {% if request.endpoint in ['visitas_obra'] %}active{% endif %}"
+       href="{{ url_for('lista_obras') }}"
+       title="Abra a lista e escolha a obra para ver as visitas">
+      <i class="fa-solid fa-person-walking me-2"></i>Visitas de Obras
+    </a>
+    {% endif %}
+
+    {% if pode('pessoas', 'ver') %}
+    <a class="btn btn-light text-start {{ 'active' if request.endpoint=='lista_profissionais' else '' }}"
+       href="{{ url_for('lista_profissionais') }}">
+      <i class="fa-solid fa-user-gear me-2"></i>Profissionais
+    </a>
+    {% endif %}
+
+    {% if pode('usuarios', 'ver') %}
+    <a class="btn btn-light text-start {{ 'active' if request.endpoint in ['lista_usuarios', 'novo_usuario', 'editar_usuario'] else '' }}"
+       href="{{ url_for('lista_usuarios') }}">
+      <i class="fa-solid fa-users-gear me-2"></i>Usuários
+    </a>
+    {% endif %}
+  </nav>
+
+  <div class="mt-auto p-2">
+    <a class="btn btn-outline-danger w-100" href="{{ url_for('logout') }}">
+      <i class="fa-solid fa-right-from-bracket me-2"></i>Sair
+    </a>
+  </div>
+</aside>
+
+<script>
+(function(){
+  const sidebar = document.getElementById('sidebar');
+  const toggle  = document.getElementById('toggleMenu');
+  const saved = localStorage.getItem('sidebarCollapsed');
+  if (saved === 'true') sidebar.setAttribute('data-collapsed','true');
+  else sidebar.setAttribute('data-collapsed','false');
+
+  function setIcon(){
+    if (!toggle) return;  // nem toda página tem o botão de recolher
+    const collapsed = sidebar.getAttribute('data-collapsed') === 'true';
+    toggle.innerHTML = collapsed
+      ? '<i class="fa-solid fa-angles-right"></i>'
+      : '<i class="fa-solid fa-angles-left"></i>';
+  }
+  setIcon();
+
+  if (toggle && sidebar){
+    toggle.addEventListener('click', () => {
+      const collapsed = sidebar.getAttribute('data-collapsed') === 'true';
+      sidebar.setAttribute('data-collapsed', (!collapsed).toString());
+      localStorage.setItem('sidebarCollapsed', (!collapsed).toString());
+      setIcon();
+    });
+  }
+})();
+</script>

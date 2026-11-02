@@ -1,0 +1,545 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Painel de Obras | Portal Empresa Exemplo</title>
+  <link rel="icon" type="image/png" href="{{ url_for('static', filename='img/PLACEHOLDER-FAVICON.png') }}">
+
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/base.css') }}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/menu.css') }}">
+
+  <style>
+    /* Painel no tema escuro do portal. Cores de dados validadas contra a superfície #121a2b. */
+    /* Painel no tema claro Empresa Exemplo. Cores de dados validadas contra a superfície branca. */
+    .bi{
+      --surface-1:#ffffff; --surface-2:#f6f8f5; --plane:var(--bg);
+      --ink-1:#2b2f2a; --ink-2:#4a5148; --ink-muted:#6b7269;
+      --grid:#e6e9e3; --axis:#c9cec5; --ring:rgba(27,31,26,.10);
+      --series-1:#3a8519; --series-1-hover:#2f7a14;
+      --pot-alto:#24600e; --pot-medio:#3f8a1c; --pot-baixo:#78b84c; --pot-perdido:#b4b9b0;
+      --seq-1:#c6e4b3; --seq-2:#93c96f; --seq-3:#5fa83a; --seq-4:#3a8519; --seq-5:#24600e;
+      --good:#0ca30c; --warning:#d98e04; --critical:#d03b3b;
+      --up:#1e7a1e; --down:#c0392b;
+      color-scheme:light;
+    }
+    [hidden]{ display:none !important; }
+    body{ margin:0; min-height:100dvh; background:var(--bg); color:var(--text); display:flex; }
+    .layout{ display:flex; align-items:stretch; min-height:100vh; width:100%; }
+    .main{ flex:1; min-width:0; order:1; overflow-x:hidden; background:var(--bg); display:flex; flex-direction:column; }
+    .page{ flex:1; min-width:0; padding:24px; }
+    .bi{ max-width:1280px; margin:0 auto; display:grid; gap:16px; }
+
+    .bi-head{ display:flex; flex-wrap:wrap; gap:12px; align-items:flex-end; justify-content:space-between; }
+    .bi-head h2{ margin:0; font-size:24px; font-weight:600; }
+    .bi-head p{ margin:4px 0 0; color:var(--ink-muted); font-size:13px; }
+
+    .filtros{ display:flex; flex-wrap:wrap; gap:8px; align-items:center; }
+    .filtros .form-select{ width:auto; min-width:150px; height:38px; background:var(--surface-2) !important; color:var(--ink-1) !important; border:1px solid var(--ring) !important; border-radius:10px; font-size:14px; }
+    .btn-ghost{ height:38px; border:1px solid var(--ring); background:transparent; color:var(--ink-2); border-radius:10px; padding:0 14px; font-size:14px; }
+    .btn-ghost:hover, .btn-ghost:focus-visible{ background:var(--hover); color:var(--ink-1); }
+
+    .grid{ display:grid; gap:16px; grid-template-columns:repeat(12, minmax(0,1fr)); }
+    .c12{ grid-column:span 12; } .c8{ grid-column:span 8; } .c7{ grid-column:span 7; } .c6{ grid-column:span 6; } .c5{ grid-column:span 5; } .c4{ grid-column:span 4; }
+    @media (max-width:1100px){ .c8,.c7,.c6,.c5,.c4{ grid-column:span 12; } }
+
+    .card-bi{ background:var(--surface-1); border:1px solid var(--ring); box-shadow:0 1px 3px var(--shadow); border-radius:14px; padding:18px; min-width:0; display:flex; flex-direction:column; gap:12px; transition:opacity .2s; }
+    .card-bi header{ display:flex; gap:8px; align-items:flex-start; justify-content:space-between; }
+    .card-bi h3{ margin:0; font-size:15px; font-weight:600; color:var(--ink-1); }
+    .card-bi .sub{ margin:2px 0 0; font-size:12px; color:var(--ink-muted); }
+    .btn-tab{ border:0; background:transparent; color:var(--ink-muted); font-size:12px; padding:2px 6px; border-radius:6px; white-space:nowrap; }
+    .btn-tab:hover, .btn-tab:focus-visible{ color:var(--ink-1); background:var(--hover); }
+    .carregando .card-bi{ opacity:.55; }
+
+    /* indicadores */
+    .kpis{ display:grid; gap:16px; grid-template-columns: minmax(260px, 1.3fr) repeat(3, minmax(0,1fr)); }
+    @media (max-width:1100px){ .kpis{ grid-template-columns:repeat(2, minmax(0,1fr)); } .kpi.hero{ grid-column:span 2; } }
+    @media (max-width:560px){ .kpis{ grid-template-columns:1fr; } .kpi.hero{ grid-column:auto; } }
+    .kpi{ background:var(--surface-1); border:1px solid var(--ring); box-shadow:0 1px 3px var(--shadow); border-radius:14px; padding:16px 18px; display:flex; flex-direction:column; gap:4px; min-width:0; }
+    .kpi .rot{ font-size:13px; color:var(--ink-2); }
+    .kpi .val{ font-size:28px; font-weight:600; color:var(--ink-1); line-height:1.15; }
+    .kpi .det{ font-size:12px; color:var(--ink-muted); }
+    .kpi.hero{ grid-row:span 2; justify-content:center; }
+    .kpi.hero .val{ font-size:52px; letter-spacing:-.01em; }
+    .kpi.hero .val small{ font-size:20px; font-weight:500; color:var(--ink-2); margin-left:4px; }
+    .kpi.alerta{ border-color:rgba(217,142,4,.45); }
+    .delta{ font-size:12px; font-weight:600; }
+    .delta.up{ color:var(--up); } .delta.down{ color:var(--down); } .delta.eq{ color:var(--ink-muted); }
+    .ico-warn{ color:var(--warning); }
+
+    /* barras horizontais */
+    .hbars{ display:grid; gap:2px; }
+    .hb{ display:grid; grid-template-columns:minmax(90px, 34%) 1fr; gap:10px; align-items:center; min-height:30px; border-radius:6px; padding:0 4px; outline:none; }
+    .hb:hover, .hb:focus-visible{ background:var(--hover); }
+    .hb .nome{ font-size:13px; color:var(--ink-2); overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+    .hb .trilho{ display:flex; align-items:center; gap:8px; min-width:0; }
+    .hb .barra{ height:18px; border-radius:0 4px 4px 0; background:var(--series-1); }
+    .hb .valor{ font-size:13px; color:var(--ink-1); white-space:nowrap; font-variant-numeric:tabular-nums; }
+    .hb .valor small{ color:var(--ink-muted); font-size:12px; margin-left:4px; }
+
+    /* colunas (svg) */
+    .colunas svg{ width:100%; height:auto; display:block; overflow:visible; }
+    .colunas text{ fill:var(--ink-muted); font-size:11px; font-variant-numeric:tabular-nums; }
+    .colunas .rot-val{ fill:var(--ink-1); font-size:12px; font-weight:600; }
+    .colunas rect.col{ fill:var(--series-1); }
+    .colunas rect.hit{ fill:transparent; cursor:default; outline:none; }
+    .colunas rect.hit:hover + rect.col, .colunas rect.hit:focus + rect.col{ fill:var(--series-1-hover); }
+
+    /* matriz */
+    .matriz{ width:100%; max-width:640px; border-collapse:separate; border-spacing:2px; font-size:13px; }
+    .matriz th{ color:var(--ink-muted); font-weight:500; font-size:12px; padding:6px; text-align:center; }
+    .matriz th[scope=row]{ text-align:left; color:var(--ink-2); }
+    .matriz td{ height:44px; text-align:center; border-radius:6px; font-weight:600; font-variant-numeric:tabular-nums; outline:none; }
+    .matriz td:focus-visible{ box-shadow:0 0 0 2px var(--ink-1); }
+
+    .legenda{ display:flex; flex-wrap:wrap; gap:6px 14px; font-size:12px; color:var(--ink-2); }
+    .legenda span{ display:inline-flex; align-items:center; gap:6px; }
+    .legenda i{ width:10px; height:10px; border-radius:2px; display:inline-block; }
+
+    /* tabelas */
+    .tbl-wrap{ overflow-x:auto; }
+    .tbl{ width:100%; border-collapse:collapse; font-size:13px; }
+    .tbl th{ color:var(--ink-muted); font-weight:600; font-size:11px; text-transform:uppercase; letter-spacing:.05em; text-align:left; padding:8px 10px; border-bottom:1px solid var(--grid); white-space:nowrap; }
+    .tbl td{ padding:9px 10px; border-bottom:1px solid var(--grid); color:var(--ink-1); vertical-align:middle; white-space:nowrap; }
+    .mais{ align-self:flex-start; }
+    .tbl td.num, .tbl th.num{ text-align:right; font-variant-numeric:tabular-nums; white-space:nowrap; }
+    .tbl tr:last-child td{ border-bottom:0; }
+    .tbl .muted{ color:var(--ink-muted); }
+    .tbl a{ color:var(--accent); font-weight:600; text-decoration:none; }
+    .tbl a:hover{ text-decoration:underline; }
+    .pill{ display:inline-flex; align-items:center; gap:6px; padding:2px 9px; border-radius:999px; font-size:12px; border:1px solid var(--ring); white-space:nowrap; color:var(--ink-1); }
+    .pill i.dot{ width:8px; height:8px; border-radius:50%; display:inline-block; }
+    .pill.warn{ border-color:rgba(217,142,4,.5); }
+    .pill.crit{ border-color:rgba(208,59,59,.5); }
+    .vazio{ color:var(--ink-muted); font-size:13px; padding:18px 4px; text-align:center; }
+
+    .tip{ position:fixed; z-index:50; pointer-events:none; background:#ffffff; border:1px solid var(--ring); border-radius:8px; padding:8px 10px; font-size:12px; color:var(--ink-2); box-shadow:0 8px 24px rgba(27,60,10,.16); max-width:260px; }
+    .tip strong{ display:block; color:var(--ink-1); font-size:14px; }
+
+    @media (max-width:768px){ .layout{ flex-direction:column; } .page{ padding:16px; } }
+    @media (prefers-reduced-motion:reduce){ .card-bi{ transition:none; } }
+  </style>
+</head>
+<body>
+  <div class="layout">
+    {% include 'menu.html' %}
+
+    <main class="main">
+      <section class="page">
+        <div class="bi" id="bi">
+          <div class="bi-head">
+            <div>
+              <h2>Painel de obras</h2>
+              <p id="escopo">{{ 'Dados de todos os usuários' if current_user.is_admin else 'Suas obras e profissionais' }} · carregando…</p>
+            </div>
+            <button type="button" class="btn-ghost" id="btnCsv"><i class="fa-solid fa-file-arrow-down me-2"></i>Exportar obras (CSV)</button>
+          </div>
+
+          <div class="filtros" role="group" aria-label="Filtros do painel">
+            <select class="form-select" id="fRegiao" aria-label="Região">
+              <option value="">Todas as regiões</option>
+              {% for k, n in regioes.items() %}<option value="{{ k }}">{{ n }}</option>{% endfor %}
+            </select>
+            <select class="form-select" id="fPadrao" aria-label="Padrão da obra">
+              <option value="">Todos os padrões</option>
+              {% for k, n in padroes.items() %}<option value="{{ k }}">{{ n }}</option>{% endfor %}
+            </select>
+            <select class="form-select" id="fTipo" aria-label="Tipo de obra">
+              <option value="">Todos os tipos</option>
+              {% for t in tipos %}<option value="{{ t }}">{{ t }}</option>{% endfor %}
+            </select>
+            {% if current_user.is_admin %}
+            <select class="form-select" id="fUsuario" aria-label="Usuário">
+              <option value="">Todos os usuários</option>
+              {% for u in usuarios %}<option value="{{ u.id }}">{{ u.nome }}</option>{% endfor %}
+            </select>
+            {% endif %}
+            <button type="button" class="btn-ghost" id="btnLimpar">Limpar filtros</button>
+          </div>
+
+          <!-- indicadores -->
+          <div class="kpis" id="kpis">
+            <div class="kpi hero">
+              <span class="rot">Área em obras ativas</span>
+              <span class="val" id="kArea">–</span>
+              <span class="det" id="kAreaDet">obras iniciando ou em andamento</span>
+            </div>
+            <div class="kpi"><span class="rot">Obras ativas</span><span class="val" id="kAtivas">–</span><span class="det" id="kAtivasDet"></span></div>
+            <div class="kpi"><span class="rot">Alto potencial ativas</span><span class="val" id="kAlto">–</span><span class="det" id="kAltoDet"></span></div>
+            <div class="kpi alerta"><span class="rot"><i class="fa-solid fa-triangle-exclamation ico-warn me-1" aria-hidden="true"></i>Sem visita há mais de <span id="kDiasSV">30</span> dias</span><span class="val" id="kSemVisita">–</span><span class="det" id="kSemVisitaDet"></span></div>
+            <div class="kpi"><span class="rot">Visitas nos últimos 30 dias</span><span class="val" id="kVisitas">–</span><span class="det" id="kVisitasDet"></span></div>
+            <div class="kpi"><span class="rot">Etapas previstas (<span id="kDiasOp">60</span> dias)</span><span class="val" id="kOport">–</span><span class="det">momentos de oferecer material</span></div>
+            <div class="kpi"><span class="rot">Obras perdidas</span><span class="val" id="kPerdidas">–</span><span class="det" id="kPerdidasDet"></span></div>
+          </div>
+
+          <div class="grid">
+            <section class="card-bi c12" aria-labelledby="tOport">
+              <header><div><h3 id="tOport">Próximas oportunidades</h3><p class="sub">Etapas previstas nas obras ativas. Cada etapa é a hora de oferecer o material dela.</p></div></header>
+              <div class="tbl-wrap" id="oportunidades"></div>
+            </section>
+            <section class="card-bi c12" aria-labelledby="tAtencao">
+              <header><div><h3 id="tAtencao">Obras que pedem atenção</h3><p class="sub" id="atencaoSub">Ativas sem visita recente, das de maior potencial e área para as menores</p></div></header>
+              <div class="tbl-wrap" id="atencao"></div>
+            </section>
+            <section class="card-bi c6" aria-labelledby="tPot">
+              <header><div><h3 id="tPot">Carteira por potencial</h3><p class="sub">Todas as obras, com a área de cada faixa</p></div><button class="btn-tab" data-tabela="potencial">Ver tabela</button></header>
+              <div id="potencial"></div>
+            </section>
+            <section class="card-bi c6" aria-labelledby="tStatus">
+              <header><div><h3 id="tStatus">Obras por situação</h3><p class="sub">Todas as obras</p></div><button class="btn-tab" data-tabela="status">Ver tabela</button></header>
+              <div id="status"></div>
+            </section>
+            <section class="card-bi c7" aria-labelledby="tVis">
+              <header><div><h3 id="tVis">Visitas por mês</h3><p class="sub">Últimos 12 meses</p></div><button class="btn-tab" data-tabela="visitas">Ver tabela</button></header>
+              <div id="visitas" class="colunas"></div>
+            </section>
+            <section class="card-bi c5" aria-labelledby="tEtapas">
+              <header><div><h3 id="tEtapas">Etapas que vêm aí</h3><p class="sub">Quantas obras entram em cada etapa no período</p></div><button class="btn-tab" data-tabela="etapas">Ver tabela</button></header>
+              <div id="etapas"></div>
+            </section>
+            <section class="card-bi c6" aria-labelledby="tReg">
+              <header><div><h3 id="tReg">Área ativa por região</h3><p class="sub">m² em obras iniciando ou em andamento</p></div><button class="btn-tab" data-tabela="regiao">Ver tabela</button></header>
+              <div id="regiao"></div>
+            </section>
+            <section class="card-bi c6" aria-labelledby="tCid">
+              <header><div><h3 id="tCid">Cidades com mais área ativa</h3><p class="sub">As 8 maiores, em m²</p></div><button class="btn-tab" data-tabela="cidades">Ver tabela</button></header>
+              <div id="cidades"></div>
+            </section>
+            <section class="card-bi c5" id="cardMatriz" aria-labelledby="tMat">
+              <header><div><h3 id="tMat">Padrão × potencial</h3><p class="sub">Obras ativas. Quanto mais clara a célula, mais obras.</p></div></header>
+              <div id="matriz"></div>
+            </section>
+            <section class="card-bi c7" aria-labelledby="tUsu" id="cardUsuarios" hidden>
+              <header><div><h3 id="tUsu">Desempenho por usuário</h3><p class="sub">Carteira e atividade de quem cadastra as obras</p></div></header>
+              <div class="tbl-wrap" id="usuarios"></div>
+            </section>
+            <section class="card-bi c12" aria-labelledby="tObras">
+              <header><div><h3 id="tObras">Todas as obras do filtro</h3><p class="sub" id="obrasSub"></p></div></header>
+              <div class="tbl-wrap" id="obras"></div>
+            </section>
+
+
+
+
+
+
+          </div>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <div class="tip" id="tip" role="status" hidden></div>
+
+  <script>
+  (function(){
+    const $ = id => document.getElementById(id);
+    const nf = new Intl.NumberFormat('pt-BR');
+    const fmt = n => nf.format(n || 0);
+    const m2 = n => fmt(n) + ' m²';
+    const data = s => s ? s.split('-').reverse().join('/') : '–';
+    const MES = ['jan','fev','mar','abr','mai','jun','jul','ago','set','out','nov','dez'];
+    const mesNome = s => { const [y, m] = s.split('-'); return MES[+m - 1] + '/' + y.slice(2); };
+    const POT_COR = {'Alto Potencial':'var(--pot-alto)','Médio Potencial':'var(--pot-medio)','Baixo Potencial':'var(--pot-baixo)','Perdido':'var(--pot-perdido)'};
+    const POT_CURTO = {'Alto Potencial':'Alto','Médio Potencial':'Médio','Baixo Potencial':'Baixo','Perdido':'Perdido'};
+    let atual = null;
+    const tabelaAberta = {};
+
+    // ---------- utilidades de DOM (dados sempre via textContent) ----------
+    function el(tag, attrs, ...filhos){
+      const e = document.createElement(tag);
+      for (const [k, v] of Object.entries(attrs || {})) {
+        if (v == null || v === false) continue;
+        if (k === 'class') e.className = v; else if (k === 'style') e.style.cssText = v;
+        else if (k.startsWith('data-')) e.setAttribute(k, v); else if (k in e) e[k] = v; else e.setAttribute(k, v);
+      }
+      for (const f of filhos.flat()) if (f != null && f !== false) e.append(f instanceof Node ? f : document.createTextNode(String(f)));
+      return e;
+    }
+    function limpa(id){ const c = $(id); c.replaceChildren(); return c; }
+
+    // ---------- tooltip (mouse e teclado) ----------
+    const tip = $('tip');
+    function mostraTip(alvo, x, y){
+      tip.replaceChildren(el('strong', {}, alvo.dataset.tipValor), alvo.dataset.tipRotulo);
+      tip.hidden = false;
+      const r = tip.getBoundingClientRect();
+      tip.style.left = Math.min(window.innerWidth - r.width - 8, x + 14) + 'px';
+      tip.style.top = Math.max(8, y - r.height - 10) + 'px';
+    }
+    document.addEventListener('pointermove', e => {
+      const a = e.target.closest('[data-tip-valor]');
+      if (a) mostraTip(a, e.clientX, e.clientY); else tip.hidden = true;
+    });
+    document.addEventListener('focusin', e => {
+      const a = e.target.closest('[data-tip-valor]');
+      if (a) { const r = a.getBoundingClientRect(); mostraTip(a, r.left + r.width / 2, r.top); } else tip.hidden = true;
+    });
+    document.addEventListener('focusout', () => { tip.hidden = true; });
+
+    // ---------- tabela genérica ----------
+    function tabela(colunas, linhas, vazio){
+      if (!linhas.length) return el('div', {class:'vazio'}, vazio || 'Nada para mostrar com estes filtros.');
+      return el('table', {class:'tbl'},
+        el('thead', {}, el('tr', {}, colunas.map(c => el('th', {class: c.num ? 'num' : '', scope:'col'}, c.titulo)))),
+        el('tbody', {}, linhas.map(l => el('tr', {}, colunas.map(c => {
+          const v = c.valor(l);
+          return el('td', {class: c.num ? 'num' : ''}, v);
+        })))));
+    }
+
+    // ---------- barras horizontais ----------
+    function barras(id, itens, o){
+      const c = limpa(id);
+      if (tabelaAberta[id]) { c.append(tabela(o.colunas, itens)); return; }
+      const max = Math.max(1, ...itens.map(i => o.valor(i)));
+      if (!itens.length || itens.every(i => !o.valor(i))) { c.append(el('div', {class:'vazio'}, o.vazio || 'Nada para mostrar com estes filtros.')); return; }
+      const lista = el('div', {class:'hbars', role:'list'});
+      for (const i of itens) {
+        const v = o.valor(i);
+        lista.append(el('div', {class:'hb', role:'listitem', tabIndex:0,
+            'data-tip-valor': o.tip ? o.tip(i) : o.rotuloValor(i), 'data-tip-rotulo': o.nome(i)},
+          el('span', {class:'nome', title:o.nome(i)}, o.nome(i)),
+          el('span', {class:'trilho'},
+            el('span', {class:'barra', style:`width:${Math.max(v ? 1.5 : 0, 100 * v / max) * .8}%;background:${o.cor ? o.cor(i) : 'var(--series-1)'}`}),
+            el('span', {class:'valor'}, o.rotuloValor(i), o.extra ? el('small', {}, o.extra(i)) : null))));
+      }
+      c.append(lista);
+      if (o.legenda) c.append(o.legenda);
+    }
+
+    // ---------- colunas (visitas por mês) ----------
+    function colunas(id, serie){
+      const c = limpa(id);
+      if (tabelaAberta[id]) {
+        c.append(tabela([{titulo:'Mês', valor:i => mesNome(i.mes)}, {titulo:'Visitas', num:true, valor:i => fmt(i.qtd)}], serie));
+        return;
+      }
+      const W = 640, H = 220, pe = 30, pb = 26, pt = 18, pd = 6;
+      const max = Math.max(...serie.map(s => s.qtd));
+      const passo = max <= 4 ? 1 : Math.ceil(max / 4 / (max > 20 ? 5 : 1)) * (max > 20 ? 5 : 1);
+      const topo = Math.max(passo * 4, passo * Math.ceil(max / passo) || 4);
+      const y = v => pt + (H - pt - pb) * (1 - v / topo);
+      const banda = (W - pe - pd) / serie.length, larg = Math.min(24, banda * .6);
+      const ns = 'http://www.w3.org/2000/svg';
+      const svg = document.createElementNS(ns, 'svg');
+      svg.setAttribute('viewBox', `0 0 ${W} ${H}`); svg.setAttribute('role', 'img');
+      svg.setAttribute('aria-label', 'Visitas por mês nos últimos 12 meses');
+      const s = (tag, at, txt) => { const e = document.createElementNS(ns, tag); for (const k in at) e.setAttribute(k, at[k]); if (txt != null) e.textContent = txt; svg.append(e); return e; };
+      for (let v = 0; v <= topo; v += passo) {
+        s('line', {x1:pe, x2:W - pd, y1:y(v), y2:y(v), stroke: v === 0 ? 'var(--axis)' : 'var(--grid)', 'stroke-width':1});
+        s('text', {x:pe - 8, y:y(v) + 4, 'text-anchor':'end'}, fmt(v));
+      }
+      const iMax = serie.reduce((b, it, i) => it.qtd > serie[b].qtd ? i : b, 0);
+      serie.forEach((it, i) => {
+        const cx = pe + banda * i + banda / 2, x = cx - larg / 2, yt = y(it.qtd), h = y(0) - yt;
+        const hit = s('rect', {class:'hit', x:pe + banda * i, y:pt, width:banda, height:H - pt - pb, tabindex:0,
+          'data-tip-valor': fmt(it.qtd) + (it.qtd === 1 ? ' visita' : ' visitas'), 'data-tip-rotulo': mesNome(it.mes)});
+        if (h > 0) {
+          const r = Math.min(4, h);
+          s('path', {class:'col', d:`M${x},${y(0)} V${yt + r} Q${x},${yt} ${x + r},${yt} H${x + larg - r} Q${x + larg},${yt} ${x + larg},${yt + r} V${y(0)} Z`, fill:'var(--series-1)', 'pointer-events':'none'});
+        }
+        s('text', {x:cx, y:H - 8, 'text-anchor':'middle'}, mesNome(it.mes));
+        if ((i === iMax && it.qtd > 0) || (i === serie.length - 1 && it.qtd > 0))
+          s('text', {class:'rot-val', x:cx, y:yt - 6, 'text-anchor':'middle'}, fmt(it.qtd));
+      });
+      c.append(svg);
+      if (!max) c.append(el('div', {class:'vazio'}, 'Nenhuma visita registrada nos últimos 12 meses.'));
+    }
+
+    // ---------- matriz padrão × potencial ----------
+    function matriz(m){
+      const c = limpa('matriz');
+      const max = Math.max(0, ...m.linhas.flatMap(l => l.valores));
+      if (!max) { c.append(el('div', {class:'vazio'}, 'Nenhuma obra ativa com estes filtros.')); return; }
+      const rampa = ['var(--seq-1)','var(--seq-2)','var(--seq-3)','var(--seq-4)','var(--seq-5)'];
+      const tinta = ['#1b1f1a','#1b1f1a','#ffffff','#ffffff','#ffffff'];
+      const t = el('table', {class:'matriz'},
+        el('thead', {}, el('tr', {}, el('th', {scope:'col'}, ''), m.colunas.map(cn => el('th', {scope:'col'}, POT_CURTO[cn] || cn)))),
+        el('tbody', {}, m.linhas.map(l => el('tr', {}, el('th', {scope:'row'}, l.padrao), l.valores.map((v, j) => {
+          const k = v ? Math.min(4, Math.floor(4 * v / max)) : -1;
+          return el('td', {tabIndex:0, style: k < 0 ? 'background:var(--surface-2);color:var(--ink-muted);font-weight:400' : `background:${rampa[k]};color:${tinta[k]}`,
+            'data-tip-valor': fmt(v) + (v === 1 ? ' obra' : ' obras'), 'data-tip-rotulo': `Padrão ${l.padrao.toLowerCase()} · ${m.colunas[j]}`}, v ? fmt(v) : '–');
+        })))));
+      c.append(t);
+      c.append(el('div', {class:'legenda', 'aria-hidden':'true'}, el('span', {}, 'menos'),
+        ...rampa.map(r => el('i', {style:`background:${r}`})), el('span', {}, 'mais')));
+    }
+
+    function delta(atualV, antV, sufixo){
+      if (!atualV && !antV) return el('span', {class:'delta eq'}, 'sem movimento nos dois períodos');
+      const d = atualV - antV;
+      const cls = d > 0 ? 'up' : d < 0 ? 'down' : 'eq';
+      const seta = d > 0 ? '▲ ' : d < 0 ? '▼ ' : '';
+      return el('span', {}, el('span', {class:'delta ' + cls}, seta + (d > 0 ? '+' : '') + fmt(d)), ' ' + sufixo);
+    }
+
+    function pillDias(o){
+      if (o.dias_sem_visita == null) return el('span', {class:'pill crit'}, el('i', {class:'fa-solid fa-circle-exclamation', style:'color:var(--critical)', 'aria-hidden':'true'}), 'nunca visitada');
+      const crit = o.dias_sem_visita > 2 * atual.dias_sem_visita;
+      return el('span', {class:'pill ' + (crit ? 'crit' : 'warn')},
+        el('i', {class:'fa-solid ' + (crit ? 'fa-circle-exclamation' : 'fa-triangle-exclamation'), style:`color:var(${crit ? '--critical' : '--warning'})`, 'aria-hidden':'true'}),
+        fmt(o.dias_sem_visita) + ' dias');
+    }
+    function pillPot(p){
+      if (!p) return el('span', {class:'muted'}, '–');
+      return el('span', {class:'pill'}, el('i', {class:'dot', style:`background:${POT_COR[p] || 'var(--ink-muted)'}`}), POT_CURTO[p] || p);
+    }
+    const linkObra = o => el('a', {href:`/obras/${o.obra_id || o.id}/visitas`}, (o.numero != null ? 'Nº ' + o.numero : 'Obra'));
+    const fone = t => { const d = (t || '').replace(/\D/g, ''); return d.length === 11 ? `(${d.slice(0,2)}) ${d.slice(2,7)}-${d.slice(7)}` : d.length === 10 ? `(${d.slice(0,2)}) ${d.slice(2,6)}-${d.slice(6)}` : (t || '–'); };
+
+    // ---------- desenha tudo ----------
+    function render(){
+      const j = atual, k = j.kpis;
+      $('escopo').textContent = (j.ve_tudo ? 'Dados de todos os usuários' : 'Suas obras e profissionais') + ' · atualizado em ' + data(j.hoje);
+      $('kDiasSV').textContent = j.dias_sem_visita; $('kDiasOp').textContent = j.dias_oportunidade;
+
+      $('kArea').replaceChildren(fmt(k.area_ativa), el('small', {}, 'm²'));
+      $('kAreaDet').textContent = `em ${fmt(k.obras_ativas)} obra${k.obras_ativas === 1 ? '' : 's'} iniciando ou em andamento`;
+      $('kAtivas').textContent = fmt(k.obras_ativas);
+      $('kAtivasDet').textContent = `de ${fmt(k.obras_total)} cadastrada${k.obras_total === 1 ? '' : 's'}`;
+      $('kAlto').textContent = fmt(k.alto_ativas);
+      $('kAltoDet').textContent = m2(k.area_alto) + ' para priorizar';
+      $('kSemVisita').textContent = fmt(k.sem_visita);
+      $('kSemVisitaDet').textContent = k.sem_visita ? m2(k.area_sem_visita) + ' sem acompanhamento' : 'todas as ativas estão em dia';
+      $('kVisitas').textContent = fmt(k.visitas_30);
+      $('kVisitasDet').replaceChildren(delta(k.visitas_30, k.visitas_30_ant, 'vs. 30 dias anteriores'));
+      $('kOport').textContent = fmt(k.oportunidades);
+      $('kPerdidas').textContent = fmt(k.perdidas);
+      $('kPerdidasDet').textContent = k.obras_total ? `${k.pct_perdidas}% da carteira` : 'nenhuma obra cadastrada';
+
+      // oportunidades (as 8 mais próximas; o resto sob demanda)
+      const opTodas = tabelaAberta.opTodas, opLista = opTodas ? j.oportunidades : j.oportunidades.slice(0, 8);
+      limpa('oportunidades').append(tabela([
+        {titulo:'Data', valor:o => data(o.data)},
+        {titulo:'Etapa', valor:o => o.etapa},
+        {titulo:'Obra', valor:o => linkObra(o)},
+        {titulo:'Cliente', valor:o => o.cliente || '–'},
+        {titulo:'Telefone', valor:o => fone(o.telefone)},
+        {titulo:'Potencial', valor:o => pillPot(o.potencial)},
+        {titulo:'Área', num:true, valor:o => m2(o.m2)},
+      ], opLista, `Nenhuma etapa prevista para os próximos ${j.dias_oportunidade} dias. Cadastre as etapas das obras para ver aqui quando oferecer cada material.`));
+      if (j.oportunidades.length > 8)
+        $('oportunidades').append(el('button', {type:'button', class:'btn-tab mais', 'data-tabela':'opTodas'},
+          opTodas ? 'Mostrar só as 8 mais próximas' : `Mostrar todas (${j.oportunidades.length})`));
+
+      barras('etapas', j.etapas_proximas, {nome:i => i.nome, valor:i => i.obras, rotuloValor:i => fmt(i.obras) + (i.obras === 1 ? ' obra' : ' obras'),
+        vazio:'Nenhuma etapa prevista no período.', colunas:[{titulo:'Etapa', valor:i => i.nome}, {titulo:'Obras', num:true, valor:i => fmt(i.obras)}]});
+
+      $('atencaoSub').textContent = `Ativas sem visita há mais de ${j.dias_sem_visita} dias, das de maior potencial e área para as menores`;
+      limpa('atencao').append(tabela([
+        {titulo:'Obra', valor:o => linkObra(o)},
+        {titulo:'Cliente', valor:o => o.cliente || '–'},
+        {titulo:'Cidade', valor:o => o.cidade || '–'},
+        {titulo:'Potencial', valor:o => pillPot(o.potencial)},
+        {titulo:'Área', num:true, valor:o => m2(o.m2)},
+        {titulo:'Última visita', valor:o => data(o.ultima_visita)},
+        {titulo:'Sem visita há', valor:o => pillDias(o)},
+        ...(j.ve_tudo ? [{titulo:'Cadastrada por', valor:o => o.cadastrado_por || '–'}] : []),
+      ], j.atencao, 'Nenhuma obra ativa está sem visita. Bom trabalho!'));
+
+      const legPot = el('div', {class:'legenda'}, j.potencial.map(p => el('span', {}, el('i', {style:`background:${POT_COR[p.chave]}`}), POT_CURTO[p.chave])));
+      barras('potencial', j.potencial, {nome:i => POT_CURTO[i.chave], valor:i => i.obras, cor:i => POT_COR[i.chave],
+        rotuloValor:i => fmt(i.obras), extra:i => m2(i.m2), tip:i => `${fmt(i.obras)} obras · ${m2(i.m2)}`, legenda: legPot,
+        colunas:[{titulo:'Potencial', valor:i => i.nome}, {titulo:'Obras', num:true, valor:i => fmt(i.obras)}, {titulo:'Área', num:true, valor:i => m2(i.m2)}]});
+
+      barras('status', j.status, {nome:i => i.nome, valor:i => i.obras, rotuloValor:i => fmt(i.obras), extra:i => m2(i.m2),
+        tip:i => `${fmt(i.obras)} obras · ${m2(i.m2)}`,
+        colunas:[{titulo:'Situação', valor:i => i.nome}, {titulo:'Obras', num:true, valor:i => fmt(i.obras)}, {titulo:'Área', num:true, valor:i => m2(i.m2)}]});
+
+      colunas('visitas', j.visitas_mes);
+
+      barras('regiao', j.regiao, {nome:i => i.nome, valor:i => i.m2, rotuloValor:i => m2(i.m2), extra:i => `${fmt(i.obras)} obra${i.obras === 1 ? '' : 's'}`,
+        vazio:'Nenhuma obra ativa com estes filtros.',
+        colunas:[{titulo:'Região', valor:i => i.nome}, {titulo:'Obras ativas', num:true, valor:i => fmt(i.obras)}, {titulo:'Área', num:true, valor:i => m2(i.m2)}]});
+
+      barras('cidades', j.cidades, {nome:i => i.nome, valor:i => i.m2, rotuloValor:i => m2(i.m2), extra:i => `${fmt(i.obras)} obra${i.obras === 1 ? '' : 's'}`,
+        vazio:'Nenhuma obra ativa com estes filtros.',
+        colunas:[{titulo:'Cidade', valor:i => i.nome}, {titulo:'Obras ativas', num:true, valor:i => fmt(i.obras)}, {titulo:'Área', num:true, valor:i => m2(i.m2)}]});
+
+      matriz(j.matriz);
+
+      $('cardUsuarios').hidden = !j.ve_tudo;
+      $('cardMatriz').className = 'card-bi ' + (j.ve_tudo ? 'c5' : 'c12');
+      if (j.ve_tudo) limpa('usuarios').append(tabela([
+        {titulo:'Usuário', valor:u => u.nome},
+        {titulo:'Obras', num:true, valor:u => fmt(u.obras)},
+        {titulo:'Ativas', num:true, valor:u => fmt(u.ativas)},
+        {titulo:'Área ativa', num:true, valor:u => m2(u.m2_ativo)},
+        {titulo:'Visitas 90d', num:true, valor:u => fmt(u.visitas_90d)},
+        {titulo:'Perdidas', num:true, valor:u => fmt(u.perdidas)},
+      ], j.por_usuario));
+
+      $('obrasSub').textContent = `${fmt(j.obras.length)} obra${j.obras.length === 1 ? '' : 's'}`;
+      limpa('obras').append(tabela([
+        {titulo:'Obra', valor:o => linkObra(o)},
+        {titulo:'Cliente', valor:o => o.cliente || '–'},
+        {titulo:'Cidade', valor:o => o.cidade || '–'},
+        {titulo:'Situação', valor:o => o.status},
+        {titulo:'Potencial', valor:o => pillPot(o.potencial)},
+        {titulo:'Padrão', valor:o => o.padrao || '–'},
+        {titulo:'Área', num:true, valor:o => m2(o.m2)},
+        {titulo:'Visitas', num:true, valor:o => fmt(o.visitas)},
+        {titulo:'Última visita', valor:o => data(o.ultima_visita)},
+        {titulo:'Próxima etapa', valor:o => data(o.proxima_etapa)},
+      ], j.obras, 'Nenhuma obra com estes filtros.'));
+    }
+
+    // ---------- carregar ----------
+    const filtros = ['fRegiao','fPadrao','fTipo','fUsuario'].map($).filter(Boolean);
+    const chave = {fRegiao:'regiao', fPadrao:'padrao', fTipo:'tipo', fUsuario:'usuario'};
+    async function carregar(){
+      const qs = new URLSearchParams();
+      filtros.forEach(f => { if (f.value) qs.set(chave[f.id], f.value); });
+      try { sessionStorage.setItem('painelFiltros', qs.toString()); } catch (e) {}
+      $('bi').classList.add('carregando');
+      try {
+        const r = await fetch('/api/relatorios/painel?' + qs, {headers:{Accept:'application/json'}});
+        if (!r.ok) throw new Error('HTTP ' + r.status);
+        atual = await r.json();
+        render();
+      } catch (e) {
+        $('escopo').textContent = 'Não foi possível carregar o painel. Recarregue a página.';
+      } finally { $('bi').classList.remove('carregando'); }
+    }
+    filtros.forEach(f => f.addEventListener('change', carregar));
+    $('btnLimpar').addEventListener('click', () => { filtros.forEach(f => f.value = ''); carregar(); });
+
+    document.addEventListener('click', e => {
+      const b = e.target.closest('[data-tabela]');
+      if (!b || !atual) return;
+      const id = b.dataset.tabela;
+      tabelaAberta[id] = !tabelaAberta[id];
+      if (id !== 'opTodas') b.textContent = tabelaAberta[id] ? 'Ver gráfico' : 'Ver tabela';
+      render();
+    });
+
+    // CSV (; e BOM para abrir certo no Excel)
+    $('btnCsv').addEventListener('click', () => {
+      if (!atual) return;
+      const cab = ['Número','Endereço da obra','Cliente','Telefone','Cidade','Região','Tipo','Padrão','Potencial','Área (m²)','Situação','Início','Término previsto','Visitas','Última visita','Dias sem visita','Próxima etapa'];
+      if (atual.ve_tudo) cab.push('Cadastrada por');
+      const linhas = atual.obras.map(o => {
+        const l = [o.numero, o.endereco_obra, o.cliente, o.telefone, o.cidade, o.regiao, o.tipo, o.padrao, o.potencial, o.m2, o.status,
+          data(o.inicio), data(o.termino), o.visitas, data(o.ultima_visita), o.dias_sem_visita ?? '', data(o.proxima_etapa)];
+        if (atual.ve_tudo) l.push(o.cadastrado_por);
+        return l;
+      });
+      const esc = v => { const s = String(v ?? ''); return /[;"\n]/.test(s) ? '"' + s.replace(/"/g, '""') + '"' : s; };
+      const csv = '﻿' + [cab, ...linhas].map(l => l.map(esc).join(';')).join('\n');
+      const a = el('a', {href: URL.createObjectURL(new Blob([csv], {type:'text/csv;charset=utf-8'})), download:'painel_obras.csv'});
+      document.body.append(a); a.click(); a.remove();
+    });
+
+    // restaura os filtros da última visita nesta aba
+    try {
+      const salvo = new URLSearchParams(sessionStorage.getItem('painelFiltros') || '');
+      filtros.forEach(f => { const v = salvo.get(chave[f.id]); if (v && [...f.options].some(o => o.value === v)) f.value = v; });
+    } catch (e) {}
+    carregar();
+  })();
+  </script>
+</body>
+</html>

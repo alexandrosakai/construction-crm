@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Notificações | Portal Empresa Exemplo</title>
+  <link rel="icon" type="image/png" href="{{ url_for('static', filename='img/PLACEHOLDER-FAVICON.png') }}">
+
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/base.css') }}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/menu.css') }}">
+
+  <style>
+    [hidden]{ display:none !important; }
+    body{ margin:0; min-height:100dvh; background:var(--bg); color:var(--text); display:flex; }
+    .layout{ display:flex; align-items:stretch; min-height:100vh; width:100%; }
+    .main{ flex:1; min-width:0; order:1; overflow-x:hidden; background:var(--bg); display:flex; flex-direction:column; }
+    .page{ flex:1; min-width:0; display:flex; justify-content:center; align-items:flex-start; padding:24px; }
+    .container-modern{ width:clamp(320px, 92vw, 1000px); margin-inline:auto; }
+
+    .card{ background:var(--surface) !important; border:1px solid var(--border) !important;
+      border-radius:14px !important; box-shadow:0 10px 30px -10px var(--shadow) !important; overflow:hidden; }
+    .card-header{ background:transparent !important; border-bottom:1px solid var(--border) !important; color:var(--text); padding:14px 18px !important; }
+    .card-header h3{ margin:0; font-size:16px; font-weight:600; }
+    .card-header p{ margin:4px 0 0; color:var(--muted); font-size:13px; }
+
+    .tbl{ width:100%; border-collapse:collapse; font-size:14px; }
+    .tbl th{ background:var(--surface-2); color:var(--muted); font-weight:600; font-size:12px; text-transform:uppercase; letter-spacing:.04em; padding:10px 12px; text-align:left; }
+    .tbl td{ padding:12px; border-top:1px solid var(--border); vertical-align:middle; }
+    .tbl tbody tr:hover td{ background:var(--hover); }
+    .tbl a{ color:var(--accent); font-weight:600; text-decoration:none; }
+    .tbl a:hover{ text-decoration:underline; }
+
+    .atraso{ display:inline-flex; align-items:center; gap:6px; padding:3px 10px; border-radius:999px; font-size:12px; font-weight:600; border:1px solid var(--border); white-space:nowrap; }
+    .atraso--leve{ color:var(--warning-text); border-color:rgba(217,142,4,.4); }
+    .atraso--grave{ color:var(--error-text); border-color:rgba(217,37,28,.4); }
+    .pill{ display:inline-flex; align-items:center; gap:6px; padding:2px 9px; border-radius:999px; font-size:12px; border:1px solid var(--border); white-space:nowrap; }
+
+    .vazio{ text-align:center; padding:40px 16px; color:var(--muted); }
+    .vazio i{ font-size:32px; color: var(--primary); display:block; margin-bottom:10px; }
+
+    .btn-ir{ background:var(--primary) !important; color:#fff !important; border:none !important; padding:4px 12px; font-size:13px; border-radius:8px; white-space:nowrap; }
+
+    @media (max-width:768px){
+      .layout{ flex-direction:column; }
+      .page{ padding:16px; }
+      .tbl thead{ display:none; }
+      .tbl, .tbl tbody, .tbl tr, .tbl td{ display:block; width:100%; }
+      .tbl tr{ border-top:1px solid var(--border); padding:10px 0; }
+      .tbl td{ border:none; padding:4px 0; }
+    }
+  </style>
+</head>
+<body>
+  <div class="layout">
+    {% include 'menu.html' %}
+
+    <main class="main">
+      <section class="page">
+        <div class="container-modern">
+          <h2 class="mb-1">Notificações</h2>
+          <p class="text-muted mb-3">
+            {{ 'Obras de todos os usuários' if current_user.is_admin else 'Suas obras' }} sem visita há mais de {{ dias_entre_visitas }} dias.
+          </p>
+
+          <div class="card">
+            <div class="card-header">
+              <h3>{{ pendentes|length }} obra{{ 's' if pendentes|length != 1 }} pendente{{ 's' if pendentes|length != 1 }}</h3>
+              <p>A rotina é visitar cada obra a cada {{ dias_entre_visitas }} dias. Ao registrar uma visita, a próxima data é calculada sozinha.</p>
+            </div>
+            {% if pendentes %}
+            <div class="table-responsive">
+              <table class="tbl">
+                <thead>
+                  <tr>
+                    <th>Obra</th>
+                    <th>Cliente</th>
+                    <th>Última visita</th>
+                    <th>Situação</th>
+                    {% if current_user.is_admin %}<th>Cadastrada por</th>{% endif %}
+                    <th></th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {% for o in pendentes %}
+                  <tr>
+                    <td>
+                      <div>Nº {{ o.numero_obra }}</div>
+                      <div class="text-muted" style="font-size:12px">{{ o.endereco_obra or '' }}{% if o.cidade %} · {{ o.cidade }}{% endif %}</div>
+                    </td>
+                    <td>
+                      {{ o.cliente or '-' }}
+                      {% if o.potencial_obra %}<br><span class="pill">{{ o.potencial_obra }}</span>{% endif %}
+                    </td>
+                    <td>{{ o.ultima_visita.strftime('%d/%m/%Y') if o.ultima_visita else 'Nunca visitada' }}</td>
+                    <td>
+                      {% if o.dias_atraso >= dias_entre_visitas %}
+                        <span class="atraso atraso--grave"><i class="fa-solid fa-circle-exclamation"></i>{{ o.dias_atraso }} dias de atraso</span>
+                      {% else %}
+                        <span class="atraso atraso--leve"><i class="fa-solid fa-triangle-exclamation"></i>{{ o.dias_atraso }} dia{{ 's' if o.dias_atraso != 1 }} de atraso</span>
+                      {% endif %}
+                    </td>
+                    {% if current_user.is_admin %}<td>{{ o.cadastrado_por or '-' }}</td>{% endif %}
+                    <td>
+                      <a class="btn-ir" href="{{ url_for('visitas_obra', obra_id=o.id) }}"><i class="fa-solid fa-person-walking me-1"></i>Visitar</a>
+                    </td>
+                  </tr>
+                  {% endfor %}
+                </tbody>
+              </table>
+            </div>
+            {% else %}
+            <div class="vazio">
+              <i class="fa-solid fa-circle-check"></i>
+              Nenhuma obra pendente. Todas as visitas estão em dia.
+            </div>
+            {% endif %}
+          </div>
+        </div>
+      </section>
+    </main>
+  </div>
+</body>
+</html>

@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>{% block title %}App{% endblock %}</title>
+  <link rel="icon" type="image/png" href="{{ url_for('static', filename='img/PLACEHOLDER-FAVICON.png') }}">
+
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/base.css') }}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/menu.css') }}">
+  {% block extra_css %}{% endblock %}
+</head>
+<body>
+  <aside class="sidebar" data-collapsed="false">
+    <div class="sidebar__header">
+      <button class="sidebar__toggle" id="btnSidebar" aria-label="Alternar menu">
+        <!-- Ícone hamburger (SVG) -->
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+          <path d="M3 6h18M3 12h18M3 18h18" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+        </svg>
+      </button>
+      <div class="sidebar__brand">
+        <span class="brand__logo">⚙️</span>
+        <span class="brand__text">Seu App</span>
+      </div>
+    </div>
+
+    <nav class="sidebar__nav">
+      <a class="nav__item" href="{{ url_for('novo_orcamento') }}">
+        <span class="nav__icon">📄</span>
+        <span class="nav__label">Novo Orçamento</span>
+      </a>
+
+      <!-- Exemplo de outros módulos reutilizando o menu.css -->
+      <a class="nav__item" href="#">
+        <span class="nav__icon">📊</span>
+        <span class="nav__label">Relatórios</span>
+      </a>
+
+      <a class="nav__item" href="#">
+        <span class="nav__icon">🧩</span>
+        <span class="nav__label">Módulos</span>
+      </a>
+
+      <div class="sidebar__spacer"></div>
+
+      <a class="nav__item nav__item--danger" href="{{ url_for('logout') }}">
+        <span class="nav__icon">🚪</span>
+        <span class="nav__label">Sair</span>
+      </a>
+    </nav>
+  </aside>
+
+  <main class="main">
+    <header class="topbar">
+      <h1 class="topbar__title">{% block header_title %}Dashboard{% endblock %}</h1>
+    </header>
+
+    <section class="content">
+      {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+          <div class="flash-container">
+            {% for category, message in messages %}
+              <div class="flash flash--{{ category }}">{{ message }}</div>
+            {% endfor %}
+          </div>
+        {% endif %}
+      {% endwith %}
+
+      {% block content %}{% endblock %}
+    </section>
+  </main>
+
+  <script src="{{ url_for('static', filename='js/sidebar.js') }}"></script>
+  {% block extra_js %}{% endblock %}
+</body>
+</html>

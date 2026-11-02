@@ -1,0 +1,12 @@
+Flask
+Flask-Login
+Flask-Mail
+itsdangerous
+SQLAlchemy
+PyMySQL
+cryptography
+bcrypt
+pandas
+Pillow
+python-slugify
+gunicorn

@@ -1,0 +1,249 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Checklists · Empresa Exemplo</title>
+<meta name="theme-color" content="#1d4ed8">
+<meta name="robots" content="noindex">
+<link rel="manifest" href="manifest.json">
+<link rel="icon" href="PLACEHOLDER-ICON-192.png">
+<link rel="apple-touch-icon" href="PLACEHOLDER-ICON-192.png">
+<style>
+:root{
+  --bg:#F3F5F4; --surface:#FFFFFF; --ink:#1C2A30; --muted:#5D6B72; --line:#D9E0DD;
+  --accent:#1e3a8a; --accent-soft:#E2EFEC; --brand:#2563eb;
+  --crit:#B42318; --crit-soft:#FCEBE9; --warn:#9A5B00; --warn-soft:#FBF1DF;
+  --ok:#1F7A45; --ok-soft:#E5F3EA; --info-soft:#E9EEF2; color-scheme:light;
+}
+@media (prefers-color-scheme: dark){ :root{
+  --bg:#12191C; --surface:#1A2327; --ink:#E4EBEA; --muted:#98A7AD; --line:#2C393E;
+  --accent:#93c5fd; --accent-soft:#1D3533; --crit:#F28B82; --crit-soft:#3A2220;
+  --warn:#E8B45C; --warn-soft:#352A17; --ok:#7FD39E; --ok-soft:#1C3125; --info-soft:#232E35; color-scheme:dark; }}
+*,*::before,*::after{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.5 "IBM Plex Sans",system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;padding-bottom:env(safe-area-inset-bottom,0)}
+header{background:var(--brand);color:#06250f;padding:calc(14px + env(safe-area-inset-top,0)) 16px 14px;display:flex;align-items:center;gap:12px;position:sticky;top:0;z-index:5}
+header h1{font-size:18px;margin:0;font-weight:700;flex:1}
+header a,header button{color:#06250f;background:rgba(255,255,255,.35);border:0;border-radius:8px;padding:6px 12px;font:inherit;font-weight:600;text-decoration:none;cursor:pointer}
+main{max-width:720px;margin:0 auto;padding:16px 14px 90px}
+button,input,select,textarea{font:inherit;color:inherit}
+:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+.grid{display:grid;gap:12px}
+.card{display:flex;gap:14px;align-items:center;width:100%;text-align:left;background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:16px;cursor:pointer}
+.card:active{background:var(--accent-soft)}
+.card .ic{font-size:30px}
+.card b{display:block;font-size:16px}
+.card small{color:var(--muted)}
+.banner{background:var(--warn-soft);color:var(--warn);border-radius:10px;padding:10px 14px;margin-bottom:14px;display:flex;gap:10px;align-items:center;justify-content:space-between}
+.banner button{border:1px solid currentColor;background:none;border-radius:8px;padding:5px 12px;cursor:pointer;color:inherit;font-weight:600}
+.lede{color:var(--muted);margin:0 0 14px}
+.field{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:14px;margin-bottom:12px}
+.field.err{border-color:var(--crit);box-shadow:0 0 0 2px var(--crit-soft)}
+label.l{display:block;font-weight:600;margin-bottom:6px}
+.req{color:var(--crit)}
+.help{color:var(--muted);font-size:14px;margin:-2px 0 8px}
+input[type=text],select,textarea{width:100%;background:var(--bg);border:1px solid var(--line);border-radius:10px;padding:11px 12px;font-size:16px}
+textarea{min-height:96px;resize:vertical}
+.item{display:flex;flex-wrap:wrap;gap:8px 10px;align-items:center;justify-content:space-between;padding:10px 0;border-top:1px solid var(--line)}
+.item:first-of-type{border-top:0}
+.item span{flex:1 1 200px;font-size:15px}
+.seg{display:flex;gap:6px;flex:none}
+.seg input{position:absolute;opacity:0;width:0}
+.seg label{min-width:64px;text-align:center;padding:10px 6px;border:1px solid var(--line);border-radius:10px;cursor:pointer;font-weight:600;font-size:14px;background:var(--bg);user-select:none}
+.seg input.ok:checked+label{background:var(--ok);border-color:var(--ok);color:#fff}
+.seg input.nok+label{min-width:128px}
+.seg input.nok:checked+label{background:var(--crit);border-color:var(--crit);color:#fff}
+.seg input:focus-visible+label{outline:3px solid var(--accent);outline-offset:2px}
+.grp-h{display:flex;justify-content:space-between;align-items:center;gap:8px;margin-bottom:4px}
+.link{background:none;border:0;color:var(--accent);font-weight:600;cursor:pointer;padding:6px 0}
+.thumbs{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px}
+.thumbs div{position:relative}
+.thumbs img{width:84px;height:84px;object-fit:cover;border-radius:10px;border:1px solid var(--line)}
+.thumbs button{position:absolute;top:-6px;right:-6px;width:24px;height:24px;border-radius:50%;border:0;background:var(--crit);color:#fff;cursor:pointer;line-height:1}
+.btn{display:block;width:100%;border:0;background:var(--accent);color:var(--surface);border-radius:12px;padding:14px;font-weight:700;font-size:17px;cursor:pointer}
+.btn.sec{background:var(--surface);color:var(--accent);border:1px solid var(--accent)}
+.btn:disabled{opacity:.5}
+.bar{position:fixed;left:0;right:0;bottom:0;background:var(--surface);border-top:1px solid var(--line);padding:10px 14px calc(10px + env(safe-area-inset-bottom,0));z-index:5}
+.bar>div{max-width:720px;margin:0 auto}
+.prog{height:6px;border-radius:99px;background:var(--info-soft);overflow:hidden;margin-bottom:8px}
+.prog i{display:block;height:100%;background:var(--ok);width:0;transition:width .2s}
+.msg{background:var(--crit-soft);color:var(--crit);border-radius:10px;padding:10px 14px;margin:0 0 10px;font-weight:600}
+.done{text-align:center;padding:40px 10px}
+.done .big{font-size:64px}
+</style>
+</head>
+<body>
+<header><h1 id="titulo">📋 Checklists Empresa Exemplo</h1><button id="voltar" hidden>← Voltar</button></header>
+<main id="app"></main>
+
+<script>
+const API = 'api/', FILA = 'ck.fila', PREF = 'ck.pref.';
+const $ = s => document.querySelector(s);
+const ESC = s => String(s == null ? '' : s).replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const ls = {get: (k, d) => { try { var v = JSON.parse(localStorage.getItem(k)); return v == null ? d : v; } catch (e) { return d; } },
+            set: (k, v) => { try { localStorage.setItem(k, JSON.stringify(v)); return true; } catch (e) { return false; } }};
+const CAT0 = [];
+let CAT = [], cl = null, estado = {};
+const PARAMS = new URLSearchParams(location.search);
+const TAREFA = (PARAMS.get('t') || '').replace(/[^A-Za-z0-9]/g, '').slice(0, 64);       // identifica a tarefa enviada pelo WhatsApp
+function nomeDoLink() {                                                                  // n = nome do responsável em hexadecimal (UTF-8)
+  const h = (PARAMS.get('n') || '').replace(/[^0-9a-f]/gi, ''); if (!h || h.length % 2) return '';
+  try { return new TextDecoder().decode(new Uint8Array(h.match(/../g).map(x => parseInt(x, 16)))).trim(); } catch (e) { return ''; }
+}
+
+async function init() {
+  CAT = CAT0;                                   // catálogo embutido: a tela abre sem depender da rede
+  window.addEventListener('hashchange', rota); window.addEventListener('online', flush);
+  $('#voltar').onclick = () => location.hash = '';
+  rota(); flush();
+  try {                                         // atualiza em segundo plano se o catálogo do servidor mudou
+    const r = await fetch(API + 'catalogo', {cache: 'no-store'}), j = await r.json();
+    if (r.ok && Array.isArray(j) && j.length && JSON.stringify(j) !== JSON.stringify(CAT)) { CAT = j; if (!cl) rota(); }
+  } catch (e) {}
+  if ('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js').catch(() => {});
+}
+function rota() {
+  const id = location.hash.replace('#', '');
+  cl = CAT.find(c => c.id === id);
+  cl ? form() : home();
+}
+
+/* ---------- Início ---------- */
+function home() {
+  $('#titulo').textContent = '📋 Checklists Empresa Exemplo'; $('#voltar').hidden = true; document.title = 'Checklists · Empresa Exemplo';
+  const n = ls.get(FILA, []).length;
+  $('#app').innerHTML = (n ? `<div class="banner"><span>⏳ ${n} envio(s) aguardando conexão</span><button onclick="flush(true)">Enviar agora</button></div>` : '') +
+    `<p class="lede">Escolha o checklist que você vai preencher.</p><div class="grid">` +
+    (CAT.length ? CAT.map(c => `<button class="card" onclick="location.hash='${c.id}'"><span class="ic">${c.icone}</span><span><b>${ESC(c.titulo)}</b><small>${ESC(c.freq)}</small></span></button>`).join('')
+                : '<p class="msg">Sem conexão com o servidor. Tente novamente.</p>') + '</div>';
+}
+
+/* ---------- Formulário ---------- */
+function form() {
+  estado = {itens: {}, fotos: {}, txt: {}};
+  $('#titulo').textContent = cl.icone + ' ' + cl.titulo; $('#voltar').hidden = false; document.title = cl.titulo;
+  const p = ls.get(PREF + cl.id, {});
+  $('#app').innerHTML = `<p class="lede">${ESC(cl.descricao)}</p><form id="f" novalidate>` + cl.campos.map(c => {
+    const star = c.req ? ' <span class="req">*</span>' : '';
+    if (c.t === 'select') return `<div class="field" data-k="${c.k}"><label class="l" for="c_${c.k}">${ESC(c.label)}${star}</label><select id="c_${c.k}" data-txt="${c.k}"><option value="">Selecione…</option>${c.opcoes.map(o => `<option ${p[c.k] === o ? 'selected' : ''}>${ESC(o)}</option>`).join('')}</select></div>`;
+    if (c.t === 'text') return `<div class="field" data-k="${c.k}"><label class="l" for="c_${c.k}">${ESC(c.label)}${star}</label><input type="text" id="c_${c.k}" data-txt="${c.k}" autocomplete="name" value="${ESC(p[c.k])}"></div>`;
+    if (c.t === 'textarea') return `<div class="field" data-k="${c.k}"><label class="l" for="c_${c.k}">${ESC(c.label)}<span class="req" data-obs="${c.k}">${c.req ? ' *' : ''}</span></label>${c.ajuda ? `<div class="help">${ESC(c.ajuda)}</div>` : ''}<textarea id="c_${c.k}" data-txt="${c.k}"></textarea></div>`;
+    if (c.t === 'foto') return `<div class="field" data-k="${c.k}"><label class="l">${ESC(c.label)}${star}</label>${c.ajuda ? `<div class="help">${ESC(c.ajuda)}</div>` : ''}<input type="file" accept="image/*" multiple id="c_${c.k}" onchange="addFotos('${c.k}',this)"><div class="thumbs" id="t_${c.k}"></div></div>`;
+    if (c.t === 'itens') { estado.itens[c.k] = {};
+      return `<div class="field" data-k="${c.k}"><div class="grp-h"><label class="l" style="margin:0">${ESC(c.label)} <span class="req">*</span></label><button type="button" class="link" onclick="todosOk('${c.k}')">Marcar todos OK</button></div>` +
+        c.itens.map((it, i) => `<div class="item"><span>${ESC(it)}</span><div class="seg"><input class="ok" type="radio" name="${c.k}_${i}" id="${c.k}_${i}_ok" onchange="marca('${c.k}',${i},'OK')"><label for="${c.k}_${i}_ok">OK</label><input class="nok" type="radio" name="${c.k}_${i}" id="${c.k}_${i}_nok" onchange="marca('${c.k}',${i},'COM PROBLEMA')"><label for="${c.k}_${i}_nok">COM PROBLEMA</label></div></div>`).join('') + '</div>'; }
+  }).join('') + '</form><div class="bar"><div><div class="prog"><i id="prog"></i></div><div id="erro"></div><button class="btn" id="enviar" onclick="enviar()">Enviar checklist</button></div></div>';
+  document.querySelectorAll('[data-txt]').forEach(e => e.addEventListener('input', progresso));
+  const nome = nomeDoLink();
+  if (nome) { const campo = cl.campos.find(c => ['motorista', 'operador', 'responsavel', 'colaborador'].includes(c.k) && (c.t === 'text' || c.t === 'select'));
+    const el = campo && document.getElementById('c_' + campo.k);
+    if (el) { if (campo.t === 'text') el.value = nome; else { const o = campo.opcoes.find(x => x.toLowerCase() === nome.toLowerCase()); if (o) el.value = o; } } }
+  progresso(); window.scrollTo(0, 0);
+}
+function marca(k, i, v) { estado.itens[k][cl.campos.find(c => c.k === k).itens[i]] = v; progresso(); }
+function todosOk(k) {
+  const c = cl.campos.find(x => x.k === k);
+  c.itens.forEach((it, i) => { estado.itens[k][it] = 'OK'; document.getElementById(`${k}_${i}_ok`).checked = true; }); progresso();
+}
+function temNok() { return Object.values(estado.itens).some(g => Object.values(g).includes('COM PROBLEMA')); }
+function progresso() {
+  let total = 0, feito = 0;
+  cl.campos.forEach(c => {
+    if (c.t === 'itens') { total += c.itens.length; feito += Object.keys(estado.itens[c.k]).length; }
+    else if (c.req) { total++; const v = c.t === 'foto' ? (estado.fotos[c.k] || []).length : (document.getElementById('c_' + c.k) || {}).value; if (v) feito++; }
+  });
+  $('#prog').style.width = (total ? feito / total * 100 : 0) + '%';
+  const nok = temNok();
+  cl.campos.filter(c => c.req_se_nok).forEach(c => { const s = document.querySelector(`[data-obs="${c.k}"]`); if (s) s.textContent = nok ? ' * (obrigatório: há itens “COM PROBLEMA”)' : ''; });
+}
+
+/* ---------- Fotos (reduz antes de enviar) ---------- */
+function carrega(file) {
+  return new Promise((ok, no) => {
+    if (window.createImageBitmap) return createImageBitmap(file).then(ok, no);
+    const u = URL.createObjectURL(file), im = new Image();
+    im.onload = () => { URL.revokeObjectURL(u); ok(im); }; im.onerror = no; im.src = u;
+  });
+}
+async function reduz(file) {
+  const bmp = await carrega(file), esc = Math.min(1, 1280 / Math.max(bmp.width || bmp.naturalWidth, bmp.height || bmp.naturalHeight));
+  const cv = document.createElement('canvas'); cv.width = Math.round((bmp.width || bmp.naturalWidth) * esc); cv.height = Math.round((bmp.height || bmp.naturalHeight) * esc);
+  cv.getContext('2d').drawImage(bmp, 0, 0, cv.width, cv.height); return cv.toDataURL('image/jpeg', 0.72);
+}
+async function addFotos(k, inp) {
+  const lista = estado.fotos[k] = estado.fotos[k] || [];
+  for (const f of [...inp.files]) { if (lista.length >= 8) break; try { lista.push(await reduz(f)); } catch (e) { alert('Não foi possível ler uma das fotos.'); } }
+  inp.value = ''; thumbs(k); progresso();
+}
+function thumbs(k) {
+  $('#t_' + k).innerHTML = (estado.fotos[k] || []).map((u, i) => `<div><img src="${u}" alt="Foto ${i + 1}"><button type="button" aria-label="Remover foto" onclick="rmFoto('${k}',${i})">×</button></div>`).join('');
+}
+function rmFoto(k, i) { estado.fotos[k].splice(i, 1); thumbs(k); progresso(); }
+
+/* ---------- Envio ---------- */
+function monta() {
+  const dados = {};
+  cl.campos.forEach(c => {
+    if (c.t === 'itens') dados[c.k] = estado.itens[c.k];
+    else if (c.t === 'foto') dados[c.k] = estado.fotos[c.k] || [];
+    else dados[c.k] = (document.getElementById('c_' + c.k).value || '').trim();
+  });
+  return dados;
+}
+function confere(dados) {
+  document.querySelectorAll('.field.err').forEach(e => e.classList.remove('err'));
+  const nok = temNok(); let primeiro = null, msg = '';
+  for (const c of cl.campos) {
+    let falta = false;
+    if (c.t === 'itens') falta = c.itens.some(it => !dados[c.k][it]);
+    else if (c.t === 'foto') falta = c.req && !dados[c.k].length;
+    else falta = (c.req || (c.req_se_nok && nok)) && !dados[c.k];
+    if (falta) { const el = document.querySelector(`[data-k="${c.k}"]`); el.classList.add('err'); primeiro = primeiro || el; msg = msg || `Falta preencher: ${c.label}`; }
+  }
+  if (primeiro) primeiro.scrollIntoView({behavior: 'smooth', block: 'center'});
+  return msg;
+}
+async function enviar() {
+  const dados = monta(), m = confere(dados);
+  $('#erro').innerHTML = m ? `<p class="msg">${ESC(m)}</p>` : '';
+  if (m) return;
+  const pref = {}; cl.campos.filter(c => c.t === 'select' || c.t === 'text').forEach(c => pref[c.k] = dados[c.k]); ls.set(PREF + cl.id, pref);
+  const envio = {checklist: cl.id, tarefa: TAREFA || undefined, envio_id: (crypto.randomUUID ? crypto.randomUUID() : Date.now() + '-' + Math.random().toString(36).slice(2)), dados};
+  const b = $('#enviar'); b.disabled = true; b.textContent = 'Enviando…';
+  const r = await post(envio);
+  if (r === 'ok') return fim(true, envio);
+  if (r === 'rede') {
+    const f = ls.get(FILA, []); f.push(envio);
+    if (!ls.set(FILA, f)) { b.disabled = false; b.textContent = 'Enviar checklist'; $('#erro').innerHTML = '<p class="msg">Sem internet e sem espaço para guardar. Conecte-se e tente de novo.</p>'; return; }
+    return fim(false, envio);
+  }
+  b.disabled = false; b.textContent = 'Enviar checklist'; $('#erro').innerHTML = `<p class="msg">${ESC(r)}</p>`;
+}
+async function post(envio) {
+  try {
+    const r = await fetch(API + 'enviar', {method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify(envio)});
+    if (r.ok) return 'ok';
+    if (r.status >= 500) return 'rede';
+    return (await r.json().catch(() => ({}))).erro || 'Não foi possível enviar.';
+  } catch (e) { return 'rede'; }
+}
+function fim(enviado, envio) {
+  const nok = Object.values(envio.dados).some(g => g && typeof g === 'object' && !Array.isArray(g) && Object.values(g).includes('COM PROBLEMA'));
+  $('#app').innerHTML = `<div class="done"><div class="big">${enviado ? '✅' : '⏳'}</div><h2>${enviado ? 'Checklist enviado!' : 'Guardado no aparelho'}</h2>
+    <p class="lede">${enviado ? 'Obrigado. O envio foi registrado.' : 'Sem internet agora. Ele será enviado automaticamente quando a conexão voltar.'}${nok ? '<br><b>Há itens “COM PROBLEMA”: avise o responsável.</b>' : ''}</p>
+    <button class="btn" onclick="location.hash=''">Voltar ao início</button></div>`;
+  window.scrollTo(0, 0);
+}
+let enviando = false;
+async function flush(manual) {
+  if (enviando) return; const f = ls.get(FILA, []); if (!f.length) return; enviando = true;
+  const resta = [];
+  for (const e of f) { const r = await post(e); if (r === 'rede') resta.push(e); else if (r !== 'ok') { /* rejeitado pelo servidor: descarta */ } }
+  ls.set(FILA, resta); enviando = false;
+  if (!location.hash) home();
+  if (manual && resta.length) alert('Ainda sem conexão. Tente novamente mais tarde.');
+}
+init();
+</script>
+</body>
+</html>

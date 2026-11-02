@@ -1,0 +1,264 @@
+[
+ {
+  "id": "G01",
+  "nome": "Liderança",
+  "grupo": "Gestão",
+  "perguntas": [
+   "As atribuições e responsabilidades do empresário e de seus colaboradores estão bem definidas e distribuídas?",
+   "O empresário e seus colaboradores participam regularmente de treinamentos para o Desenvolvimento da Liderança?",
+   "A cultura da empresa é orientada para a competitividade?",
+   "A missão da empresa foi definida e disseminada para todos os colaboradores?",
+   "A visão de futuro da empresa foi definida e disseminada para todos os colaboradores?",
+   "A política da qualidade da empresa foi definida e disseminada para todos os colaboradores?",
+   "É avaliado se a missão, a visão e a política da qualidade são compreendidas e praticadas por todos os colaboradores?",
+   "O empresário tem um perfil pró-ativo de atuação, em relação aos problemas e oportunidades que surgem no dia a dia?",
+   "O perfil do empresário enfatiza a cooperação com outras empresas e instituições locais?",
+   "O empresário conduz o processo  de análise crítica do desempenho da empresa?",
+   "As práticas utilizadas para o gerenciamento da Liderança são avaliadas criticamente quanto a sua eficácia?"
+  ]
+ },
+ {
+  "id": "G02",
+  "nome": "Estratégias e Planos",
+  "grupo": "Gestão",
+  "perguntas": [
+   "O Planejamento Estratégico da empresa leva em conta o cenário de curto, médio e longo prazo?",
+   "O Planejamento abrange fatores relacionados às necessidades dos clientes, fornecedores, comunidade e colaboradores?",
+   "A participação dos colaboradores é enfatizada no processo de Planejamento Estratégico da empresa?",
+   "Há o desdobramento das estratégias em planos de ação para cada área organizacional da empresa?",
+   "Há o desdobramento das estratégias em planos de ação para cada colaborador da empresa?",
+   "São estabelecidos indicadores de desempenho estratégico, tático e operacional?",
+   "São estabelecidas metas e respectivas frequências de medição, vinculadas aos indicadores, que orientem a gestão?",
+   "O empresário disponibiliza os recursos necessários à execução dos planos de ação?",
+   "Há uma sistematica que possibilite que as melhorias operacionais alcançadas sejam incorporadas ao Manual de Procedimentos?",
+   "O empresário se envolve diretamente na solução dos problemas para garantir o cumprimento das metas estabelecidas?",
+   "A missão da empresa é  analisada para verificação da contínua adequação às exigências do mercado?",
+   "A visão da empresa é analisada para verificação da contínua adequação às exigências do mercado?",
+   "A política da qualidade é analisada para verificação da contínua adequação às exigências do mercado?",
+   "As práticas utilizadas para o gerenciamento das Estratégias e Planos são avaliadas criticamente quanto a sua eficácia?"
+  ]
+ },
+ {
+  "id": "G03",
+  "nome": "Clientes e Sociedade",
+  "grupo": "Gestão",
+  "perguntas": [
+   "A empresa utiliza algum tipo de pesquisa para conhecer as necessidades e expectativas dos clientes atuais ?",
+   "A empresa utiliza algum tipo de pesquisa para conhecer as necessidades e expectativas dos clientes potenciais?",
+   "A empresa realiza pesquisa para avaliar o grau de satisfação dos clientes?",
+   "Os resultados das pesquisas são divulgados e discutidos em toda a empresa, buscando melhorias?",
+   "A empresa disponibiliza canais de comunicação para ouvir reclamações e ajudar os clientes em necessidades específicas?",
+   "A empresa procura atender e se antecipar cada vez mais  às necessidades e expectativas dos seus clientes?",
+   "Ao lançar novo produto,a empresa faz acompanhamento durante período pré-determinado para conhecer a opinião dos clientes?",
+   "A empresa divulga seus produtos, visando aumentar sua credibilidade no mercado?",
+   "A empresa divulga sua imagem, visando aumentar sua credibilidade no mercado?",
+   "As necessidades da comunidade são identificadas, analisadas e atendidas quando possível?",
+   "A empresa não possui pendências e sanções referentes aos requisitos legais, regulamentares e éticos e contratuais?",
+   "As práticas utilizadas para o gerenciamento dos Clientes e Sociedade são avaliadas criticamente quanto a sua eficácia?"
+  ]
+ },
+ {
+  "id": "G04",
+  "nome": "Informações e Conhecimento",
+  "grupo": "Gestão",
+  "perguntas": [
+   "A empresa possui sitemática para coleta,seleção e atualização de informações para tomada de decisão e melhor desempenho?",
+   "O sistema de informações da empresa alinhado com o Planejamento Estratégico?",
+   "O sistema de informações está disponível para toda a empresa ?",
+   "Há indicadores para acompanhamento dos principais processos?",
+   "Os indicadores são compreendidos pelos colaboradores envolvidos?",
+   "Os indicadores são acompanhados sistematicamente pelos colaboradores envolvidos?",
+   "As informações geradas são acompanhadas com dados históricos para a análise do desempenho?",
+   "As informações geradas são comparadas com dados setoriais e/ou de outras empresas?",
+   "Todas as informações captadas na empresa ou externamente são utilizadas para tomada de decisão e para melhorias?",
+   "A empresa cultiva e protege o capital intelectual  incentivando o pensamento criativo e inovador?",
+   "A empresa gerencia adequadamente os seus direitos e patentes?",
+   "O conhecimento tecnlógico adquirido é multiplicado a todos os envolvidos?",
+   "As práticas utilizadas para o gerenciamento de Informações e Conhecimento são avaliadas criticamente quanto a sua eficácia?"
+  ]
+ },
+ {
+  "id": "G05",
+  "nome": "Pessoas",
+  "grupo": "Gestão",
+  "perguntas": [
+   "Há uma definição clara de todas as funções, perfis, atribuições, responsabilidades e autoridades dos colaboradores da empresa?",
+   "Os processos de seleção  identificam claramente os requisitos para o bom desempenho?",
+   "Os processos de contratação identificam claramente os requisitos para o bom desempenho?",
+   "A empresa estabelece uma perspectiva profissional para os seus colaboradores, deixando isto  claro desde a admissão?",
+   "A empresa possui sistema definido de remuneração?",
+   "A empresa possui sistema definido de  reconhecimento profissional?",
+   "A empresa possui sistemas definidos de incentivo, bonificação e premiação?",
+   "Existe um plano de capacitação e desenvolvimento de colaboradores?",
+   "O plano de capacitação está alinhado com o planejamento estratégico?",
+   "São identificados e controlados os fatores que afetam o clima da empresa:  o bem estar, satisfação  e motivação dos colaboradores?",
+   "Existe um mecanismo de comunicação interna da empresa com os colaboradores?",
+   "Existem mecanismos que possibilitem a participação dos colaboradores com sugestões visando a melhoria dos processos?",
+   "As práticas utilizadas para o gerenciamento das Pessoas são avaliadas criticamente quanto a sua eficácia?"
+  ]
+ },
+ {
+  "id": "G06",
+  "nome": "Processos",
+  "grupo": "Gestão",
+  "perguntas": [
+   "As necessidades dos clientes e da sociedade são traduzidas em requisitos e incorporados aos produtos e processos?",
+   "Os processos da empresa são claramente definidos ?",
+   "São utilizadas ferramentas e práticas para a gestão dos processos existentes?",
+   "Os processos de fabricação dos produtos/serviços estão de acordo com os requisitos estatutários e regulamentares?",
+   "A empresa considera e aplica novas tecnologias disponíveis para o desenvolvimento de novos produtos e processos?",
+   "Durante todas as ativiades da empresa há a preocupação em melhorar resultados relativos à segurança, saúde e ambiente?",
+   "A empresa atua  de forma  a aprimorar a interatividade do processo de  negócio com o cliente?",
+   "A empresa atua  de forma  a aprimorar a interatividade do processo de  negócio com o fornecedor?",
+   "A empresa atua  de forma  a aprimorar a interatividade do processo de  negócio com empresas similares do mesmo setor?",
+   "A empresa atua  de forma  a aprimorar a interatividade do processo de  negócio com instituições de apoio competitivo?",
+   "As práticas utilizadas para o gerenciamento dos Processos são avaliadas criticamente quanto a sua eficácia?"
+  ]
+ },
+ {
+  "id": "G07",
+  "nome": "Resultados da Organização",
+  "grupo": "Gestão",
+  "perguntas": [
+   "Há resultados que representam a satisfação, insatisfação e fidelidade dos clientes?",
+   "Existem metas pré-definidas para a satisfação e fidelidade de clientes?",
+   "A empresa apresenta resultados que representam a participação no mercado?",
+   "Existem metas pré-definidas para  a participação da empresa  no mercado?",
+   "A empresa apresenta resultados de desempenho financeiro?",
+   "Existem metas pré-definidas para o desempenho financeiro da empresa?",
+   "Há resultados que representam a gestão das Pessoas como: rotatividade, absenteísmo, , treinamentos, sugestões, premiações?",
+   "A empresa apresenta resultados de desempenho relativoà  segurança, saúde e meio ambiente? Há metas pré-definidas?",
+   "Há resultados que representam o desempenho dos fornecedores? Há metas pré-definidas?",
+   "Há resultados que representam o desempenho dos principais produtos e serviços? Há metas pré-definidas?",
+   "Há resultados que representam o desempenho dos principais processos? Há metas pré-definidas?",
+   "Há resultados que representam o desempenho relativo à comunidade e cidadania?",
+   "Todos os resultados adversos, com desempenho inferiror, ou que não atingiram as metas possuem explicações convincentes?"
+  ]
+ },
+ {
+  "id": "G08",
+  "nome": "Tecnologias de Gestão",
+  "grupo": "Gestão",
+  "perguntas": [
+   "A empresa compreende a importância das Tecnologias de Gestão no bom desempenho do seu negócio?",
+   "A empresa possui um Planejamento Estratégico?",
+   "A gestão da empresa é fundamentada em algum modelo ou metodologia: Qualidade Total, ISO  9000, Balanced Score Card ou outra sistemática?",
+   "Existem Tecnologias de Gestão para procesos de Marketing e Vendas, Finanças e Contabilidade, Produção, etc?",
+   "O resultado da análise crítica do desempenho e o plano de ação de melhorias são divulgados para toda a empresa?",
+   "Existe um Manual da Qualidade (Procedimentos) formalizado?",
+   "A maioria das operações da empresa é executada conforme o Manual?",
+   "Existem Tecnologias de Gestão para procesos de Relacionamento com Clientes e Fornecedores?",
+   "A empresa associa Internet e Tecnologias Digitais ao processo de gestão do negócio?",
+   "A empresa prevê investimentos em Tecnologias de Gestão nos próximos dois anos?"
+  ]
+ },
+ {
+  "id": "G09",
+  "nome": "Finanças e Contabilidade",
+  "grupo": "Gestão",
+  "perguntas": [
+   "A empresa estabelece um Planejamento Financeiro, definindo metas de despesas e investimentos para os próximos meses?",
+   "As metas de despesas e investimentos são conhecidas dos colaboradores?",
+   "São realizadas reuniões para comparar os valores planejados e realizados?",
+   "A empresa tem conhecimento, hoje, se terá recursos ou não para saldar os seus compromissos no curto prazo (60 dias)?",
+   "A empresa utiliza o mecanismo formal do Fluxo de Caixa para o planejamento financeiro de cuto prazo (60 dias)?",
+   "A empresa possui controles financeiros formais que demonstrem o valor de cada gasto realizado no mês?",
+   "A empresa possui controles financeiros que demonstrem o valor do lucro ou prejuízo obtido no mês?",
+   "A empresa demonstra conhecer e apurar corretamente os custos dos produtos?",
+   "A empresa demonstra     formular e praticar o preço de venda de maneira adequada ?",
+   "A empresa possui planilha ou sistema com as Contas a Pagar?",
+   "A empresa possui planilha ou sistema com as Contas a Receber?",
+   "A empresa identifica claramente a necessidade do capital  de giro e o gerenciamento das fontes de recursos?",
+   "A empresa possui uma política de estoques adequada ao volume de Vendas?",
+   "Os impostos devidos por lei são pagos regularmente, bem como os encargos sociais dos seus colaboradores?",
+   "A empresa possui os Demonstrativos Financeiros apurados e sabe interpretá-los?",
+   "A empresa utiliza fontes adequadas de recursos para investimentos fixos?"
+  ]
+ },
+ {
+  "id": "Op01",
+  "nome": "Uso e Desenvolvimento de Tecnologias",
+  "grupo": "Operações",
+  "perguntas": [
+   "São identificados  e controlados os fatores relativos ao Desenvolvimento de Produtos?",
+   "São identificados  e controlados os fatores relativos ao Desenvolvimento de MATERIAIS?",
+   "São identificados  e controlados os fatores relativos a Desenvolvimento de Processos?",
+   "São identificados  e controlados os fatores relativos à METROLOGIA?",
+   "São identificados  e controlados os fatores relativos a NORMALIZAÇÃO?",
+   "São identificados  e controlados os fatores relativos à SÁUDE E SEGURANÇA DO TRABALHO?",
+   "São identificados  e controlados os fatores relativos ao DESIGN dos produtos?",
+   "São identificados  e controlados os fatores relativos ao DESIGN das embalagens?",
+   "São identificados  e controlados os fatores relativos ao DESIGN do ponto de venda?",
+   "São identificados  e controlados os fatores relativos à Tecnologia da Informação?",
+   "São identificados  e controlados os fatores relativos à Inovação e Transferência de Tecnologia?",
+   "São identificados  e controlados os fatores relativos ao MEIO AMBIENTE?",
+   "São identificados  e controlados os fatores relativos à EFICIÊNCIA ENERGÉTICA?"
+  ]
+ },
+ {
+  "id": "Op02",
+  "nome": "Logística de Aquisisção",
+  "grupo": "Operações",
+  "perguntas": [
+   "São identificados e controlados os fatores relativos ao Planejamento, Programação e Controle da Produção?",
+   "São identificados e controlados os fatores relativos ao Suprimentos de Materiais?",
+   "São identificados e controlados os fatores relativos à Avaliação, Desenvolvimento e Qualificação de Fornecedores?",
+   "São identificados e controlados os fatores relativos ao Transporte de insumos e matérias-primas do Fornecedor até a empresa?",
+   "São identificados e controlados os fatores relativos ao Recebimento de Materiais?",
+   "São identificados e controlados os fatores relativos à Estocagem de insumos e matérias-primas?",
+   "São identificados e controlados os fatores relativos ao Diligenciamento das entregas junto aos fornecedores?",
+   "São identificados e controlados os fatores relativos ao Transporte de insumos e matérias-primas dentro da empresa?",
+   "São identificados e controlados os fatores de interface entre PCP, Suprimentos, Qualidade, Recebimento e Finanças?"
+  ]
+ },
+ {
+  "id": "Op03",
+  "nome": "Produção",
+  "grupo": "Operações",
+  "perguntas": [
+   "A área de Produção  está adequada em um nível de 5S (Descarte, Organização, Limpeza, Higiene e Ordem)?",
+   "O fluxo e layout dos processos produtivos estão adequados?",
+   "Qual o nível de utilização da capacidade instalada?",
+   "Qual o nível de obsolescência de equipamentos?",
+   "A empresa utiliza um Programa de Manutenção de Máquinas e Equipamentos?",
+   "Podem ser observados  manuais operacionais e instruções operacionais no chão de fábrica?",
+   "São realizados treinamentos operacionais no chão de fábrica?",
+   "Os custos industriais são conhecidos e apurados de maneira correta?",
+   "Como se dá o processo de movimentação interna de materiais e semi-acabados?",
+   "Como é feito o Controle de Qualidade dos semi-acabados e produto final?",
+   "A empresa apresenta condições de desenvolver atividades de Produção compartilhadas com outras empresas do setor?"
+  ]
+ },
+ {
+  "id": "Op04",
+  "nome": "Logistica de Distribuição",
+  "grupo": "Operações",
+  "perguntas": [
+   "A área de Expedição  está adequada em um nível de 5S (Descarte, Organização, Limpeza, Higiene e Ordem), fluxos e layout?",
+   "A área de Expedição  está adequada em termos fluxos de processamento?",
+   "A área de Expedição  está adequada em um nível de  layout?",
+   "A empresa possui uma boa localização  adequada aos objetivos do negócio?",
+   "A empresa possui  pontos de venda adequados aos objetivos do negócio?",
+   "O sistema de transporte é eficiente?",
+   "Existe uma sistemática de adequada em termos de pretação de serviços e instalação?"
+  ]
+ },
+ {
+  "id": "Op05",
+  "nome": "Marketing e Vendas",
+  "grupo": "Operações",
+  "perguntas": [
+   "Existe algum diferencial competitivo importante no produto principal relativamente aos concorrentes, como design, preço, prazo?",
+   "A marca  apresenta uma Programação Visual adequada?",
+   "Existem esforços no sentido de valorização da marca do produto, enfatizando a sua procedência?",
+   "A empresa possui um posicionamento mercadológico?",
+   "Os esforços de comunicação  e promoção dos produtos são realizados de maneira adequada?",
+   "Existe algum plano de expansão em regiões específicas?",
+   "A posição de preço da empresa frente ao mercado é adequada?",
+   "É percebido uma adequação de esforços por parte da empresa para ter o valor dos seus produtos percebido pelo mercado?",
+   "A empresa possui um sentido de orientação para o mercado adequado?",
+   "A empresa possui uma política de atendimento claramente definida?",
+   "A empresa apresenta condições de desenvolver atividades de Marketing e Vendas compartilhadas com outras empresas do setor?"
+  ]
+ }
+]

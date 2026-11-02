@@ -1,0 +1,156 @@
+:root{
+  /* Identidade Empresa Exemplo (example.com): verde-vivo do topo, verde dos botões, fundo claro, Open Sans */
+  --brand: #2563eb;          /* verde-vivo do site (menu lateral) */
+  --brand-ink: #1b1f1a;      /* texto sobre o verde-vivo */
+  --bg: #f3f5f2;             /* fundo das páginas */
+  --surface: #ffffff;        /* cards */
+  --surface-2: #f6f8f5;      /* faixas, cabeçalhos de tabela, botões neutros */
+  --field: #ffffff;          /* campos de formulário */
+  --hover: #edf5e8;          /* passar o mouse */
+  --text: #2b2f2a;           /* texto principal (13.6:1 no branco) */
+  --muted: #626a60;          /* texto secundário (5.6:1) */
+  --primary: #3a8519;        /* botões principais: branco por cima tem 4.6:1 */
+  --primary-600: #2f7a14;
+  --accent: #2f7a14;         /* links e foco */
+  --border: rgba(27,31,26,0.12);
+  --shadow: rgba(27,60,10,0.10);
+  --success: #2f9e44;
+  --error: #d93025;
+  --warning: #d98e04;
+  --success-text: #1e6b2a;
+  --error-text: #b3261e;
+  --warning-text: #8a5a00;
+  --info-text: #2e6f14;
+  color-scheme: light;
+}
+
+*{ box-sizing: border-box; }
+html, body{ height:100%; }
+body{
+  margin:0;
+  background: var(--bg);
+  color: var(--text);
+  line-height: 1.45;
+  font: 15px/1.45 "Open Sans", system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  display:flex;
+}
+
+/* ====== LAYOUT PRINCIPAL ====== */
+.main{
+  flex:1;
+  min-width:0;
+  display:flex;
+  flex-direction:column;
+}
+
+.topbar{
+  position:sticky;
+  top:0;
+  background: rgba(255,255,255,0.92);
+  backdrop-filter: blur(6px);
+  border-bottom:1px solid var(--border);
+  padding:14px 20px;
+  z-index:10;
+}
+.topbar__title{
+  margin:0;
+  font-size:18px;
+  font-weight:600;
+  letter-spacing: .2px;
+}
+
+.content{
+  padding: 22px;
+}
+
+/* ====== COMPONENTES ====== */
+.card{
+  background: var(--surface);
+  border:1px solid var(--border);
+  border-radius:14px;
+  box-shadow: 0 10px 30px -10px var(--shadow);
+  overflow:hidden;
+}
+.card__header{
+  padding:14px 18px;
+  border-bottom:1px solid var(--border);
+}
+.card__title{
+  margin:0;
+  font-size:16px;
+  font-weight:600;
+}
+.card__body{
+  padding:18px;
+}
+
+.list{
+  margin:8px 0 0;
+  padding-left:18px;
+}
+.list li{ margin:6px 0; }
+
+/* ====== FORM ====== */
+.form{
+  display:grid;
+  gap:12px;
+}
+.form__label{
+  display:grid;
+  gap:6px;
+  font-size:13px;
+  color: var(--muted);
+}
+.form__input{
+  height:40px;
+  padding:0 12px;
+  border-radius:10px;
+  background: var(--field);
+  color: var(--text);
+  border:1px solid var(--border);
+  outline:none;
+}
+.form__input:focus{
+  border-color: var(--accent);
+  box-shadow: 0 0 0 4px rgba(58,133,25,0.18);
+}
+
+/* ====== BUTTONS & LINKS ====== */
+.btn{
+  height:40px;
+  padding:0 14px;
+  border-radius:10px;
+  border:1px solid var(--border);
+  background: var(--surface-2);
+  color: var(--text);
+  cursor:pointer;
+  transition: transform .04s ease, box-shadow .2s ease, border-color .2s ease;
+}
+.btn:active{ transform: scale(0.99); }
+.btn--primary{
+  background: linear-gradient(180deg, var(--primary), var(--primary-600));
+  border: none;
+  color: white;
+}
+.link{
+  color: var(--accent);
+  text-decoration: none;
+}
+.link:hover{ text-decoration: underline; }
+
+/* ====== FLASH MESSAGES ====== */
+.flash-container{ display:grid; gap:8px; margin-bottom:12px; }
+.flash{
+  border-radius:10px;
+  padding:10px 12px;
+  border:1px solid var(--border);
+  background: var(--surface);
+}
+.flash--success{ border-color: rgba(34,197,94,0.25); color: var(--success-text); background: #f0f8ec; }
+.flash--error{ border-color: rgba(239,68,68,0.25); color: var(--error-text); background: #fdf1f0; }
+.flash--warning{ border-color: rgba(245,158,11,0.25); color: var(--warning-text); background: #fdf6e7; }
+
+/* ====== RESPONSIVO ====== */
+@media (max-width: 880px){
+  .content{ padding: 16px; }
+}

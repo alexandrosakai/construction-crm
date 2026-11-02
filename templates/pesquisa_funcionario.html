@@ -1,0 +1,712 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Entrevista - Perfil Profissional | Empresa Exemplo</title>
+  <link rel="icon" type="image/png" href="{{ url_for('static', filename='img/PLACEHOLDER-FAVICON.png') }}">
+
+  <!-- Tema base -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"/>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/base.css') }}">
+
+<style>
+  /* ===== Layout base ===== */
+html, body {
+  height: 100%;
+  margin: 0;
+  padding: 0;
+  background: var(--bg);
+  color: var(--text, var(--text));
+  font-family: "Open Sans", system-ui, sans-serif;
+}
+
+/* Wrapper principal */
+.page {
+  display: flex;
+  justify-content: center;       /* centraliza horizontalmente */
+  align-items: flex-start;       /* começa do topo */
+  min-height: 100vh;
+  padding: 40px 20px;
+  box-sizing: border-box;
+}
+
+/* Container centralizado */
+.container {
+  width: 100%;
+  max-width: 950px;              /* limita a largura máxima */
+  background: var(--surface);
+  border-radius: 14px;
+  padding: 30px;
+  box-shadow: 0 10px 30px -10px var(--shadow);
+  box-sizing: border-box;
+}
+
+/* ===== Form e blocos ===== */
+form#entrevistaPerfil {
+  display: grid;
+  gap: 20px;
+  width: 100%;
+}
+
+.secao-formulario {
+  background: var(--surface-2);
+  border-radius: 12px;
+  border: 1px solid var(--border, var(--border));
+  padding: 20px;
+}
+
+.card__header h2,
+.secao-formulario > h2 {
+  margin: 0 0 10px 0;
+  font-size: 18px;
+  font-weight: 600;
+  text-align: center;            /* centraliza o título */
+}
+
+/* ===== Inputs ===== */
+input[type="text"],
+input[type="number"],
+input[type="tel"],
+input[type="date"],
+textarea,
+select {
+  width: 100%;
+  height: 40px;
+  padding: 0 12px;
+  border-radius: 10px;
+  background: var(--field);
+  color: var(--text);
+  border: 1px solid var(--border);
+  outline: none;
+  box-sizing: border-box;
+}
+
+textarea {
+  min-height: 90px;
+  resize: vertical;
+  padding: 10px 12px;
+}
+
+input:focus, select:focus, textarea:focus {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px rgba(58,133,25,0.18);
+}
+
+/* ===== Grids responsivos ===== */
+.grid-2,
+.grid-3,
+.grid-dificuldades {
+  display: grid;
+  gap: 12px;
+}
+
+.grid-2 { grid-template-columns: repeat(2, 1fr); }
+.grid-3 { grid-template-columns: repeat(3, 1fr); }
+.grid-dificuldades { grid-template-columns: repeat(2, 1fr); }
+
+@media (max-width: 900px) {
+  .grid-2,
+  .grid-3,
+  .grid-dificuldades {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* ===== Botão principal ===== */
+button[type="submit"] {
+  width: 100%;
+  height: 45px;
+  border-radius: 10px;
+  border: none;
+  cursor: pointer;
+  background: linear-gradient(180deg, var(--primary), var(--primary-600));
+  color: #fff;
+  font-size: 16px;
+  font-weight: 600;
+  transition: 0.3s;
+}
+
+button[type="submit"]:hover {
+  filter: brightness(1.15);
+}
+
+/* ===== Centraliza textos e grupos ===== */
+.form-header h1 {
+  text-align: center;
+  font-weight: 700;
+  margin-bottom: 8px;
+}
+
+.form-header p.lead {
+  text-align: center;
+  color: var(--muted);
+  margin-top: 0;
+  margin-bottom: 16px;
+}
+
+.checkbox-group,
+.radio-group {
+  display: grid;
+  gap: 8px;
+}
+
+.checkbox-option,
+.radio-option {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.outros-input {
+  margin-top: 6px;
+  width: 100%;
+}
+
+</style>
+
+</head>
+<body>
+  <section class="page">
+    <div class="container">
+
+      {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+          <div class="flash-container">
+            {% for category, message in messages %}
+              <div class="flash {{ 'flash--error' if category=='error' else ('flash--success' if category=='success' else '') }}">
+                {{ message }}
+              </div>
+            {% endfor %}
+          </div>
+        {% endif %}
+      {% endwith %}
+
+      <form id="entrevistaPerfil" method="POST" action="{{ url_for('pesquisa_funcionario') }}">
+        <div class="form-header">
+          <h1>Entrevista de Perfil Profissional</h1>
+          <p class="lead">Responda abaixo — o formulário está centralizado e otimizado para web/mobile.</p>
+        </div>
+
+        <!-- ===================== Seção 1: Identificação ===================== -->
+        <section class="secao-formulario card">
+          <div class="card__header"><h2 class="card__title">1. Identificação do Profissional</h2></div>
+          <div class="card__body">
+            <div class="form-group">
+              <label for="nome">Nome Completo:</label>
+              <input type="text" id="nome" name="nome" required>
+            </div>
+
+            <div class="form-group">
+              <label for="cargo">Cargo Atual:</label>
+              <select id="cargo" name="cargo" required>
+                <option value="">Selecione uma opção</option>
+                <option value="armador">Armador</option>
+                <option value="arquiteto">Arquiteto</option>
+                <option value="calheiro">Calheiro</option>
+                <option value="carpinteiro">Carpinteiro</option>
+                <option value="ceramista">Ceramista</option>
+                <option value="eletricista">Eletricista</option>
+                <option value="encanador">Encanador</option>
+                <option value="engenheiro_civil">Engenheiro Civil</option>
+                <option value="engenheiro_eletricista">Engenheiro Eletricista</option>
+                <option value="gesseiro">Gesseiro</option>
+                <option value="marceneiro">Marceneiro</option>
+                <option value="mestre">Mestre de Obras</option>
+                <option value="pedreiro">Pedreiro</option>
+                <option value="pintor">Pintor</option>
+                <option value="serralheiro">Serralheiro</option>
+                <option value="tecnico_edificacoes">Técnico em Edificações</option>
+                <option value="outro">Outro</option>
+              </select>
+            </div>
+
+            <!-- Lojas de elétrica (condicional para Eletricista) -->
+            <div class="form-group" id="lojasEletricista" style="display:none;">
+              <label>Qual loja você mais compra materiais elétricos?</label>
+              <div class="checkbox-group lojas-eletrica">
+                <div class="checkbox-option">
+                  <input type="checkbox" id="loja_eletrica1" name="lojas_eletrica" value="loja_a">
+                  <label for="loja_eletrica1">Loja A</label>
+                </div>
+                <div class="checkbox-option">
+                  <input type="checkbox" id="loja_eletrica2" name="lojas_eletrica" value="loja_b">
+                  <label for="loja_eletrica2">Loja B</label>
+                </div>
+                <div class="checkbox-option">
+                  <input type="checkbox" id="loja_eletrica3" name="lojas_eletrica" value="loja_c">
+                  <label for="loja_eletrica3">Loja C</label>
+                </div>
+                <div class="checkbox-option">
+                  <input type="checkbox" id="loja_eletrica4" name="lojas_eletrica" value="exemplo">
+                  <label for="loja_eletrica4">Empresa Exemplo</label>
+                </div>
+                <div class="checkbox-option">
+                  <input type="checkbox" id="loja_eletrica5" name="lojas_eletrica" value="loja_d">
+                  <label for="loja_eletrica5">Loja D</label>
+                </div>
+                <div class="checkbox-option">
+                  <input type="checkbox" id="loja_eletrica6" name="lojas_eletrica" value="loja_e">
+                  <label for="loja_eletrica6">Loja E</label>
+                </div>
+                <div class="checkbox-option">
+                  <input type="checkbox" id="loja_eletrica7" name="lojas_eletrica" value="loja_f">
+                  <label for="loja_eletrica7">Loja F</label>
+                </div>
+                <div class="checkbox-option">
+                  <input type="checkbox" id="loja_eletrica8" name="lojas_eletrica" value="loja_g">
+                  <label for="loja_eletrica8">Loja G</label>
+                </div>
+                <div class="checkbox-option outros-lojas-eletrica">
+                  <input type="checkbox" id="loja_eletrica9" name="lojas_eletrica" value="outras">
+                  <label for="loja_eletrica9">Outras</label>
+                  <textarea id="outras-lojas-eletrica" name="outras_lojas_eletrica" rows="2" placeholder="Quais outras lojas?" class="outros-input"></textarea>
+                </div>
+              </div>
+            </div>
+
+            <div class="grid-2">
+              <div class="form-group">
+                <label for="idade">Idade:</label>
+                <input type="number" id="idade" name="idade" min="18" required>
+              </div>
+
+              <div class="form-group">
+                <label for="telefone">Telefone:</label>
+                <div class="telefone-container">
+                  <input type="tel" id="telefone" name="telefone" placeholder="(00) 00000-0000" maxlength="15" pattern="\([0-9]{2}\) [0-9]{4,5}-[0-9]{4}" required>
+                  <a href="#" class="whatsapp-button" id="compartilharWhatsApp">
+                  </a>
+                </div>
+              </div>
+            </div>
+
+            <div class="form-group">
+              <div class="endereco-container">
+                <div class="cep-container">
+                  <label for="cep">CEP:</label>
+                  <input type="text" id="cep" name="cep" placeholder="00000-000" maxlength="9" required>
+                </div>
+                <div class="endereco-grid">
+                  <div class="form-group">
+                    <label for="rua">Rua:</label>
+                    <input type="text" id="rua" name="rua" required>
+                  </div>
+                  <div class="form-group">
+                    <label for="numero">Número:</label>
+                    <input type="text" id="numero" name="numero" required>
+                  </div>
+                  <div class="form-group">
+                    <label for="bairro">Bairro:</label>
+                    <input type="text" id="bairro" name="bairro" required>
+                  </div>
+                  <div class="form-group">
+                    <label for="cidade">Cidade:</label>
+                    <input type="text" id="cidade" name="cidade" required>
+                  </div>
+                  <div class="form-group">
+                    <label for="estado">Estado:</label>
+                    <input type="text" id="estado" name="estado" required>
+                  </div>
+                  <div class="form-group busca-cep">
+                    <label>&nbsp;</label>
+                    <button type="button" id="buscarPorEndereco" class="btn-busca-cep">
+                      <i class="fas fa-search"></i> Buscar CEP
+                    </button>
+                  </div>
+                  <div class="form-group">
+                    <label for="complemento">Complemento:</label>
+                    <input type="text" id="complemento" name="complemento">
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- ===================== Seção 2: Lazer ===================== -->
+        <section class="secao-formulario card">
+          <div class="card__header"><h2 class="card__title">2. Lazer</h2></div>
+          <div class="card__body">
+            <div class="form-group">
+                <BR>
+              <label>Qual esporte você gosta?</label>
+              <BR>
+                <BR>
+              <div class="checkbox-group esportes-grupo">
+                <div class="checkbox-option">
+                  <input type="checkbox" id="esporte1" name="esportes" value="futebol">
+                  <label for="esporte1">Futebol</label>
+                </div>
+                <div class="checkbox-option">
+                  <input type="checkbox" id="esporte2" name="esportes" value="pescaria">
+                  <label for="esporte2">Pescaria</label>
+                </div>
+                <div class="checkbox-option">
+                  <input type="checkbox" id="esporte3" name="esportes" value="pedalar">
+                  <label for="esporte3">Pedalar</label>
+                </div>
+                <div class="checkbox-option">
+                  <input type="checkbox" id="esporte4" name="esportes" value="caminhada">
+                  <label for="esporte4">Caminhada/Corrida</label>
+                </div>
+                <div class="checkbox-option outros-esporte">
+                  <input type="checkbox" id="esporte5" name="esportes" value="outros">
+                  <label for="esporte5">Outros</label>
+                  <textarea id="outros-esportes" name="outros_esportes" rows="2" placeholder="Quais outros esportes você gosta?" class="outros-input"></textarea>
+                </div>
+              </div>
+            </div>
+
+            <div class="form-group mt-4">
+                <BR>
+              <label>O que gosta de ver na internet?</label>
+              <BR>
+                <BR>
+              <div class="checkbox-group internet-grupo">
+                <div class="checkbox-option">
+                  <input type="checkbox" id="internet1" name="internet" value="construcao">
+                  <label for="internet1">Novidades na área da construção</label>
+                </div>
+                <div class="checkbox-option">
+                  <input type="checkbox" id="internet2" name="internet" value="produtos">
+                  <label for="internet2">Sobre produtos e aplicação</label>
+                </div>
+                <div class="checkbox-option">
+                  <input type="checkbox" id="internet3" name="internet" value="memes">
+                  <label for="internet3">Vídeos engraçados (memes, vídeos virais)</label>
+                </div>
+                <div class="checkbox-option">
+                  <input type="checkbox" id="internet4" name="internet" value="youtube">
+                  <label for="internet4">Youtube (vídeos)</label>
+                </div>
+                <div class="checkbox-option">
+                  <input type="checkbox" id="internet5" name="internet" value="instagram">
+                  <label for="internet5">Instagram</label>
+                </div>
+                <div class="checkbox-option">
+                  <input type="checkbox" id="internet6" name="internet" value="tiktok">
+                  <label for="internet6">TikTok</label>
+                </div>
+                <div class="checkbox-option">
+                  <input type="checkbox" id="internet7" name="internet" value="musicas">
+                  <label for="internet7">Músicas</label>
+                </div>
+                <div class="checkbox-option outros-internet">
+                  <input type="checkbox" id="internet8" name="internet" value="outros">
+                  <label for="internet8">Outros</label>
+                  <textarea id="outros-internet" name="outros_internet" rows="2" placeholder="O que mais gosta de ver na internet?" class="outros-input"></textarea>
+                </div>
+              </div>
+            </div>
+
+            <div class="form-group mt-4">
+                <BR>
+              <label>Tem Instagram?</label>
+              <BR>
+                <BR>
+              <div class="instagram-container">
+                <div class="radio-group">
+                  <div class="radio-option">
+                    <input type="radio" id="insta_sim" name="tem_instagram" value="sim">
+                    <label for="insta_sim">Sim</label>
+                  </div>
+                  <div class="radio-option">
+                    <input type="radio" id="insta_nao" name="tem_instagram" value="nao">
+                    <label for="insta_nao">Não</label>
+                  </div>
+                </div>
+                <div class="instagram-input" id="instagramInputContainer" style="display:none;">
+                  <label for="instagram">Qual seu @?</label>
+                  <input type="text" id="instagram" name="instagram" placeholder="@seu.perfil">
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- ===================== Seção 3: Perfil Profissional ===================== -->
+        <section class="secao-formulario card">
+          <div class="card__header"><h2 class="card__title">3. Perfil Profissional</h2></div>
+          <div class="card__body">
+            <div class="form-group">
+                <BR>
+              <label>Tempo de Experiência:</label>
+              <BR>
+                <BR>
+              <div class="radio-group experiencia-grupo">
+                <div class="radio-option">
+                  <input type="radio" id="exp1_3" name="experiencia" value="1_3" required>
+                  <label for="exp1_3">1 a 3 anos</label>
+                </div>
+                <div class="radio-option">
+                  <input type="radio" id="exp3_5" name="experiencia" value="3_5">
+                  <label for="exp3_5">3 a 5 anos</label>
+                </div>
+                <div class="radio-option">
+                  <input type="radio" id="exp5_8" name="experiencia" value="5_8">
+                  <label for="exp5_8">5 a 8 anos</label>
+                </div>
+                <div class="radio-option">
+                  <input type="radio" id="exp8_mais" name="experiencia" value="8_mais">
+                  <label for="exp8_mais">8 anos ou mais</label>
+                </div>
+              </div>
+            </div>
+
+            <div class="form-group">
+                <BR>
+              <label>Quantas obras você pega por vez?</label>
+              <BR>
+                <BR>
+              <div class="radio-group obras-simultaneas">
+                <div class="radio-option">
+                  <input type="radio" id="obras1" name="obras_simultaneas" value="1" required>
+                  <label for="obras1">1 obra</label>
+                </div>
+                <div class="radio-option">
+                  <input type="radio" id="obras2" name="obras_simultaneas" value="2">
+                  <label for="obras2">2 obras</label>
+                </div>
+                <div class="radio-option">
+                  <input type="radio" id="obras3" name="obras_simultaneas" value="3">
+                  <label for="obras3">3 obras</label>
+                </div>
+                <div class="radio-option">
+                  <input type="radio" id="obras4" name="obras_simultaneas" value="4_mais">
+                  <label for="obras4">4 ou mais</label>
+                </div>
+              </div>
+            </div>
+
+            <div class="form-group mt-4">
+                <BR>
+              <label>Quantas pessoas trabalham diretamente com você na sua equipe?</label>
+              <BR>
+                <BR>
+              <div class="radio-group equipe-tamanho">
+                <div class="radio-option">
+                  <input type="radio" id="equipe1" name="tamanho_equipe" value="1" required>
+                  <label for="equipe1">1 pessoa</label>
+                </div>
+                <div class="radio-option">
+                  <input type="radio" id="equipe2" name="tamanho_equipe" value="2_4">
+                  <label for="equipe2">2 a 4 pessoas</label>
+                </div>
+                <div class="radio-option">
+                  <input type="radio" id="equipe3" name="tamanho_equipe" value="5_10">
+                  <label for="equipe3">5 a 10 pessoas</label>
+                </div>
+                <div class="radio-option">
+                  <input type="radio" id="equipe4" name="tamanho_equipe" value="10_20">
+                  <label for="equipe4">10 a 20 pessoas</label>
+                </div>
+                <div class="radio-option">
+                  <input type="radio" id="equipe5" name="tamanho_equipe" value="20_mais">
+                  <label for="equipe5">Mais de 20 pessoas</label>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- ===================== Seção 4: Percepções e Experiências ===================== -->
+        <section class="secao-formulario card">
+          <div class="card__header"><h2 class="card__title">4. Percepções e Experiências</h2></div>
+          <div class="card__body">
+            <div class="empatia-grupo">
+              <h3 style="margin:0 0 8px 0;">4.1 Desafios e Dificuldades</h3>
+              <div class="grid-dificuldades">
+                <div class="checkbox-option">
+                  <input type="checkbox" id="dor1" name="dores" value="salario">
+                  <label for="dor1">Salário baixo</label>
+                </div>
+                <div class="checkbox-option">
+                  <input type="checkbox" id="dor2" name="dores" value="jornada">
+                  <label for="dor2">Jornada de trabalho extensa</label>
+                </div>
+                <div class="checkbox-option">
+                  <input type="checkbox" id="dor3" name="dores" value="capacitacao">
+                  <label for="dor3">Falta de capacitação</label>
+                </div>
+                <div class="checkbox-option">
+                  <input type="checkbox" id="dor4" name="dores" value="reconhecimento">
+                  <label for="dor4">Falta de reconhecimento</label>
+                </div>
+                <div class="checkbox-option">
+                  <input type="checkbox" id="dor5" name="dores" value="seguranca">
+                  <label for="dor5">Condições de segurança inadequadas</label>
+                </div>
+                <div class="checkbox-option">
+                  <input type="checkbox" id="dor6" name="dores" value="equipamentos">
+                  <label for="dor6">Falta de equipamentos adequados</label>
+                </div>
+                <div class="checkbox-option">
+                  <input type="checkbox" id="dor7" name="dores" value="instabilidade">
+                  <label for="dor7">Instabilidade no emprego</label>
+                </div>
+                <div class="checkbox-option">
+                  <input type="checkbox" id="dor8" name="dores" value="comunicacao">
+                  <label for="dor8">Problemas de comunicação com superiores</label>
+                </div>
+                <div class="checkbox-option">
+                  <input type="checkbox" id="dor9" name="dores" value="materiais">
+                  <label for="dor9">Atrasos na entrega de materiais</label>
+                </div>
+                <div class="checkbox-option">
+                  <input type="checkbox" id="dor10" name="dores" value="carteira">
+                  <label for="dor10">Falta de carteira assinada</label>
+                </div>
+              </div>
+              <div class="outras-dificuldades" style="margin-top:10px;">
+                <label for="outras-dores">Outros desafios:</label>
+                <textarea id="outras-dores" name="outras-dores" rows="3" placeholder="Descreva outros desafios não listados..."></textarea>
+              </div>
+            </div>
+
+            <div class="empatia-grupo" style="margin-top:16px;">
+              <h3 style="margin:0 0 8px 0;">4.2 O que deseja encontrar em uma loja de materiais para construção</h3>
+
+              <!-- Condicional: para Pintor, mostrar marcas de tinta -->
+              <div class="tintas-container" style="display:none;" id="tintasContainer">
+                <h4 style="margin:0 0 8px 0;">Quais as tintas que você mais utiliza:</h4>
+                <div class="checkbox-group tintas-preferidas">
+                  <div class="checkbox-option"><input type="checkbox" id="tinta1" name="tintas" value="marca_a"><label for="tinta1">Marca A</label></div>
+                  <div class="checkbox-option"><input type="checkbox" id="tinta2" name="tintas" value="marca_b"><label for="tinta2">Marca B</label></div>
+                  <div class="checkbox-option"><input type="checkbox" id="tinta3" name="tintas" value="marca_c"><label for="tinta3">Marca C</label></div>
+                  <div class="checkbox-option"><input type="checkbox" id="tinta4" name="tintas" value="marca_d"><label for="tinta4">Marca D</label></div>
+                  <div class="checkbox-option"><input type="checkbox" id="tinta5" name="tintas" value="marca_e"><label for="tinta5">Marca E</label></div>
+                  <div class="checkbox-option"><input type="checkbox" id="tinta6" name="tintas" value="marca_f"><label for="tinta6">Marca F</label></div>
+                  <div class="checkbox-option"><input type="checkbox" id="tinta7" name="tintas" value="marca_g"><label for="tinta7">Marca G</label></div>
+                  <div class="checkbox-option"><input type="checkbox" id="tinta8" name="tintas" value="marca_h"><label for="tinta8">Marca H</label></div>
+                  <div class="checkbox-option"><input type="checkbox" id="tinta9" name="tintas" value="marca_i"><label for="tinta9">Marca I</label></div>
+                  <div class="checkbox-option outros-tintas">
+                    <input type="checkbox" id="tinta10" name="tintas" value="outra">
+                    <label for="tinta10">Outra</label>
+                    <textarea id="outras-tintas" name="outras_tintas" rows="2" placeholder="Quais outras marcas de tinta?" class="outros-input"></textarea>
+                  </div>
+                </div>
+              </div>
+
+              <div class="checkbox-group desejos-loja" style="margin-top:8px;">
+                <div class="checkbox-option"><input type="checkbox" id="desejo1" name="desejos_loja" value="tudo_lugar"><label for="desejo1">Comprar tudo em um lugar só</label></div>
+                <div class="checkbox-option"><input type="checkbox" id="desejo2" name="desejos_loja" value="disponibilidade_variedade_qualidade"><label for="desejo2">Disponibilidade de Quantidade/Variedade/Qualidade</label></div>
+                <div class="checkbox-option"><input type="checkbox" id="desejo3" name="desejos_loja" value="agilidade"><label for="desejo3">Agilidade na compra e entrega</label></div>
+                <div class="checkbox-option"><input type="checkbox" id="desejo4" name="desejos_loja" value="suporte"><label for="desejo4">Suporte técnico (conhecimento do produto)</label></div>
+                <div class="checkbox-option"><input type="checkbox" id="desejo5" name="desejos_loja" value="eventos_treinamentos"><label for="desejo5">Eventos e treinamentos</label></div>
+                <div class="checkbox-option"><input type="checkbox" id="desejo6" name="desejos_loja" value="parcerias"><label for="desejo6">Parcerias/Comissões</label></div>
+                <div class="checkbox-option"><input type="checkbox" id="desejo7" name="desejos_loja" value="brindes"><label for="desejo7">Brindes/Sorteios</label></div>
+                <div class="checkbox-option"><input type="checkbox" id="desejo8" name="desejos_loja" value="custo_beneficio"><label for="desejo8">Custo benefício (valor dos produtos)</label></div>
+                <div class="checkbox-option outros-desejos">
+                  <input type="checkbox" id="desejo9" name="desejos_loja" value="outros">
+                  <label for="desejo9">Outros</label>
+                  <textarea id="outros-desejos" name="outros_desejos" rows="2" placeholder="O que mais deseja encontrar?" class="outros-input"></textarea>
+                </div>
+              </div>
+            </div>
+
+            <div class="empatia-grupo" style="margin-top:16px;">
+              <h3 style="margin:0 0 8px 0;">4.3 Qual sua participação no processo de compra</h3>
+              <div class="radio-group processo-compra">
+                <div class="radio-option"><input type="radio" id="processo1" name="processo_compra" value="decide" required><label for="processo1">Decide no processo de compra</label></div>
+                <div class="radio-option"><input type="radio" id="processo2" name="processo_compra" value="influencia"><label for="processo2">Influencia no processo de compra</label></div>
+                <div class="radio-option"><input type="radio" id="processo3" name="processo_compra" value="decide_influencia"><label for="processo3">Decide e influencia no processo de compra</label></div>
+                <div class="radio-option"><input type="radio" id="processo4" name="processo_compra" value="apenas_usa"><label for="processo4">Apenas usa o produto ou serviço</label></div>
+              </div>
+            </div>
+
+            <div class="empatia-grupo" style="margin-top:16px;">
+              <h3 style="margin:0 0 8px 0;">4.4 Quais são/é a loja de material de construção da sua preferência</h3>
+              <div class="checkbox-group lojas-preferidas">
+                <div class="checkbox-option"><input type="checkbox" id="loja1" name="lojas_preferidas" value="loja_a"><label for="loja1">Loja A</label></div>
+                <div class="checkbox-option"><input type="checkbox" id="loja2" name="lojas_preferidas" value="loja_b"><label for="loja2">Loja B</label></div>
+                <div class="checkbox-option"><input type="checkbox" id="loja3" name="lojas_preferidas" value="grupo_exemplo"><label for="loja3">Empresa Exemplo</label></div>
+                <div class="checkbox-option"><input type="checkbox" id="loja4" name="lojas_preferidas" value="loja_c"><label for="loja4">Loja C</label></div>
+                <div class="checkbox-option"><input type="checkbox" id="loja5" name="lojas_preferidas" value="loja_d"><label for="loja5">Loja D</label></div>
+                <div class="checkbox-option"><input type="checkbox" id="loja6" name="lojas_preferidas" value="loja_e"><label for="loja6">Loja E</label></div>
+                <div class="checkbox-option"><input type="checkbox" id="loja7" name="lojas_preferidas" value="loja_f"><label for="loja7">Loja F</label></div>
+                <div class="checkbox-option"><input type="checkbox" id="loja8" name="lojas_preferidas" value="todas"><label for="loja8">Compro em todas</label></div>
+                <div class="checkbox-option outros-lojas">
+                  <input type="checkbox" id="loja9" name="lojas_preferidas" value="outras">
+                  <label for="loja9">Outras</label>
+                  <textarea id="outras-lojas" name="outras_lojas" rows="2" placeholder="Quais outras lojas?" class="outros-input"></textarea>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- ===================== Seção 5: Perspectivas Futuras ===================== -->
+        <section class="secao-formulario card">
+          <div class="card__header"><h2 class="card__title">5. Perspectivas Futuras</h2></div>
+          <div class="card__body">
+            <div class="form-group">
+              <label>O que espera das lojas de Materiais para Construção:</label>
+              <div class="checkbox-group expectativas-loja">
+                <div class="checkbox-option"><input type="checkbox" id="exp1" name="expectativas_loja" value="reconhecimento"><label for="exp1">Reconhecimento</label></div>
+                <div class="checkbox-option"><input type="checkbox" id="exp2" name="expectativas_loja" value="premios"><label for="exp2">Prêmios</label></div>
+                <div class="checkbox-option"><input type="checkbox" id="exp3" name="expectativas_loja" value="brindes"><label for="exp3">Brindes</label></div>
+                <div class="checkbox-option"><input type="checkbox" id="exp4" name="expectativas_loja" value="cursos"><label for="exp4">Cursos e Treinamentos</label></div>
+                <div class="checkbox-option"><input type="checkbox" id="exp5" name="expectativas_loja" value="comissionamento"><label for="exp5">Comissionamento</label></div>
+                <div class="checkbox-option outros-expectativa">
+                  <input type="checkbox" id="exp6" name="expectativas_loja" value="outros">
+                  <label for="exp6">Outros</label>
+                  <textarea id="outras-expectativas" name="outras_expectativas" rows="2" placeholder="Descreva outras expectativas..." class="outros-input"></textarea>
+                </div>
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label for="expectativas">Objetivos e expectativas profissionais:</label>
+              <textarea id="expectativas" name="expectativas" rows="4" placeholder="Descreva seus objetivos e expectativas para o futuro..."></textarea>
+            </div>
+          </div>
+        </section>
+
+        <button type="submit"><i class="fa-solid fa-paper-plane"></i> Finalizar Entrevista</button>
+      </form>
+    </div>
+  </section>
+
+  <script>
+    // ====== Condicionais por cargo ======
+    const cargoSelect = document.getElementById('cargo');
+    const lojasEletricista = document.getElementById('lojasEletricista');
+    const tintasContainer  = document.getElementById('tintasContainer');
+
+    function updateCargoBlocks(){
+      const v = cargoSelect.value;
+      lojasEletricista.style.display = (v === 'eletricista') ? '' : 'none';
+      tintasContainer.style.display  = (v === 'pintor') ? '' : 'none';
+    }
+    cargoSelect.addEventListener('change', updateCargoBlocks);
+    updateCargoBlocks();
+
+    // ====== Instagram sim/nao ======
+    const instaSim  = document.getElementById('insta_sim');
+    const instaNao  = document.getElementById('insta_nao');
+    const instaWrap = document.getElementById('instagramInputContainer');
+    function updateInstagram(){
+      instaWrap.style.display = (instaSim.checked) ? '' : 'none';
+    }
+    [instaSim, instaNao].forEach(el => el.addEventListener('change', updateInstagram));
+    updateInstagram();
+
+    // ====== WhatsApp helper ======
+    const btnWhats = document.getElementById('compartilharWhatsApp');
+    btnWhats.addEventListener('click', (e)=>{
+      e.preventDefault();
+      const telRaw = (document.getElementById('telefone').value || '').replace(/\D+/g,'');
+      if(!telRaw) return;
+      window.open('https://wa.me/55' + telRaw, '_blank');
+    });
+
+    // ====== Buscar CEP (placeholder) ======
+    document.getElementById('buscarPorEndereco').addEventListener('click', ()=>{
+      // Aqui você integra com seu serviço de CEP (ex: ViaCEP) se quiser.
+      // Mantive apenas o gatilho com o mesmo id do seu HTML antigo.
+      alert('Plugue aqui sua busca de CEP.');
+    });
+  </script>
+</body>
+</html>

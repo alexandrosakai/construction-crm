@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Usuários | Portal Empresa Exemplo</title>
+  <link rel="icon" type="image/png" href="{{ url_for('static', filename='img/PLACEHOLDER-FAVICON.png') }}">
+
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/base.css') }}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/menu.css') }}">
+
+  <style>
+    [hidden]{ display:none !important; }
+    body{ margin:0; min-height:100dvh; background:var(--bg); color:var(--text); display:flex; }
+    .layout{ display:flex; align-items:stretch; min-height:100vh; width:100%; }
+    .main{ flex:1; min-width:0; order:1; overflow-x:hidden; background:var(--bg); display:flex; flex-direction:column; }
+    .page{ flex:1; min-width:0; display:flex; justify-content:center; align-items:flex-start; padding:24px; }
+    .container-modern{ width:clamp(320px, 92vw, 1100px); margin-inline:auto; }
+
+    .card{ background:var(--surface) !important; border:1px solid var(--border) !important;
+      border-radius:14px !important; box-shadow:0 10px 30px -10px var(--shadow) !important; overflow:hidden; }
+    .card-header{ background:transparent !important; border-bottom:1px solid var(--border) !important; color:var(--text); padding:14px 18px !important; }
+    .card-header h3{ margin:0; font-size:16px; font-weight:600; color:var(--text); }
+    .card-body{ padding:18px !important; color:var(--text); }
+
+    .btn-primary{ background:linear-gradient(180deg, var(--primary), var(--primary-600)) !important; border:none !important; color:#fff !important; }
+    .form-control,.form-select{ background:var(--field) !important; border:1px solid var(--border) !important; color:var(--text) !important; height:40px; border-radius:10px; }
+    .form-control::placeholder{ color:var(--muted); }
+    .form-control:focus,.form-select:focus{ border-color:var(--accent) !important; box-shadow:0 0 0 4px rgba(58,133,25,.15) !important; }
+
+    .flash{ padding:10px 14px; border-radius:10px; border:1px solid var(--border); background:var(--surface-2); margin-bottom:8px; }
+    .flash--error{ border-color:rgba(239,68,68,.35); color:var(--error-text); }
+    .flash--success{ border-color:rgba(34,197,94,.35); color:var(--success-text); }
+
+    .tbl{ width:100%; border-collapse:collapse; font-size:14px; }
+    .tbl th{ background:var(--surface-2); color:var(--muted); font-weight:600; font-size:12px; text-transform:uppercase; letter-spacing:.04em; padding:10px 12px; text-align:left; white-space:nowrap; }
+    .tbl td{ padding:12px; border-top:1px solid var(--border); vertical-align:middle; }
+    .tbl tbody tr:hover td{ background:rgba(58,133,25,0.06); }
+    .tbl .sub{ color:var(--muted); font-size:12px; }
+    .tbl .acesso{ color:var(--muted); font-size:13px; max-width:320px; }
+
+    .pill{ display:inline-block; padding:3px 10px; border-radius:999px; font-size:12px; font-weight:600; border:1px solid var(--border); white-space:nowrap; }
+    .pill--admin{ color:var(--warning-text); border-color:rgba(245,158,11,.4); }
+    .pill--gerente{ color:var(--info-text); border-color:rgba(58,133,25,.4); }
+    .pill--operador{ color:var(--success-text); border-color:rgba(34,197,94,.4); }
+    .pill--consulta, .pill--personalizado{ color:var(--text); }
+    .status{ display:inline-flex; align-items:center; gap:6px; font-size:13px; white-space:nowrap; }
+    .status::before{ content:""; width:8px; height:8px; border-radius:50%; background:var(--muted); }
+    .status--aprovado::before{ background:var(--success); }
+    .status--pendente::before{ background:var(--warning); }
+    .status--bloqueado::before{ background:var(--error); }
+
+    .acoes{ display:flex; gap:6px; justify-content:flex-end; }
+    .acoes .btn{ padding:4px 10px; font-size:13px; white-space:nowrap; }
+    .btn-edit{ background:#8a6d0b !important; color:#fff !important; border:none !important; }
+    .btn-del{ background:#7a1c1c !important; color:#fff !important; border:none !important; }
+
+    .confirm{ display:none; gap:6px; align-items:center; justify-content:flex-end; font-size:13px; }
+    .confirm.show{ display:flex; }
+
+    @media (max-width:768px){
+      .layout{ flex-direction:column; }
+      .page{ padding:16px; }
+      .tbl thead{ display:none; }
+      .tbl, .tbl tbody, .tbl tr, .tbl td{ display:block; width:100%; }
+      .tbl tr{ border-top:1px solid var(--border); padding:10px 0; }
+      .tbl td{ border:none; padding:4px 0; }
+      .acoes, .confirm.show{ justify-content:flex-start; }
+    }
+  </style>
+</head>
+<body>
+  <div class="layout">
+    {% include 'menu.html' %}
+
+    <main class="main">
+      <section class="page">
+        <div class="container-modern">
+          <div class="d-flex flex-wrap gap-2 align-items-center justify-content-between mb-3">
+            <h2 class="mb-0">Usuários do sistema</h2>
+            {% if pode('usuarios', 'inserir') %}
+            <a href="{{ url_for('novo_usuario') }}" class="btn btn-primary">
+              <i class="fa-solid fa-user-plus me-1"></i> Novo usuário
+            </a>
+            {% endif %}
+          </div>
+
+          {% with messages = get_flashed_messages(with_categories=true) %}
+            {% for category, message in messages %}
+              <div class="flash {{ 'flash--error' if category=='error' else ('flash--success' if category=='success' else '') }}">{{ message }}</div>
+            {% endfor %}
+          {% endwith %}
+
+          <div class="card">
+            <div class="card-header d-flex flex-wrap gap-2 align-items-center justify-content-between">
+              <h3>{{ usuarios|length }} usuário{{ 's' if usuarios|length != 1 }}</h3>
+              <div class="d-flex gap-2 flex-wrap">
+                <input type="search" id="busca" class="form-control" placeholder="Buscar nome, usuário ou e-mail" style="width:240px">
+                <select id="filtroPerfil" class="form-select" style="width:170px" aria-label="Filtrar por nível de acesso">
+                  <option value="">Todos os níveis</option>
+                  {% for chave, p in perfis.items() %}<option value="{{ chave }}">{{ p.nome }}</option>{% endfor %}
+                </select>
+              </div>
+            </div>
+            <div class="card-body p-0" style="overflow-x:auto">
+              <table class="tbl">
+                <thead>
+                  <tr>
+                    <th>Nome</th>
+                    <th>Nível de acesso</th>
+                    <th>Pode acessar</th>
+                    <th>Situação</th>
+                    <th></th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {% for u in usuarios %}
+                  <tr data-busca="{{ (u.name or '') ~ ' ' ~ u.username ~ ' ' ~ u.email }}" data-perfil="{{ u.perfil }}">
+                    <td>
+                      <div>{{ u.name or u.username }}</div>
+                      <div class="sub">{{ u.username }} · {{ u.email }}</div>
+                    </td>
+                    <td><span class="pill pill--{{ u.perfil }}">{{ perfis[u.perfil].nome if u.perfil in perfis else u.perfil }}</span></td>
+                    <td class="acesso">{{ u.resumo }}</td>
+                    <td><span class="status status--{{ u.status }}">{{ status_opcoes.get(u.status, u.status) }}</span></td>
+                    <td>
+                      <div class="acoes" id="acoes-{{ u.id }}">
+                        {% if pode('usuarios', 'alterar') %}
+                        <a class="btn btn-edit" href="{{ url_for('editar_usuario', user_id=u.id) }}"><i class="fa-solid fa-pen-to-square me-1"></i>Editar</a>
+                        {% endif %}
+                        {% if pode('usuarios', 'excluir') and u.id|string != current_user.id %}
+                        <button type="button" class="btn btn-del" data-confirmar="{{ u.id }}"><i class="fa-solid fa-trash me-1"></i>Excluir</button>
+                        {% endif %}
+                      </div>
+                      {% if pode('usuarios', 'excluir') and u.id|string != current_user.id %}
+                      <form class="confirm" id="confirm-{{ u.id }}" method="POST" action="{{ url_for('excluir_usuario', user_id=u.id) }}">
+                        <span>Excluir {{ u.username }}?</span>
+                        <button type="submit" class="btn btn-del btn-sm">Sim, excluir</button>
+                        <button type="button" class="btn btn-secondary btn-sm" data-cancelar="{{ u.id }}">Cancelar</button>
+                      </form>
+                      {% endif %}
+                    </td>
+                  </tr>
+                  {% else %}
+                  <tr><td colspan="5" class="text-center p-4">Nenhum usuário cadastrado.</td></tr>
+                  {% endfor %}
+                  <tr id="semResultado" hidden><td colspan="5" class="text-center p-4">Nenhum usuário encontrado com esse filtro.</td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <script>
+  (function(){
+    const busca = document.getElementById('busca');
+    const filtro = document.getElementById('filtroPerfil');
+    const linhas = [...document.querySelectorAll('tr[data-busca]')];
+    const vazio = document.getElementById('semResultado');
+    const norm = s => (s || '').normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase();
+    function filtrar(){
+      const q = norm(busca.value), p = filtro.value;
+      let n = 0;
+      linhas.forEach(tr => {
+        const ok = (!q || norm(tr.dataset.busca).includes(q)) && (!p || tr.dataset.perfil === p);
+        tr.hidden = !ok; if (ok) n++;
+      });
+      vazio.hidden = n > 0 || !linhas.length;
+    }
+    busca.addEventListener('input', filtrar);
+    filtro.addEventListener('change', filtrar);
+
+    document.addEventListener('click', e => {
+      const c = e.target.closest('[data-confirmar]');
+      const x = e.target.closest('[data-cancelar]');
+      const id = (c || x || {}).dataset ? (c ? c.dataset.confirmar : x && x.dataset.cancelar) : null;
+      if (!id) return;
+      document.getElementById('acoes-' + id).hidden = !!c;
+      document.getElementById('confirm-' + id).classList.toggle('show', !!c);
+    });
+  })();
+  </script>
+</body>
+</html>

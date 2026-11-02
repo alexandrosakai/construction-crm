@@ -1,0 +1,103 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Painel de Checklists · Empresa Exemplo</title>
+<meta name="robots" content="noindex">
+<link rel="icon" href="PLACEHOLDER-ICON-192.png">
+<style>
+:root{--bg:#F3F5F4;--surface:#fff;--ink:#1C2A30;--muted:#5D6B72;--line:#D9E0DD;--accent:#1e3a8a;--accent-soft:#E2EFEC;--crit:#B42318;--crit-soft:#FCEBE9;--ok:#1F7A45;--ok-soft:#E5F3EA;--row:#F6F8F7;color-scheme:light}
+@media (prefers-color-scheme:dark){:root{--bg:#12191C;--surface:#1A2327;--ink:#E4EBEA;--muted:#98A7AD;--line:#2C393E;--accent:#93c5fd;--accent-soft:#1D3533;--crit:#F28B82;--crit-soft:#3A2220;--ok:#7FD39E;--ok-soft:#1C3125;--row:#202B30;color-scheme:dark}}
+*,*::before,*::after{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.5 "IBM Plex Sans",system-ui,sans-serif}
+.wrap{max-width:1200px;margin:0 auto;padding:20px 14px 60px}
+h1{font-size:24px;margin:0 0 4px}.muted{color:var(--muted)}
+a{color:var(--accent)}
+input,select,button{font:inherit;color:inherit}
+input,select{background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:7px 10px}
+.btn{border:1px solid var(--accent);background:var(--accent);color:var(--surface);padding:7px 14px;border-radius:8px;font-weight:600;cursor:pointer}
+.btn.ghost{background:none;color:var(--accent)}.btn.danger{background:none;border-color:var(--crit);color:var(--crit)}
+.kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px;margin:16px 0}
+.kpi{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:12px 14px}.kpi b{font-size:26px;display:block}
+.tools{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-bottom:12px}
+.scroll{overflow-x:auto;background:var(--surface);border:1px solid var(--line);border-radius:12px}
+table{width:100%;border-collapse:collapse}th,td{padding:9px 12px;text-align:left;border-bottom:1px solid var(--line);font-size:14px;white-space:nowrap}
+th{font-size:12px;text-transform:uppercase;letter-spacing:.04em;color:var(--muted)}
+tbody tr{cursor:pointer}tbody tr:hover td{background:var(--row)}
+.b{display:inline-block;border-radius:99px;padding:1px 10px;font-size:13px;font-weight:600}.b.ok{background:var(--ok-soft);color:var(--ok)}.b.nok{background:var(--crit-soft);color:var(--crit)}
+dialog{border:1px solid var(--line);border-radius:14px;max-width:680px;width:calc(100% - 24px);background:var(--surface);color:var(--ink);padding:0}
+dialog::backdrop{background:rgba(0,0,0,.5)}
+.dh{display:flex;justify-content:space-between;gap:10px;padding:14px 18px;border-bottom:1px solid var(--line);position:sticky;top:0;background:var(--surface)}
+.db{padding:6px 18px 18px}.db h3{font-size:14px;margin:16px 0 4px;color:var(--muted);text-transform:uppercase;letter-spacing:.04em}
+.li{display:flex;justify-content:space-between;gap:10px;padding:5px 0;border-bottom:1px solid var(--line)}.li.n{color:var(--crit);font-weight:600}
+.fotos{display:flex;flex-wrap:wrap;gap:8px}.fotos img{width:120px;height:120px;object-fit:cover;border-radius:10px;border:1px solid var(--line)}
+#login{max-width:340px;margin:80px auto;background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:20px}
+#login input{width:100%;margin:10px 0}
+</style>
+</head>
+<body>
+<div id="login" hidden><h1>🔒 Painel</h1><p class="muted">Digite o PIN de acesso.</p><input type="password" id="pin" inputmode="numeric" autocomplete="current-password"><button class="btn" style="width:100%" onclick="entrar()">Entrar</button><p id="lerr" style="color:var(--crit)"></p></div>
+<div class="wrap" id="painel" hidden>
+  <a href="/" class="muted">← Sistemas internos</a>
+  <h1>Painel de Checklists</h1><p class="muted">Respostas enviadas pelos colaboradores.</p>
+  <div class="kpis" id="kpis"></div>
+  <div class="tools">
+    <select id="fCid" onchange="carregar()"><option value="">Todos os checklists</option></select>
+    <label>de <input type="date" id="fDe" onchange="carregar()"></label><label>até <input type="date" id="fAte" onchange="carregar()"></label>
+    <label><input type="checkbox" id="fNok" onchange="carregar()"> só com “COM PROBLEMA”</label>
+    <span style="flex:1"></span>
+    <button class="btn ghost" onclick="baixar()">⬇ CSV</button><button class="btn ghost" onclick="sair()">Sair</button>
+  </div>
+  <div class="scroll"><table><thead><tr><th>Data/hora</th><th>Checklist</th><th>Responsável</th><th>Veículo</th><th>Situação</th></tr></thead><tbody id="rows"></tbody></table></div>
+</div>
+<dialog id="dlg"></dialog>
+<script>
+const API = 'api/'; let PIN = sessionStorage.getItem('ckpin') || '', DADOS = [], CAT = [];
+const $ = s => document.querySelector(s);
+const ESC = s => String(s == null ? '' : s).replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const H = () => ({'X-Admin': PIN});
+const fmt = i => { const d = new Date(i); return d.toLocaleDateString('pt-BR') + ' ' + d.toLocaleTimeString('pt-BR', {hour: '2-digit', minute: '2-digit'}); };
+async function entrar() { PIN = $('#pin').value.trim(); sessionStorage.setItem('ckpin', PIN); await iniciar(); }
+function sair() { sessionStorage.removeItem('ckpin'); PIN = ''; location.reload(); }
+async function iniciar() {
+  if (!PIN) { $('#login').hidden = false; return; }
+  const r = await fetch(API + 'admin/respostas?limite=1', {headers: H()});
+  if (r.status === 401) { $('#login').hidden = false; $('#lerr').textContent = PIN ? 'PIN incorreto.' : ''; sessionStorage.removeItem('ckpin'); return; }
+  $('#login').hidden = true; $('#painel').hidden = false;
+  CAT = await (await fetch(API + 'catalogo')).json();
+  $('#fCid').innerHTML += CAT.map(c => `<option value="${c.id}">${ESC(c.titulo)}</option>`).join(''); carregar();
+}
+async function carregar() {
+  const p = new URLSearchParams({limite: 500}); if ($('#fCid').value) p.set('cid', $('#fCid').value);
+  if ($('#fDe').value) p.set('de', $('#fDe').value); if ($('#fAte').value) p.set('ate', $('#fAte').value); if ($('#fNok').checked) p.set('so_nok', 1);
+  DADOS = await (await fetch(API + 'admin/respostas?' + p, {headers: H()})).json();
+  const hoje = new Date().toISOString().slice(0, 10);
+  $('#kpis').innerHTML = [['Respostas listadas', DADOS.length], ['Hoje', DADOS.filter(d => d.criado.startsWith(hoje)).length], ['Com “COM PROBLEMA”', DADOS.filter(d => d.nok).length], ['Itens “COM PROBLEMA”', DADOS.reduce((a, d) => a + d.nok, 0)]].map(([t, v]) => `<div class="kpi"><b>${v}</b>${t}</div>`).join('');
+  $('#rows').innerHTML = DADOS.map((d, i) => `<tr onclick="ver(${i})"><td>${fmt(d.criado)}</td><td>${ESC(d.titulo)}</td><td>${ESC(d.quem)}</td><td>${ESC(d.extra)}</td><td>${d.nok ? `<span class="b nok">${d.nok} COM PROBLEMA</span>` : '<span class="b ok">Tudo OK</span>'}</td></tr>`).join('') || '<tr><td colspan="5" class="muted" style="text-align:center;padding:30px">Nenhuma resposta.</td></tr>';
+}
+function ver(i) {
+  const d = DADOS[i], cl = CAT.find(c => c.id === d.cid) || {campos: []};
+  let h = `<div class="dh"><div><b>${ESC(d.titulo)}</b><br><span class="muted">${fmt(d.criado)} · ${ESC(d.quem)}${d.extra ? ' · ' + ESC(d.extra) : ''}</span></div><button class="btn ghost" onclick="dlg.close()">Fechar</button></div><div class="db">`;
+  cl.campos.forEach(c => {
+    const v = d.dados[c.k];
+    if (c.t === 'itens') h += `<h3>${ESC(c.label)}</h3>` + Object.entries(v || {}).map(([k, x]) => `<div class="li ${x === 'COM PROBLEMA' ? 'n' : ''}"><span>${ESC(k)}</span><span>${x}</span></div>`).join('');
+    else if (c.t === 'foto') { const f = d.fotos[c.k] || []; if (f.length) h += `<h3>${ESC(c.label)}</h3><div class="fotos">${f.map(n => `<a href="${API}foto/${n}" target="_blank"><img src="${API}foto/${n}" loading="lazy" alt=""></a>`).join('')}</div>`; }
+    else if (['textarea'].includes(c.t) && v) h += `<h3>${ESC(c.label)}</h3><div style="white-space:pre-wrap">${ESC(v)}</div>`;
+  });
+  h += `<p style="margin-top:20px"><button class="btn danger" onclick="apagar(${d.id})">Excluir resposta</button></p></div>`;
+  $('#dlg').innerHTML = h; $('#dlg').showModal();
+}
+async function apagar(id) {
+  if (!confirm('Excluir esta resposta e suas fotos? Não pode ser desfeito.')) return;
+  await fetch(API + 'admin/respostas/' + id, {method: 'DELETE', headers: H()}); $('#dlg').close(); carregar();
+}
+async function baixar() {
+  const r = await fetch(API + 'admin/csv', {headers: H()}), a = document.createElement('a');
+  a.href = URL.createObjectURL(await r.blob()); a.download = 'checklists.csv'; a.click();
+}
+$('#pin').addEventListener('keydown', e => e.key === 'Enter' && entrar());
+iniciar();
+</script>
+</body>
+</html>

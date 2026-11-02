@@ -1,0 +1,68 @@
+{% extends "base_auth.html" %}
+{% block title %}Registrar{% endblock %}
+{% block content %}
+  <h2 class="auth__title">Criar conta</h2>
+
+  <form method="POST" class="form">
+    <label class="form__label">Usuário
+      <input class="form__input" type="text" name="username" placeholder="Crie um usuário" required>
+    </label>
+
+    <label class="form__label">Nome
+      <input class="form__input" type="text" name="name" placeholder="Seu nome" required>
+    </label>
+
+    <label class="form__label">Email
+      <input class="form__input" type="email" name="email" placeholder="user@example.com" required>
+    </label>
+
+    <label class="form__label">Telefone
+      <input class="form__input" type="text" name="telefone" placeholder="(DDD) 90000-0000">
+    </label>
+
+    <div class="form__row" style="display:grid; grid-template-columns: 1fr 1fr; gap:12px;">
+      <label class="form__label">Cidade
+        <input class="form__input" type="text" name="cidade" placeholder="Sua cidade">
+      </label>
+
+      <label class="form__label">Data de Nascimento
+        <input class="form__input" type="date" name="data_nascimento">
+      </label>
+    </div>
+
+    <label class="form__label">Você é
+      <select class="form__input" name="tipo_usuario" id="tipo_usuario" required>
+        <option value="">Selecione...</option>
+        <option value="arquiteto">Arquiteto</option>
+        <option value="funcionario">Funcionário</option>
+      </select>
+    </label>
+
+    <label class="form__label" id="wrap_razao" style="display:none;">Razão Social (somente arquitetos)
+      <input class="form__input" type="text" name="razao_social" placeholder="Razão Social da empresa">
+    </label>
+
+    <label class="form__label">Senha
+      <input class="form__input" type="password" name="password" placeholder="Crie uma senha" required>
+    </label>
+
+    <button class="btn btn--primary" type="submit">Registrar</button>
+  </form>
+
+  <p class="auth__hint">
+    Já tem conta?
+    <a class="link" href="{{ url_for('login') }}">Entrar</a>
+  </p>
+
+  <script>
+    (function(){
+      const sel = document.getElementById('tipo_usuario');
+      const wrap = document.getElementById('wrap_razao');
+      function sync(){
+        wrap.style.display = (sel.value === 'arquiteto') ? '' : 'none';
+      }
+      sel.addEventListener('change', sync);
+      sync();
+    })();
+  </script>
+{% endblock %}

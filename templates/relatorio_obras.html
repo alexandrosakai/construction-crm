@@ -1,0 +1,524 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>Relatório de Obras | Empresa Exemplo</title>
+  <link rel="icon" type="image/png" href="{{ url_for('static', filename='img/PLACEHOLDER-FAVICON.png') }}">
+
+  <!-- Bootstrap e ícones -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
+
+  <!-- Tema base + menu -->
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/base.css') }}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/menu.css') }}">
+
+  <style>
+    :root{ scroll-behavior:smooth; }
+    body{ margin:0; min-height:100dvh; background:var(--bg); color:var(--text); display:flex; }
+    .layout{ display:flex; gap:0; align-items:stretch; min-height:100vh; width:100%; }
+    .main{ flex:1; min-width:0; order:1; overflow-x:hidden; background:var(--bg); display:flex; flex-direction:column; }
+    .page{ flex:1; min-width:0; display:flex; justify-content:center; align-items:flex-start; padding:24px; }
+    .container-modern{ width:clamp(320px, 92vw, 1200px); margin-inline:auto; }
+
+    .card{
+      background:var(--surface) !important; border:1px solid var(--border) !important;
+      border-radius:14px !important; box-shadow:0 10px 30px -10px var(--shadow) !important; overflow:hidden;
+    }
+    .card-header{
+      background:transparent !important; border-bottom:1px solid var(--border) !important;
+      color:var(--text); padding:14px 18px !important;
+    }
+    .card-header h5, .card-header .card-title, .card-header h3{ margin:0; font-size:16px; font-weight:600; color:var(--text); }
+    .card-body{ padding:18px !important; color:var(--text); }
+
+    .form-control,.form-select,.form-control:focus,.form-select:focus{
+      background:var(--field) !important; border:1px solid var(--border) !important; color:var(--text) !important;
+      box-shadow:none !important; outline:none !important; height:40px; border-radius:10px; padding:0 12px;
+    }
+    .form-text{ color:var(--muted) !important; }
+    .form-label{ color:var(--muted); font-size:13px; margin-bottom:6px; }
+    .filters .form-label{ font-weight:500; }
+
+    .btn:active{ transform:scale(0.99); }
+    .btn-primary{ background:linear-gradient(180deg, var(--primary), var(--primary-600)) !important; border:none !important; color:#fff !important; }
+    .btn-outline-primary{ color:var(--text) !important; border-color:var(--border) !important; background:var(--surface-2) !important; }
+    .btn-success{ background:var(--primary) !important; border-color:transparent !important; color:#fff !important; }
+    .btn-secondary{ background:var(--surface-2) !important; color:var(--text) !important; border-color:var(--border) !important; }
+
+    .stat-value{ font-size:1.8rem; font-weight:800; color:var(--text); }
+    .stat-label{ color:var(--muted); font-size:.9rem; }
+
+    .table-darkish{ 
+      --tbl-bg:var(--surface); --tbl-bg-alt:var(--field); --tbl-head:var(--surface-2); --tbl-hover:rgba(58,133,25,0.12); --tbl-border:var(--border);
+    }
+    .table-darkish.table{
+      --bs-table-bg: transparent; --bs-table-color: var(--text); --bs-table-striped-bg: transparent; --bs-table-striped-color: var(--text);
+      --bs-table-hover-bg: transparent; --bs-table-hover-color: var(--text); color:var(--text) !important; border-color:var(--tbl-border) !important;
+    }
+    .table-darkish thead th{ background:var(--tbl-head) !important; color:var(--text) !important; border-bottom:1px solid var(--tbl-border) !important; font-weight:600; font-size:13px; }
+    .table-darkish tbody td{ background:var(--tbl-bg) !important; color:var(--text) !important; border-top:1px solid var(--tbl-border) !important; vertical-align: middle; }
+    .table-darkish tbody tr:nth-child(odd) td{ background:var(--tbl-bg-alt) !important; color:var(--text) !important; }
+    .table-darkish tbody tr:hover td{ background:var(--tbl-hover) !important; color:var(--text) !important; }
+
+    /* linhas navegáveis (hover+clique) */
+    .row-navigate{ cursor:pointer; }
+    .row-navigate:focus-visible td{ outline:2px solid var(--primary); outline-offset:-2px; }
+
+    .chart-container{ height:320px; margin-bottom:2rem; }
+
+    @media (max-width:768px){
+      .layout{ flex-direction:column; }
+      .page{ padding:16px; }
+      .card-body{ padding:14px !important; }
+    }
+  </style>
+</head>
+<body>
+  <div class="layout">
+    {% include 'menu.html' %}
+
+    <main class="main">
+      <section class="page">
+        <div class="container-modern">
+
+          <!-- <div class="d-flex align-items-center justify-content-between mb-3">
+            <h2 class="mb-0">Relatório de Obras</h2>
+            <a href="{{ url_for('lista_obras') }}" class="btn btn-outline-primary">
+              <i class="fas fa-list"></i> Lista de Obras
+            </a>
+          </div> -->
+
+          <!-- Filtros -->
+          <div class="card mb-4 filters">
+            <div class="card-body">
+              <div class="row g-3">
+                <div class="col-md-3">
+                  <label class="form-label" for="periodFilter">Período</label>
+                  <select class="form-select" id="periodFilter">
+                    <option value="7">Últimos 7 dias</option>
+                    <option value="30" selected>Últimos 30 dias</option>
+                    <option value="90">Últimos 90 dias</option>
+                    <option value="365">Último ano</option>
+                    <option value="custom">Personalizado</option>
+                  </select>
+                </div>
+                <div class="col-md-4">
+                  <label class="form-label d-block">Datas (se Personalizado)</label>
+                  <div class="d-flex gap-2">
+                    <input type="date" class="form-control" id="startDate" disabled>
+                    <input type="date" class="form-control" id="endDate" disabled>
+                  </div>
+                </div>
+                <div class="col-md-3">
+                  <label class="form-label" for="statusFilter">Status</label>
+                  <select class="form-select" id="statusFilter">
+                    <option value="ALL" selected>Todos</option>
+                    <option value="INICIANDO">Iniciando</option>
+                    <option value="ANDAMENTO">Andamento</option>
+                    <option value="CONCLUIDA">Concluída</option>
+                    <option value="PARADA">Parada</option>
+                    <option value="CANCELADA">Cancelada</option>
+                  </select>
+                </div>
+                <div class="col-md-2">
+                  <label class="form-label" for="regionFilter">Região</label>
+                  <select class="form-select" id="regionFilter">
+                    <option value="ALL" selected>Todas</option>
+                    <option value="NORTE">Norte</option>
+                    <option value="SUL">Sul</option>
+                    <option value="LESTE">Leste</option>
+                    <option value="OESTE">Oeste</option>
+                    <option value="CENTRO">Centro</option>
+                  </select>
+                </div>
+                <div class="col-12 d-flex justify-content-end">
+                  <button class="btn btn-primary" id="applyFilters">
+                    <i class="fas fa-filter"></i> Aplicar Filtros
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Cards de Estatísticas -->
+          <div class="row g-3 mb-4">
+            <div class="col-6 col-md-2"><div class="card report-card text-center"><div class="card-body">
+              <div class="stat-value" id="totalObras">0</div><div class="stat-label">Total</div>
+            </div></div></div>
+            <div class="col-6 col-md-2"><div class="card report-card text-center"><div class="card-body">
+              <div class="stat-value" id="statIniciando">0</div><div class="stat-label">Iniciando</div>
+            </div></div></div>
+            <div class="col-6 col-md-2"><div class="card report-card text-center"><div class="card-body">
+              <div class="stat-value" id="statAndamento">0</div><div class="stat-label">Andamento</div>
+            </div></div></div>
+            <div class="col-6 col-md-2"><div class="card report-card text-center"><div class="card-body">
+              <div class="stat-value" id="statConcluida">0</div><div class="stat-label">Concluída</div>
+            </div></div></div>
+            <div class="col-6 col-md-2"><div class="card report-card text-center"><div class="card-body">
+              <div class="stat-value" id="statParada">0</div><div class="stat-label">Parada</div>
+            </div></div></div>
+            <div class="col-6 col-md-2"><div class="card report-card text-center"><div class="card-body">
+              <div class="stat-value" id="statCancelada">0</div><div class="stat-label">Cancelada</div>
+            </div></div></div>
+          </div>
+
+          <!-- Gráficos -->
+          <div class="row">
+            <div class="col-md-6">
+              <div class="card mb-4">
+                <div class="card-header"><h5 class="card-title mb-0">Obras por Status</h5></div>
+                <div class="card-body"><div class="chart-container"><canvas id="statusChart"></canvas></div></div>
+              </div>
+            </div>
+            <div class="col-md-6">
+              <div class="card mb-4">
+                <div class="card-header"><h5 class="card-title mb-0">Obras por Região</h5></div>
+                <div class="card-body"><div class="chart-container"><canvas id="regionChart"></canvas></div></div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Tabela -->
+          <div class="card">
+            <div class="card-header d-flex justify-content-between align-items-center">
+              <h5 class="card-title mb-0">Lista de Obras</h5>
+              <button class="btn btn-success" id="exportExcel"><i class="fas fa-file-excel"></i> Exportar CSV</button>
+            </div>
+            <div class="card-body">
+              <div class="table-responsive">
+                <!-- guardo a url base de edição pra usar no JS -->
+                <table class="table table-hover table-darkish" id="obrasTable" data-edit-url="{{ url_for('editar_obra') }}">
+                  <thead>
+                    <tr>
+                      <th>Número</th>
+                      <th>Cliente</th>
+                      <th>Endereço</th>
+                      <th>Status</th>
+                      <th>Data Início</th>
+                      <th>Previsão Término</th>
+                      <th>Região</th>
+                    </tr>
+                  </thead>
+                  <tbody><!-- via JS --></tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+  <script>
+  (function(){
+    const periodEl = document.getElementById('periodFilter');
+    const startEl  = document.getElementById('startDate');
+    const endEl    = document.getElementById('endDate');
+    const statusEl = document.getElementById('statusFilter');
+    const regionEl = document.getElementById('regionFilter');
+    const applyBtn = document.getElementById('applyFilters');
+    const exportBtn= document.getElementById('exportExcel');
+
+    const totalEl  = document.getElementById('totalObras');
+    const inicEl   = document.getElementById('statIniciando');
+    const andEl    = document.getElementById('statAndamento');
+    const conclEl  = document.getElementById('statConcluida');
+    const parEl    = document.getElementById('statParada');
+    const cancEl   = document.getElementById('statCancelada');
+
+    const table    = document.getElementById('obrasTable');
+    const tbody    = table.querySelector('tbody');
+    const editUrlBase = table.dataset.editUrl; // "{{ url_for('editar_obra') }}"
+
+    let statusChart, regionChart;
+
+    // ====== Datas utilitárias ======
+    function toYMDLocal(d){
+      const yyyy = d.getFullYear();
+      const mm = String(d.getMonth()+1).padStart(2,'0');
+      const dd = String(d.getDate()).padStart(2,'0');
+      return `${yyyy}-${mm}-${dd}`;
+    }
+    function addDays(d, days){
+      const x = new Date(d.getFullYear(), d.getMonth(), d.getDate());
+      x.setDate(x.getDate()+days);
+      return x;
+    }
+    function defaultRangeByPeriod(period){
+      const today = new Date();
+      const end = today;
+      const start = addDays(today, -(Number(period)||30) + 1);
+      return { startYMD: toYMDLocal(start), endYMD: toYMDLocal(end) };
+    }
+
+    function ensureDateInputsFilled(){
+      const p = periodEl.value || '30';
+      const { startYMD, endYMD } = defaultRangeByPeriod(p);
+      startEl.value = startEl.value || startYMD;
+      endEl.value   = endEl.value   || endYMD;
+      startEl.max = endYMD;
+      endEl.min   = startYMD;
+    }
+
+    periodEl.addEventListener('change', () => {
+      const custom = periodEl.value === 'custom';
+      startEl.disabled = !custom;
+      endEl.disabled   = !custom;
+
+      if (custom){
+        const { startYMD, endYMD } = defaultRangeByPeriod(30);
+        startEl.value = startYMD;
+        endEl.value   = endYMD;
+        startEl.max = endYMD;
+        endEl.min   = startYMD;
+      } else {
+        const { startYMD, endYMD } = defaultRangeByPeriod(periodEl.value);
+        startEl.value = startYMD;
+        endEl.value   = endYMD;
+        startEl.max = endYMD;
+        endEl.min   = startYMD;
+      }
+    });
+
+    function onManualDateChange(){
+      if (periodEl.value !== 'custom') periodEl.value = 'custom';
+      startEl.disabled = false; endEl.disabled = false;
+
+      if (startEl.value && endEl.value && startEl.value > endEl.value){
+        endEl.value = startEl.value;
+      }
+      startEl.max = endEl.value || '';
+      endEl.min   = startEl.value || '';
+    }
+    startEl.addEventListener('input', onManualDateChange);
+    endEl.addEventListener('input', onManualDateChange);
+
+    applyBtn.addEventListener('click', fetchAndRender);
+    exportBtn.addEventListener('click', exportCSV);
+
+    // Delegação de clique/teclado para navegar
+    tbody.addEventListener('click', (ev) => {
+      const tr = ev.target.closest('tr.row-navigate[data-id]');
+      if (!tr) return;
+      const id = tr.getAttribute('data-id');
+      if (!id) return;
+      window.location.href = `${editUrlBase}?obra_id=${encodeURIComponent(id)}`;
+    });
+    tbody.addEventListener('keydown', (ev) => {
+      if (ev.key !== 'Enter' && ev.key !== ' ') return;
+      const tr = ev.target.closest('tr.row-navigate[data-id]');
+      if (!tr) return;
+      ev.preventDefault();
+      const id = tr.getAttribute('data-id');
+      if (!id) return;
+      window.location.href = `${editUrlBase}?obra_id=${encodeURIComponent(id)}`;
+    });
+
+    // Inicial
+    ensureDateInputsFilled();
+    fetchAndRender();
+
+    async function fetchAndRender(){
+      let startYMD, endYMD;
+      if (periodEl.value === 'custom'){
+        startYMD = startEl.value;
+        endYMD   = endEl.value;
+        if (!startYMD || !endYMD){ alert('Informe as duas datas (início e fim).'); return; }
+        if (startYMD > endYMD){ alert('Data inicial não pode ser maior que a data final.'); return; }
+      } else {
+        const r = defaultRangeByPeriod(periodEl.value || '30');
+        startYMD = r.startYMD;
+        endYMD   = r.endYMD;
+        startEl.value = startYMD;
+        endEl.value   = endYMD;
+      }
+
+      const params = new URLSearchParams();
+      params.set('period', periodEl.value || '30');
+      params.set('status', statusEl.value || 'ALL');
+      params.set('region', regionEl.value || 'ALL');
+      params.set('start', startYMD);
+      params.set('end',   endYMD);
+
+      let data;
+      try {
+        const resp = await fetch(`/api/relatorios/obras?${params.toString()}`, {
+          headers: { 'X-Requested-With': 'XMLHttpRequest' }
+        });
+        data = await resp.json();
+      } catch (e) {
+        console.error(e); alert('Erro ao buscar dados do relatório.'); return;
+      }
+
+      // Cards
+      totalEl.textContent = data?.stats?.total ?? 0;
+      inicEl.textContent  = data?.stats?.iniciando ?? 0;
+      andEl.textContent   = data?.stats?.andamento ?? 0;
+      conclEl.textContent = data?.stats?.concluida ?? 0;
+      parEl.textContent   = data?.stats?.parada ?? 0;
+      cancEl.textContent  = data?.stats?.cancelada ?? 0;
+
+      // Tabela
+      renderTable(data?.rows || []);
+
+      // Gráficos
+      renderStatusChart(data?.status_counts || {});
+      renderRegionChart(data?.region_breakdown || []);
+    }
+
+    function renderTable(rows){
+      if (!rows.length){
+        tbody.innerHTML = `<tr><td colspan="7" class="text-center">Nenhuma obra encontrada para os filtros.</td></tr>`;
+        return;
+      }
+      const html = rows.map(r => {
+        // id para navegação (precisa vir da API)
+        const rid = r.id ?? r.obra_id ?? r.numero_obra; // fallback se necessário
+        const canNavigate = rid !== undefined && rid !== null && String(rid).trim() !== '';
+        return `
+        <tr class="${canNavigate ? 'row-navigate' : ''}" ${canNavigate ? `data-id="${escapeAttr(rid)}" tabindex="0" title="Clique para editar"` : ''}>
+          <td>${safe(r.numero_obra)}</td>
+          <td>${safe(r.cliente)}</td>
+          <td>${joinEndereco(r)}</td>
+          <td>${prettyStatus(r.status)}</td>
+          <td>${prettyDate(r.data_inicio)}</td>
+          <td>${prettyDate(r.data_termino_prevista)}</td>
+          <td>${safe(r.regiao) || '—'}</td>
+        </tr>`;
+      }).join('');
+      tbody.innerHTML = html;
+    }
+
+    // ===== CHARTS =====
+    function renderStatusChart(counts){
+      const KEYS = ["INICIANDO","ANDAMENTO","CONCLUIDA","PARADA","CANCELADA"];
+      const LABELS = ["Iniciando","Andamento","Concluída","Parada","Cancelada"];
+      const values = KEYS.map(k => Number(counts[k] || 0));
+
+      const ctx = document.getElementById('statusChart').getContext('2d');
+      if (statusChart) statusChart.destroy();
+      statusChart = new Chart(ctx, {
+        type: 'bar',
+        data: { labels: LABELS, datasets: [{ label: 'Qtd', data: values }] },
+        options: chartDarkOptions()
+      });
+    }
+
+    function renderRegionChart(items){
+      const labels = [];
+      const values = [];
+      const group = {};
+      for (const it of (items || [])){
+        const key = it.regiao || '—';
+        group[key] = (group[key] || 0) + (it.qtd || 0);
+      }
+      for (const [k,v] of Object.entries(group)){ labels.push(k); values.push(v); }
+
+      const ctx = document.getElementById('regionChart').getContext('2d');
+      if (regionChart) regionChart.destroy();
+      regionChart = new Chart(ctx, {
+        type: 'pie',
+        data: { labels, datasets: [{ data: values }] },
+        options: chartDarkOptions(true)
+      });
+    }
+
+    function chartDarkOptions(isPie=false){
+      const base = {
+        responsive:true,
+        maintainAspectRatio:false,
+        plugins:{
+          legend:{ labels:{ color:'#e9eefb' } },
+          tooltip:{
+            titleColor:'#0b1220',
+            bodyColor:'#0b1220',
+            backgroundColor:'#e9eefb',
+            borderColor:'rgba(0,0,0,0.1)', borderWidth:1
+          }
+        }
+      };
+      if (!isPie){
+        base.scales = {
+          x: { ticks:{ color:'#e9eefb' }, grid:{ color:'rgba(255,255,255,0.08)' } },
+          y: { ticks:{ color:'#e9eefb' }, grid:{ color:'rgba(255,255,255,0.08)' }, beginAtZero:true, precision:0 }
+        };
+      }
+      return base;
+    }
+
+    // ===== CSV (; delimitado) =====
+    function exportCSV(){
+      const rows = Array.from(tbody.querySelectorAll('tr')).map(tr => {
+        const tds = tr.querySelectorAll('td');
+        if (tds.length < 7) return null;
+        return [
+          tds[0].innerText.trim(),
+          tds[1].innerText.trim(),
+          tds[2].innerText.trim(),
+          tds[3].innerText.trim(),
+          tds[4].innerText.trim(),
+          tds[5].innerText.trim(),
+          tds[6].innerText.trim(),
+        ];
+      }).filter(Boolean);
+
+      const header = ['Número','Cliente','Endereço','Status','Data Início','Previsão Término','Região'];
+      const csv = toCSV([header, ...rows]);
+      const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+      const a = document.createElement('a');
+      const url = URL.createObjectURL(blob);
+      a.href = url; a.download = 'relatorio_obras.csv';
+      document.body.appendChild(a); a.click(); document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+    }
+
+    function toCSV(matrix){
+      return matrix.map(row =>
+        row.map(cell => {
+          const s = String(cell ?? '');
+          if (s.includes(';') || s.includes(',') || s.includes('"') || s.includes('\n')){
+            return `"${s.replace(/"/g, '""')}"`;
+          }
+          return s;
+        }).join(';')
+      ).join('\n');
+    }
+
+    // ===== Helpers =====
+    function safe(v){ return (v==null || v===undefined) ? '' : String(v); }
+    function escapeAttr(v){
+      return String(v).replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+    }
+    function prettyDate(s){
+      if (!s) return '—';
+      const m = String(s).match(/^(\d{4})-(\d{2})-(\d{2})$/);
+      if (m) return `${m[3]}/${m[2]}/${m[1]}`;
+      return s;
+    }
+    function prettyStatus(s){
+      const v = (s||'').toUpperCase();
+      if (v==='INICIANDO') return 'Iniciando';
+      if (v==='ANDAMENTO') return 'Andamento';
+      if (v==='CONCLUIDA') return 'Concluída';
+      if (v==='PARADA')    return 'Parada';
+      if (v==='CANCELADA') return 'Cancelada';
+      return '—';
+    }
+    function joinEndereco(r){
+      const p1 = [r.logradouro, r.numero].filter(Boolean).join(', ');
+      const p2 = [r.bairro].filter(Boolean).join('');
+      const p3 = [r.cidade, r.estado].filter(Boolean).join('/');
+      const p4 = r.cep ? `CEP ${r.cep}` : '';
+      return [p1, p2, p3, p4].filter(Boolean).join(' - ');
+    }
+
+  })();
+  </script>
+</body>
+</html>

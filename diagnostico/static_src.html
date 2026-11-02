@@ -1,0 +1,312 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Diagnóstico Empresarial · Empresa Exemplo</title>
+<link rel="icon" href="/img/PLACEHOLDER-FAVICON.png">
+<meta name="robots" content="noindex">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<style>
+:root{
+  --bg:#F3F5F4; --surface:#FFFFFF; --ink:#1C2A30; --muted:#5D6B72; --line:#D9E0DD;
+  --accent:#1e3a8a; --accent-soft:#E2EFEC;
+  --crit:#B42318; --crit-soft:#FCEBE9; --warn:#9A5B00; --warn-soft:#FBF1DF; --info:#4A6070; --info-soft:#E9EEF2;
+  --ok:#1F7A45; --ok-soft:#E5F3EA; --row-hover:#F6F8F7;
+  color-scheme: light; padding-top:env(safe-area-inset-top,0px); padding-bottom:env(safe-area-inset-bottom,0px);
+}
+@media (prefers-color-scheme: dark){ :root:not([data-theme="light"]){
+  --bg:#12191C; --surface:#1A2327; --ink:#E4EBEA; --muted:#98A7AD; --line:#2C393E;
+  --accent:#93c5fd; --accent-soft:#1D3533;
+  --crit:#F28B82; --crit-soft:#3A2220; --warn:#E8B45C; --warn-soft:#352A17; --info:#A9BCC9; --info-soft:#232E35;
+  --ok:#7FD39E; --ok-soft:#1C3125; --row-hover:#202B30; color-scheme:dark;
+}}
+*,*::before,*::after{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:"IBM Plex Sans",system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;font-size:15px;line-height:1.5;font-variant-numeric:tabular-nums}
+.wrap{max-width:1280px;margin:0 auto;padding:24px 16px 60px}
+h1{font-size:26px;line-height:1.2;margin:0 0 4px;font-weight:700;letter-spacing:-.01em}
+h2{font-size:18px;margin:0 0 12px;font-weight:600}
+.lede{color:var(--muted);margin:0 0 18px}
+a{color:var(--accent)}
+button,input,select,textarea{font:inherit;color:inherit}
+button{cursor:pointer}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.top{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin:14px 0 18px}
+.top select{flex:1 1 240px;max-width:380px}
+.btn{border:1px solid var(--accent);background:var(--accent);color:var(--surface);padding:8px 14px;border-radius:8px;font-weight:600;text-decoration:none;font-size:14px}
+.btn.ghost{background:transparent;color:var(--accent)}
+.btn.sm{padding:4px 10px;font-size:13px}
+.btn.danger{border-color:var(--crit);color:var(--crit);background:transparent}
+input,select,textarea{background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:7px 10px;width:100%}
+textarea{resize:vertical}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:16px}
+.tabs{display:flex;gap:4px;overflow-x:auto;border-bottom:1px solid var(--line);margin-bottom:16px;scrollbar-width:thin}
+.tabs.pills{border:0;gap:6px}
+.tabs a{white-space:nowrap;padding:9px 14px;text-decoration:none;color:var(--muted);border-bottom:2px solid transparent;font-weight:500;font-size:14px}
+.tabs a.on{color:var(--accent);border-color:var(--accent);font-weight:600}
+.tabs.pills a{border:1px solid var(--line);border-radius:999px;padding:5px 12px;background:var(--surface);font-size:13px}
+.tabs.pills a.on{background:var(--accent-soft);border-color:var(--accent)}
+.tabs small{opacity:.7}
+.cnt{display:inline-block;min-width:20px;text-align:center;border-radius:999px;background:var(--info-soft);color:var(--info);font-size:12px;padding:0 6px;margin-left:4px}
+.badge{display:inline-block;border-radius:999px;padding:2px 10px;font-size:13px;font-weight:600}
+.b-crit{background:var(--crit-soft);color:var(--crit)}.b-warn{background:var(--warn-soft);color:var(--warn)}
+.b-info{background:var(--info-soft);color:var(--info)}.b-ok{background:var(--ok-soft);color:var(--ok)}
+.q{display:flex;gap:12px;justify-content:space-between;flex-wrap:wrap;padding:10px 6px;border-bottom:1px solid var(--line)}
+.q.low{background:var(--crit-soft)}
+.q .t{flex:1 1 300px}
+.opt{display:flex;gap:4px;align-items:center}
+.opt input{position:absolute;opacity:0;width:0}
+.opt label{min-width:38px;text-align:center;padding:5px 9px;border:1px solid var(--line);border-radius:8px;cursor:pointer;font-size:14px;background:var(--surface);user-select:none}
+.opt input:checked+label{background:var(--accent);border-color:var(--accent);color:var(--surface);font-weight:600}
+.opt input:focus-visible+label{outline:2px solid var(--accent);outline-offset:2px}
+.grid2{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:14px}
+label.f{display:block;font-weight:600;font-size:14px;margin-bottom:4px}
+table{width:100%;border-collapse:collapse}
+th,td{text-align:left;padding:8px 10px;border-bottom:1px solid var(--line);vertical-align:top;font-size:14px}
+th{font-size:12px;text-transform:uppercase;letter-spacing:.04em;color:var(--muted);background:var(--bg);position:sticky;top:0}
+tr:hover td{background:var(--row-hover)}
+.r{text-align:right}
+.scroll{overflow-x:auto;border:1px solid var(--line);border-radius:12px;background:var(--surface)}
+table.ac td textarea{min-width:180px;font-size:13px}
+table.ac td input,table.ac td select{font-size:13px;min-width:110px}
+tr.done td{background:var(--ok-soft)}
+.bar{height:10px;border-radius:999px;background:var(--info-soft);overflow:hidden}
+.bar>i{display:block;height:100%;background:var(--ok);width:0}
+.muted{color:var(--muted);font-size:13px}
+.tools{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-bottom:12px}
+.tools select{width:auto}
+.empty{text-align:center;color:var(--muted);padding:40px 10px}
+@media print{.top,.tabs,.tools,.noprint,.btn{display:none!important}body{background:#fff}.sec{display:block!important}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <a href="/" class="muted noprint">← Sistemas internos</a>
+  <h1>Diagnóstico Empresarial</h1>
+  <p class="lede">Avalie a empresa por módulo, veja a tabulação e acompanhe o plano de ação.</p>
+
+  <div class="top noprint">
+    <select id="selDiag" aria-label="Diagnóstico"></select>
+    <button class="btn" onclick="novo()">+ Novo diagnóstico</button>
+    <button class="btn ghost" onclick="editarCab()">Editar dados</button>
+    <button class="btn ghost" onclick="exportar()">⬇ Backup</button>
+    <button class="btn ghost" onclick="importar.click()">⬆ Restaurar</button>
+    <button class="btn danger" onclick="excluir()">Excluir</button>
+    <input type="file" id="importar" accept=".json" hidden>
+  </div>
+
+  <div id="vazio" class="card empty">Nenhum diagnóstico ainda. Clique em <b>+ Novo diagnóstico</b> para começar.</div>
+
+  <div id="app" hidden>
+    <div class="tabs" id="mainTabs">
+      <a href="#" data-t="q" class="on">1. Questionário</a><a href="#" data-t="t">2. Tabulação</a>
+      <a href="#" data-t="c">3. Conclusões</a><a href="#" data-t="a">4. Plano de ação <span class="cnt" id="cntA"></span></a>
+    </div>
+
+    <section class="sec" id="s-q">
+      <div class="tabs pills" id="modTabs"></div>
+      <div class="card" id="modBody"></div>
+    </section>
+
+    <section class="sec" id="s-t" hidden>
+      <div class="grid2">
+        <div class="card"><canvas id="radar" height="340"></canvas></div>
+        <div class="card"><div id="tabTab"></div>
+          <p class="muted">Desempenho = pontos ÷ (itens aplicáveis × 4). Itens NA saem do cálculo; não respondidos contam 0, como na planilha original. Faixas: &lt;50% Crítico · 50–70% Atenção · 70–85% Bom · ≥85% Excelente.</p></div>
+      </div>
+    </section>
+
+    <section class="sec" id="s-c" hidden>
+      <div class="card"><div class="grid2" id="conclForm"></div>
+        <p><button class="btn" onclick="salvarConcl()">Salvar conclusões</button> <span id="conclOk" class="muted"></span></p></div>
+    </section>
+
+    <section class="sec" id="s-a" hidden>
+      <div class="tools noprint">
+        <span>Gerar ações para notas até</span>
+        <select id="limite"><option>1</option><option selected>2</option><option>3</option></select>
+        <button class="btn sm" onclick="gerar()">⚡ Gerar plano</button>
+        <select id="fSt" onchange="renderA()"><option value="">Status: todos</option><option>A fazer</option><option>Em andamento</option><option>Concluída</option></select>
+        <select id="fPr" onchange="renderA()"><option value="">Prioridade: todas</option><option>Alta</option><option>Média</option><option>Baixa</option></select>
+        <button class="btn sm ghost" onclick="csv()">⬇ CSV</button>
+        <button class="btn sm ghost" onclick="window.print()">🖨 Imprimir</button>
+      </div>
+      <div style="max-width:420px;margin-bottom:12px"><div class="bar"><i id="prog"></i></div><div class="muted" id="progT"></div></div>
+      <div class="tabs pills" id="acTabs"></div>
+      <div class="scroll"><table class="ac" id="acTab"></table></div>
+      <p class="noprint"><button class="btn sm ghost" onclick="novaAcao()">+ Adicionar ação</button></p>
+    </section>
+  </div>
+</div>
+
+<script>
+const MODS = __MODULOS__;
+const KEY = 'app.diagnostic.v1';
+const CONCL = [['fortes','Pontos fortes'],['melhoria','Pontos para melhoria'],['oportunidades','Oportunidades'],['ameacas','Ameaças'],['recomendacoes','Recomendações do consultor'],['consultor','Consultor (assinatura)']];
+const ST = ['A fazer','Em andamento','Concluída'];
+const $ = id => document.getElementById(id);
+const ESC = s => String(s ?? '').replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+let S = load(), D = null, modAtual = MODS[0].id, acMod = 'todos', chart = null;
+
+function load() { try { const s = JSON.parse(localStorage.getItem(KEY)); if (s && s.diags) return s; } catch (e) {} return {ativo: null, diags: {}}; }
+function save() { try { localStorage.setItem(KEY, JSON.stringify(S)); } catch (e) { alert('Não foi possível salvar no navegador (armazenamento cheio ou bloqueado). Faça um Backup.'); } }
+const nome = id => MODS.find(m => m.id === id).nome;
+
+function calc(m) {
+  const r = D.resp[m.id] || {}; let soma = 0, na = 0, resp = 0;
+  m.perguntas.forEach((_, i) => { const v = r[i]; if (v === undefined) return; resp++; if (v === -1) na++; else soma += v; });
+  const poss = (m.perguntas.length - na) * 4;
+  return {soma, poss, resp, total: m.perguntas.length, pct: poss ? soma / poss * 100 : 0};
+}
+const faixa = p => p < 50 ? ['Crítico','b-crit'] : p < 70 ? ['Atenção','b-warn'] : p < 85 ? ['Bom','b-info'] : ['Excelente','b-ok'];
+
+/* --- diagnósticos --- */
+function listar() {
+  const ids = Object.keys(S.diags).sort((a, b) => b - a);
+  $('selDiag').innerHTML = ids.map(i => `<option value="${i}">${ESC(S.diags[i].empresa)} — ${ESC(S.diags[i].data)}</option>`).join('');
+  $('vazio').hidden = ids.length > 0; $('app').hidden = !ids.length;
+  if (!ids.length) { D = null; return; }
+  if (!S.diags[S.ativo]) S.ativo = ids[0];
+  $('selDiag').value = S.ativo; D = S.diags[S.ativo]; renderTudo();
+}
+$('selDiag').onchange = e => { S.ativo = e.target.value; save(); listar(); };
+function novo() {
+  const empresa = (prompt('Nome da empresa:') || '').trim(); if (!empresa) return;
+  const id = String(Date.now());
+  S.diags[id] = {id, empresa, consultor: prompt('Consultor responsável:') || '', data: new Date().toISOString().slice(0, 10), resp: {}, meta: {}, concl: {}, acoes: [], seq: 1};
+  S.ativo = id; save(); listar();
+}
+function editarCab() {
+  if (!D) return;
+  D.empresa = (prompt('Empresa:', D.empresa) || D.empresa).trim();
+  D.consultor = prompt('Consultor:', D.consultor) ?? D.consultor;
+  D.data = prompt('Data (AAAA-MM-DD):', D.data) || D.data; save(); listar();
+}
+function excluir() {
+  if (!D || !confirm(`Excluir o diagnóstico de "${D.empresa}" e todo o plano de ação? Esta ação não pode ser desfeita.`)) return;
+  delete S.diags[D.id]; S.ativo = null; save(); listar();
+}
+function exportar() {
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(new Blob([JSON.stringify(S, null, 1)], {type: 'application/json'}));
+  a.download = `diagnostics-${new Date().toISOString().slice(0, 10)}.json`; a.click();
+}
+$('importar').onchange = async e => {
+  const f = e.target.files[0]; e.target.value = ''; if (!f) return;
+  try {
+    const n = JSON.parse(await f.text()); if (!n.diags) throw 0;
+    if (!confirm('Restaurar o backup? Diagnósticos com o mesmo código serão substituídos.')) return;
+    Object.assign(S.diags, n.diags); S.ativo = n.ativo || Object.keys(n.diags)[0]; save(); listar();
+  } catch (x) { alert('Arquivo de backup inválido.'); }
+};
+document.querySelectorAll('#mainTabs a').forEach(a => a.onclick = e => { e.preventDefault(); aba(a.dataset.t); });
+function aba(t) {
+  document.querySelectorAll('#mainTabs a').forEach(a => a.classList.toggle('on', a.dataset.t === t));
+  ['q','t','c','a'].forEach(x => $('s-' + x).hidden = x !== t);
+  if (t === 't') renderT(); if (t === 'a') renderA();
+}
+function renderTudo() { renderMods(); renderMod(); renderConcl(); renderT(); renderA(); }
+
+/* --- questionário --- */
+function renderMods() {
+  const g = grp => MODS.filter(m => m.grupo === grp).map(m => { const c = calc(m);
+    return `<a href="#" class="${m.id === modAtual ? 'on' : ''}" onclick="event.preventDefault();modAtual='${m.id}';renderMods();renderMod()">${c.resp === c.total ? '✓ ' : ''}${ESC(m.nome)} <small>${c.resp}/${c.total}</small></a>`; }).join('');
+  $('modTabs').innerHTML = g('Gestão') + g('Operações');
+}
+function renderMod() {
+  const m = MODS.find(x => x.id === modAtual), r = D.resp[m.id] || {}, mt = D.meta[m.id] || {}, c = calc(m), [fx, cl] = faixa(c.pct);
+  $('modBody').innerHTML = `<div style="display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap"><h2>${ESC(m.nome)} <span class="muted">${m.grupo}</span></h2><span class="badge ${cl}">${c.pct.toFixed(1)}% · ${fx}</span></div>
+  <p class="muted">0 = não atende · 4 = atende plenamente · NA = não se aplica</p>` +
+  m.perguntas.map((p, i) => `<div class="q ${r[i] >= 0 && r[i] <= 2 ? 'low' : ''}"><div class="t"><b>${i + 1}.</b> ${ESC(p)}</div><div class="opt">${[0,1,2,3,4,-1].map(v =>
+    `<input type="radio" name="q${i}" id="q${i}_${v}" ${r[i] === v ? 'checked' : ''} onchange="resp(${i},${v})"><label for="q${i}_${v}">${v === -1 ? 'NA' : v}</label>`).join('')}</div></div>`).join('') +
+  `<div class="grid2" style="margin-top:14px"><div><label class="f">Evidências <button class="btn sm ghost noprint" onclick="regen('ev')" title="Gerar de novo a partir das respostas">↻ Regenerar</button></label><textarea rows="9" oninput="meta('ev',this.value)">${ESC(mt.ev)}</textarea></div>
+  <div><label class="f">Parecer <button class="btn sm ghost noprint" onclick="regen('pa')" title="Gerar de novo a partir das respostas">↻ Regenerar</button></label><textarea rows="9" oninput="meta('pa',this.value)">${ESC(mt.pa)}</textarea></div></div>
+  <p class="muted">Preenchidos automaticamente quando todas as perguntas do módulo são respondidas. Se você editar o texto, ele deixa de ser atualizado sozinho (use ↻ Regenerar para refazer).</p>`;
+}
+function resp(i, v) { (D.resp[modAtual] ||= {})[i] = v; autoPreencher(MODS.find(x => x.id === modAtual)); save(); renderMods(); const y = scrollY; renderMod(); scrollTo(0, y); }
+function meta(k, v) { const t = (D.meta[modAtual] ||= {}); t[k] = v; t[k + 'M'] = true; save(); }
+/* texto automático: evidências e parecer a partir das notas */
+function autoTexto(m) {
+  const r = D.resp[m.id] || {}, c = calc(m), [fx] = faixa(c.pct);
+  const it = m.perguntas.map((p, i) => ({n: i + 1, p: p.replace(/[?\s]+$/, ''), v: r[i]}));
+  const bem = it.filter(x => x.v >= 3), baixo = it.filter(x => x.v >= 0 && x.v <= 2).sort((a, b) => a.v - b.v || a.n - b.n), na = it.filter(x => x.v === -1);
+  const li = x => `• ${x.n}. ${x.p} (nota ${x.v})`;
+  const ev = [];
+  if (bem.length) ev.push('Pontos atendidos (nota 3 ou 4):', ...bem.map(li));
+  if (baixo.length) ev.push((ev.length ? '\n' : '') + 'Pontos a melhorar (nota 0 a 2):', ...baixo.map(li));
+  if (na.length) ev.push(`\nNão se aplica: ${na.map(x => x.n).join(', ')}.`);
+  const apl = c.total - na.length;
+  const pa = `${m.nome}: desempenho de ${c.pct.toFixed(1)}% (${c.soma} de ${c.poss} pontos), situação ${fx.toLowerCase()}. ` +
+    `${bem.length} de ${apl} requisitos aplicáveis estão bem atendidos (nota 3 ou 4). ` +
+    (baixo.length ? `Principais lacunas: ${baixo.slice(0, 3).map(x => `${x.p} (nota ${x.v})`).join('; ')}. Recomenda-se priorizar essas lacunas no plano de ação.`
+                  : 'Não foram identificadas lacunas relevantes neste módulo.');
+  return {ev: ev.join('\n'), pa};
+}
+function autoPreencher(m, forcar) {
+  const c = calc(m); if (c.resp < c.total) return false;
+  const t = (D.meta[m.id] ||= {}), a = autoTexto(m);
+  ['ev', 'pa'].forEach(k => { const manual = t[k + 'M'] ?? !!t[k]; if (forcar === k || forcar === true || !manual) { t[k] = a[k]; t[k + 'M'] = false; } });
+  return true;
+}
+function regen(k) {
+  const m = MODS.find(x => x.id === modAtual);
+  if (!autoPreencher(m, k)) return alert('Responda todas as perguntas do módulo para gerar o texto.');
+  save(); renderMod();
+}
+
+/* --- tabulação --- */
+function renderT() {
+  const rows = MODS.map(m => ({m, c: calc(m)}));
+  $('tabTab').innerHTML = `<table><thead><tr><th>Módulo</th><th class="r">Pontos</th><th class="r">%</th><th>Situação</th></tr></thead><tbody>` + rows.map(({m, c}) => { const [fx, cl] = faixa(c.pct);
+    return `<tr><td>${ESC(m.nome)} <span class="muted">${m.grupo}</span></td><td class="r">${c.soma}/${c.poss}</td><td class="r">${c.pct.toFixed(1)}%</td><td><span class="badge ${cl}">${fx}</span>${c.resp < c.total ? ' <span class="muted">incompleto</span>' : ''}</td></tr>`; }).join('') + '</tbody></table>';
+  if (!window.Chart || $('s-t').hidden) return;
+  chart && chart.destroy();
+  const css = getComputedStyle(document.documentElement), ac = css.getPropertyValue('--accent').trim(), ln = css.getPropertyValue('--line').trim(), ink = css.getPropertyValue('--ink').trim();
+  chart = new Chart($('radar'), {type: 'radar', data: {labels: rows.map(r => r.m.nome), datasets: [{data: rows.map(r => +r.c.pct.toFixed(1)), borderColor: ac, backgroundColor: ac + '33'}]},
+    options: {scales: {r: {min: 0, max: 100, ticks: {stepSize: 25, backdropColor: 'transparent', color: ink}, grid: {color: ln}, angleLines: {color: ln}, pointLabels: {color: ink, font: {size: 11}}}}, plugins: {legend: {display: false}}}});
+}
+
+/* --- conclusões --- */
+function renderConcl() { $('conclForm').innerHTML = CONCL.map(([k, t]) => `<div><label class="f">${t}</label><textarea rows="4" data-k="${k}">${ESC(D.concl[k])}</textarea></div>`).join(''); }
+function salvarConcl() {
+  document.querySelectorAll('#conclForm textarea').forEach(t => D.concl[t.dataset.k] = t.value); save();
+  $('conclOk').textContent = 'Salvo ✓'; setTimeout(() => $('conclOk').textContent = '', 2000);
+}
+
+/* --- plano de ação --- */
+function renderA() {
+  if (!D) return;
+  const A = D.acoes, fs = $('fSt').value, fp = $('fPr').value, cnt = id => A.filter(a => id === 'todos' || a.mod === id).length;
+  $('acTabs').innerHTML = [{id: 'todos', nome: 'Todos'}, ...MODS.filter(m => cnt(m.id))].map(m => `<a href="#" class="${m.id === acMod ? 'on' : ''}" onclick="event.preventDefault();acMod='${m.id}';renderA()">${ESC(m.nome)}<span class="cnt">${cnt(m.id)}</span></a>`).join('');
+  if (acMod !== 'todos' && !cnt(acMod)) acMod = 'todos';
+  const L = A.filter(a => (acMod === 'todos' || a.mod === acMod) && (!fs || a.status === fs) && (!fp || a.prioridade === fp));
+  const ta = (a, k) => `<textarea rows="3" onchange="ed(${a.id},'${k}',this.value)">${ESC(a[k])}</textarea>`;
+  const inp = (a, k, t = 'text') => `<input type="${t}" value="${ESC(a[k])}" onchange="ed(${a.id},'${k}',this.value)">`;
+  const sel = (a, k, o) => `<select onchange="ed(${a.id},'${k}',this.value)">${o.map(x => `<option ${a[k] === x ? 'selected' : ''}>${x}</option>`).join('')}</select>`;
+  $('acTab').innerHTML = `<thead><tr><th>Módulo</th><th>O quê</th><th>Por quê</th><th>Quem</th><th>Quando</th><th>Como</th><th>Quanto</th><th>Prioridade</th><th>Status</th><th class="noprint"></th></tr></thead><tbody>` +
+    (L.map(a => `<tr class="${a.status === 'Concluída' ? 'done' : ''}"><td>${ESC(nome(a.mod))}</td><td>${ta(a, 'acao')}</td><td>${ta(a, 'motivo')}</td><td>${inp(a, 'responsavel')}</td><td>${inp(a, 'prazo', 'date')}</td><td>${ta(a, 'como')}</td><td>${inp(a, 'custo')}</td><td>${sel(a, 'prioridade', ['Alta','Média','Baixa'])}</td><td>${sel(a, 'status', ST)}</td><td class="noprint"><button class="btn sm danger" title="Remover" onclick="del(${a.id})">✕</button></td></tr>`).join('')
+    || `<tr><td colspan="10" class="empty">Nenhuma ação. Use “Gerar plano” ou adicione manualmente.</td></tr>`) + '</tbody>';
+  const f = A.filter(a => a.status === 'Concluída').length, p = A.length ? f / A.length * 100 : 0;
+  $('prog').style.width = p + '%'; $('progT').textContent = `${f} de ${A.length} concluídas (${p.toFixed(0)}%)`; $('cntA').textContent = A.length || '';
+}
+function gerar() {
+  const lim = +$('limite').value, ex = new Set(D.acoes.filter(a => a.idx != null).map(a => a.mod + ':' + a.idx)); let n = 0;
+  MODS.forEach(m => { const r = D.resp[m.id] || {}; m.perguntas.forEach((p, i) => {
+    const v = r[i]; if (v === undefined || v < 0 || v > lim || ex.has(m.id + ':' + i)) return;
+    D.acoes.push({id: D.seq++, mod: m.id, idx: i, acao: 'Adequar requisito: ' + p.replace(/[?\s]+$/, ''), motivo: `Nota ${v}/4 em “${p}”`, responsavel: '', prazo: '', como: '', custo: '', prioridade: v <= 1 ? 'Alta' : 'Média', status: 'A fazer'}); n++; }); });
+  save(); renderA(); alert(n ? `${n} ações criadas.` : 'Nenhuma ação nova (responda o questionário ou aumente a nota limite).');
+}
+function novaAcao() { D.acoes.push({id: D.seq++, mod: acMod === 'todos' ? modAtual : acMod, idx: null, acao: 'Nova ação', motivo: '', responsavel: '', prazo: '', como: '', custo: '', prioridade: 'Média', status: 'A fazer'}); save(); renderA(); }
+function ed(id, k, v) { D.acoes.find(a => a.id === id)[k] = v; save(); if (k === 'status' || k === 'prioridade') renderA(); }
+function del(id) { if (!confirm('Remover esta ação?')) return; D.acoes = D.acoes.filter(a => a.id !== id); save(); renderA(); }
+function csv() {
+  const q = s => '"' + String(s ?? '').replace(/"/g, '""') + '"', h = ['Módulo','Ação (O quê)','Por quê','Quem','Quando','Como','Quanto','Prioridade','Status'];
+  const t = [h.map(q).join(';'), ...D.acoes.map(a => [nome(a.mod), a.acao, a.motivo, a.responsavel, a.prazo, a.como, a.custo, a.prioridade, a.status].map(q).join(';'))].join('\r\n');
+  const a = document.createElement('a'); a.href = URL.createObjectURL(new Blob(['﻿' + t], {type: 'text/csv'}));
+  a.download = `plano-acao-${D.empresa.replace(/\W+/g, '_')}.csv`; a.click();
+}
+if (top !== self) document.querySelectorAll('.wrap > a.muted, .wrap > h1, .wrap > .lede').forEach(e => e.hidden = true);
+listar();
+</script>
+</body>
+</html>

@@ -1,0 +1,19 @@
+# Python
+__pycache__/
+*.pyc
+venv/
+.venv/
+# Ambiente e segredos
+.env
+.env.*
+!.env.example
+# Dados e arquivos gerados
+static/uploads/
+*.log
+*.sql.gz
+*.db
+*.sqlite*
+nohup.out
+.DS_Store
+.idea/
+.vscode/

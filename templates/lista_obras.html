@@ -1,0 +1,734 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>Lista de Obras</title>
+  <link rel="icon" type="image/png" href="{{ url_for('static', filename='img/PLACEHOLDER-FAVICON.png') }}">
+
+  <!-- Bootstrap e ícones -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
+
+  <!-- Tema base azul moderno -->
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/base.css') }}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/menu.css') }}">
+
+<style>
+  :root { scroll-behavior: smooth; }
+
+  /* ===== Layout ===== */
+  body{
+    margin:0; min-height:100dvh; background:var(--bg); color:var(--text); display:flex;
+  }
+  .layout{ display:flex; gap:0; align-items:stretch; min-height:100vh; width:100%; }
+  .main{ flex:1; min-width:0; order:1; overflow-x:hidden; background:var(--bg); display:flex; flex-direction:column; }
+  .page{ flex:1; min-width:0; display:flex; justify-content:center; align-items:flex-start; padding:24px; }
+  .container-modern{ width:clamp(320px, 92vw, 1200px); margin-inline:auto; }
+
+  /* ===== Cards ===== */
+  .card{
+    background:var(--surface) !important; border:1px solid var(--border) !important;
+    border-radius:14px !important; box-shadow:0 10px 30px -10px var(--shadow) !important; overflow:hidden;
+  }
+  .card-header{
+    background:transparent !important; border-bottom:1px solid var(--border) !important;
+    color:var(--text); padding:14px 18px !important;
+  }
+  .card-header h3{ margin:0; font-size:16px; font-weight:600; }
+  .card-body{ padding:18px !important; color:var(--text); }
+
+  /* ===== Form ===== */
+  .form-control,.form-select,.form-control:focus,.form-select:focus{
+    background:var(--field) !important; border:1px solid var(--border) !important; color:var(--text) !important;
+    box-shadow:none !important; outline:none !important; height:40px; border-radius:10px; padding:0 12px;
+  }
+  .form-control::placeholder{ color:var(--muted); }
+  .form-label{ color:var(--muted); font-size:13px; margin-bottom:6px; }
+  .input-group-text{
+    background:var(--surface-2) !important; border:1px solid var(--border) !important; color:var(--muted) !important;
+    border-top-left-radius:10px !important; border-bottom-left-radius:10px !important;
+  }
+
+  /* ===================================================================
+     BOTÕES — ESCOPO SOMENTE DENTRO DO CONTEÚDO (.page) PARA NÃO AFETAR
+     O MENU LATERAL (.sidebar)
+     =================================================================== */
+  .page .btn{
+    display:inline-flex !important;
+    align-items:center !important;
+    justify-content:center !important;
+    gap:.45rem;
+    height:40px;
+    padding:0 14px;
+    line-height:1 !important;
+    vertical-align:middle;
+    border-radius:10px;
+    transition:background .15s ease, border-color .15s ease, box-shadow .15s ease, transform .06s ease;
+    will-change:background, box-shadow, transform;
+  }
+  .page .btn-sm{
+    min-height:32px; height:32px; padding:0 10px !important; font-size:.875rem !important; border-radius:8px !important; line-height:1 !important;
+  }
+  .page .btn i, .page .btn .fa{ line-height:0; }
+  .page .btn:active{ transform:scale(0.99); }
+  .page .btn:focus-visible{
+    outline:2px solid var(--primary); outline-offset:2px; box-shadow:0 0 0 4px rgba(58,133,25,.25) !important;
+  }
+
+  /* Variantes (apenas dentro da .page) */
+  .page .btn-outline-secondary{ background:var(--surface-2) !important; color:var(--text) !important; border-color:var(--border) !important; }
+  .page .btn-outline-secondary:hover{ background:var(--hover) !important; border-color:var(--border) !important; color:var(--text) !important; box-shadow:0 6px 18px -8px rgba(15,23,38,.45); }
+
+  .page .btn-outline-primary{ color:var(--text) !important; border-color:var(--border) !important; background:var(--surface-2) !important; }
+  .page .btn-outline-primary:hover{ background:linear-gradient(180deg,var(--primary),var(--primary-600)) !important; border-color:transparent !important; color:var(--text) !important; box-shadow:0 6px 18px -8px rgba(58,133,25,.55); }
+
+  .page .btn-success{ background:var(--primary) !important; border-color:transparent !important; color:#fff !important; }
+  .page .btn-success:hover{ background:#23814a !important; box-shadow:0 6px 18px -8px rgba(34,197,94,.45) !important; }
+
+  .page .btn-info{ background:#1a456a !important; border-color:transparent !important; color:#fff !important; }
+  .page .btn-info:hover{ background:#20527f !important; box-shadow:0 6px 18px -8px rgba(58,133,25,.45) !important; }
+
+  .page .btn-warning{ background:#b58900 !important; border-color:transparent !important; color:#fff !important; }
+  .page .btn-warning:hover{ background:#d49c11 !important; box-shadow:0 6px 18px -8px rgba(245,158,11,.45) !important; }
+
+  .page .btn-secondary{ background:var(--surface-2) !important; color:var(--text) !important; border-color:var(--border) !important; }
+  .page .btn-secondary:hover{ background:var(--hover) !important; }
+
+  .page .btn-danger{ background:#b91c1c !important; border-color:transparent !important; color:#fff !important; }
+  .page .btn-danger:hover{ background:#dc2626 !important; box-shadow:0 6px 18px -8px rgba(239,68,68,.45) !important; }
+
+  /* ===== Reset explícito para não alterar o menu lateral ===== */
+  .sidebar .btn{
+    display:block !important;              /* volta ao comportamento do menu */
+    justify-content:flex-start !important; /* ícone + texto à esquerda */
+    align-items:center !important;
+    height:auto !important;
+    padding:.625rem .75rem !important;
+    line-height:1.25 !important;
+    border-radius:8px !important;
+    box-shadow:none !important;
+    transform:none !important;
+  }
+
+  /* ===== Alertas ===== */
+  .alert{ border-radius:10px; border:1px solid var(--border); background:var(--surface-2); color:var(--text); }
+  .alert-danger{ border-color:rgba(239,68,68,.25); color:var(--error-text); }
+  .alert-success{ border-color:rgba(34,197,94,.25); color:var(--success-text); }
+  .alert-warning{ border-color:rgba(245,158,11,.25); color:var(--warning-text); }
+
+  /* ===== Tabela dark ===== */
+  .table-darkish{
+    --tbl-bg:var(--surface); --tbl-bg-alt:var(--field); --tbl-head:var(--surface-2); --tbl-hover:rgba(58,133,25,0.08);
+    --tbl-border:var(--border); --tbl-text:#ffffff; --tbl-head-text:#ffffff;
+  }
+  .table-darkish.table{
+    --bs-table-bg:transparent; --bs-table-color:var(--text); --bs-table-striped-bg:transparent; --bs-table-striped-color:var(--text);
+    --bs-table-hover-bg:transparent; --bs-table-hover-color:var(--text); color:var(--text) !important; border-color:var(--tbl-border) !important;
+  }
+  .table-darkish thead th{
+    background:var(--tbl-head) !important; color:var(--text) !important; border-bottom:1px solid var(--tbl-border) !important;
+    font-weight:600; font-size:13px; white-space:nowrap;
+  }
+  .table-darkish tbody td{
+    background:var(--tbl-bg) !important; color:var(--text) !important; border-top:1px solid var(--tbl-border) !important; vertical-align:middle;
+  }
+  .table-darkish tbody tr:nth-child(odd) td{ background:var(--tbl-bg-alt) !important; color:var(--text) !important; }
+  .table-darkish tbody tr:hover td{ background:var(--tbl-hover) !important; color:var(--text) !important; }
+  .table-darkish, .table-darkish *{ color:var(--text) !important; }
+  .table-darkish a:not(.btn){ color:var(--text) !important; }
+
+  /* ===== Paginação ===== */
+  .result-count{ font-size:.925rem; color:var(--muted); }
+  .pagination{ flex-wrap:wrap; gap:6px; }
+  .page-item .page-link{
+    background:var(--surface-2) !important; border:1px solid var(--tbl-border) !important; color:var(--text) !important; border-radius:8px;
+  }
+  .page-item.active .page-link{
+    background:linear-gradient(180deg,var(--primary),var(--primary-600)) !important; border:none !important; color:var(--text) !important;
+  }
+  .page-item.disabled .page-link{ opacity:.5; cursor:not-allowed; }
+
+  /* ===== Status Badge ===== */
+  .status-badge{
+    display:inline-flex; align-items:center; justify-content:center;
+    width:122px; height:32px; padding:0 8px;
+    border-radius:.5rem; font-weight:700; font-size:12px; letter-spacing:.02em; text-transform:uppercase;
+    border:1px solid var(--tbl-border); background:var(--surface-2); line-height:1; cursor:pointer; user-select:none; white-space:nowrap;
+    transition:transform .06s ease, box-shadow .12s ease, background .12s ease;
+  }
+  .status-badge:hover{ background:var(--field); }
+  .status-badge:active{ transform:scale(0.98); }
+  .status-badge:focus-visible{ outline:2px solid var(--primary); outline-offset:2px; box-shadow:0 0 0 4px rgba(58,133,25,.25); }
+  .st-iniciando{ color:#1d5fa8 !important; }
+  .st-andamento{ color:var(--success-text) !important; }
+  .st-concluida{ color:var(--success-text) !important; }
+  .st-parada{ color:var(--warning-text) !important; }
+  .st-cancelada{ color:var(--error-text) !important; }
+
+  /* ===== Responsivo ===== */
+  @media (max-width:768px){
+    .layout{ flex-direction:column; }
+    .page{ padding:16px; }
+    .card-body{ padding:14px !important; }
+  }
+</style>
+
+</head>
+
+<body>
+  <div class="layout">
+    {% include 'menu.html' %}
+
+    <main class="main">
+      <section class="page">
+        <div class="container-modern">
+
+          {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+              <div class="mb-3">
+                {% for category, message in messages %}
+                  <div class="alert alert-{{ 'danger' if category=='error' else category }} mb-2" role="alert">
+                    {{ message }}
+                  </div>
+                {% endfor %}
+              </div>
+            {% endif %}
+          {% endwith %}
+
+          <div class="card">
+            <div class="card-header d-flex align-items-center justify-content-between">
+              <h3>Lista de Obras</h3>
+            </div>
+
+            <div class="card-body">
+              <!-- Filtros -->
+              <form class="row g-2 align-items-end mb-2" onsubmit="event.preventDefault();">
+                <!-- Busca livre -->
+                <div class="col-12 col-lg-6">
+                  <label for="busca" class="form-label mb-1">Buscar por número, nome, cidade, tipo ou padrão</label>
+                  <div class="input-group">
+                    <span class="input-group-text"><i class="fa-solid fa-magnifying-glass"></i></span>
+                    <input type="text" id="busca" class="form-control" placeholder="Ex.: 1024, Sol Nascente, Goiânia, Residencial, Alto" autocomplete="off">
+                  </div>
+                </div>
+
+                <!-- Filtro: Status -->
+                <div class="col-12 col-sm-6 col-lg-3">
+                  <label for="selectStatus" class="form-label mb-1">Status</label>
+                  <select id="selectStatus" class="form-select">
+                    <!-- opções preenchidas no JS -->
+                  </select>
+                </div>
+
+                <!-- Filtro: Tipo da Obra -->
+                <div class="col-12 col-sm-6 col-lg-3">
+                  <label for="selectTipo" class="form-label mb-1">Tipo da Obra</label>
+                  <select id="selectTipo" class="form-select">
+                    <!-- opções preenchidas no JS -->
+                  </select>
+                </div>
+
+                <!-- <div class="col-12 d-flex gap-2">
+                  <button id="btnFiltrar" class="btn btn-outline-primary" type="button">
+                    <i class="fa-solid fa-filter"></i> Aplicar filtros
+                  </button>
+                  <button id="btnLimpar" class="btn btn-outline-secondary" type="button">
+                    <i class="fa-solid fa-eraser"></i> Limpar
+                  </button>
+                </div>
+              </form> -->
+
+              <div class="d-flex justify-content-between align-items-center mb-2">
+                <div id="resultCount" class="result-count"></div>
+              </div>
+
+              <div class="table-responsive">
+                <table id="tabelaObras" class="table table-striped table-hover align-middle table-darkish">
+                  <thead>
+                    <tr>
+                      <th style="width:120px;">Número</th>
+                      <th>Nome</th>
+                      <th style="width:160px;">Cidade</th>
+                      <th style="width:120px;">Tipo</th>
+                      <th style="width:120px;">Padrão</th>
+                      <th style="width:140px;">Início</th>
+                      <th style="width:110px;">Etapas</th>
+                      <th style="width:110px;">Visitas</th>
+                      <th style="width:150px;">Status</th>
+                      <th style="width:320px;">Ações</th>
+                    </tr>
+                  </thead>
+                  <tbody id="tbodyObras">
+                    {% if obras and obras|length %}
+                      {% for o in obras %}
+                        {% set st = (o.status or 'INICIANDO') | upper %}
+                        <tr data-obra-id="{{ o.id }}" data-idx="{{ loop.index0 }}">
+                          <td>{{ o.numero_obra }}</td>
+                          <td>{{ o.nome or '-' }}</td>
+                          <td>{{ o.cidade or '-' }}</td>
+                          <td>{{ o.tipo_obra or '-' }}</td>
+                          <td>{{ o.padrao_obra or '-' }}</td>
+                          <td>
+                            {% if o.data_inicio %}
+                              {{ o.data_inicio.strftime('%d/%m/%Y') if o.data_inicio.__class__.__name__ != 'str' else o.data_inicio }}
+                            {% else %}-{% endif %}
+                          </td>
+                          <td>{{ o.etapas_count }}</td>
+                          <td>{{ o.visitas_count }}</td>
+
+                          <!-- STATUS: botão dinâmico de largura fixa -->
+                          <td>
+                            <button type="button"
+                                    class="status-badge {{ 'st-iniciando' if st=='INICIANDO'
+                                                         else 'st-andamento' if st=='ANDAMENTO'
+                                                         else 'st-concluida' if st=='CONCLUIDA'
+                                                         else 'st-parada' if st=='PARADA'
+                                                         else 'st-cancelada' if st=='CANCELADA'
+                                                         else 'st-iniciando' }}"
+                                    data-status="{{ st }}"
+                                    data-obra-id="{{ o.id }}"
+                                    aria-label="Status: {{ st }}. Clique para alterar."
+                                    title="Clique para alterar o status">
+                              {{ st }}
+                            </button>
+                          </td>
+
+                          <!-- AÇÕES -->
+                          <td class="d-flex flex-wrap gap-2">
+                            {% if pode('obras', 'alterar') %}
+                            <a class="btn btn-sm btn-warning" href="{{ url_for('editar_obra', obra_id=o.id) }}">
+                              <i class="fa-solid fa-pen-to-square"></i> Editar
+                            </a>
+                            {% endif %}
+                            {% if pode('etapas', 'ver') %}
+                            <a class="btn btn-sm btn-success" href="{{ url_for('etapas_obra', obra_id=o.id) }}">
+                              <i class="fa-solid fa-list-check"></i> Etapas
+                            </a>
+                            {% endif %}
+                            {% if pode('visitas', 'ver') %}
+                            <a class="btn btn-sm btn-info text-white position-relative" href="{{ url_for('visitas_obra', obra_id=o.id) }}"
+                               title="{{ 'Visita atrasada' if o.visita_atrasada }}">
+                              <i class="fa-solid fa-person-walking"></i> Visitas
+                              {% if o.visita_atrasada %}
+                              <span class="position-absolute top-0 start-100 translate-middle p-1 bg-danger border border-light rounded-circle" style="--bs-border-color:var(--surface);">
+                                <span class="visually-hidden">Visita atrasada</span>
+                              </span>
+                              {% endif %}
+                            </a>
+                            {% endif %}
+
+                            <!-- BOTÃO EXCLUIR -->
+                            {% if pode('obras', 'excluir') %}
+                            <button type="button"
+                                    class="btn btn-sm btn-danger"
+                                    onclick="delete_obra({{ o.id }})"
+                                    title="Excluir obra e todos os dados relacionados">
+                              <i class="fa-solid fa-trash"></i> Excluir
+                            </button>
+                            {% endif %}
+                          </td>
+
+
+                        </tr>
+                      {% endfor %}
+                    {% else %}
+                      <tr class="nenhuma-obra">
+                        <td colspan="10" class="text-center">Nenhuma obra cadastrada.</td>
+                      </tr>
+                    {% endif %}
+                  </tbody>
+                </table>
+              </div>
+
+              <nav aria-label="Paginação de obras" class="mt-3">
+                <ul id="paginacao" class="pagination mb-0"></ul>
+              </nav>
+
+            </div><!-- card-body -->
+          </div><!-- card -->
+
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+  <script>
+  (function(){
+    const PAGE_SIZE = 20;
+    const STATUSES = ['INICIANDO','ANDAMENTO','CONCLUIDA','PARADA','CANCELADA'];
+
+    const norm = (s) => (s || '')
+      .toString()
+      .normalize('NFD').replace(/[\u0300-\u036f]/g,'')
+      .toLowerCase()
+      .trim();
+
+    const tbody = document.getElementById('tbodyObras');
+    const pag = document.getElementById('paginacao');
+    const busca = document.getElementById('busca');
+    const btnFiltrar = document.getElementById('btnFiltrar');
+    const btnLimpar = document.getElementById('btnLimpar');
+    const resultCount = document.getElementById('resultCount');
+
+    const selectStatus = document.getElementById('selectStatus');
+    const selectTipo = document.getElementById('selectTipo');
+
+    if (!tbody) return;
+
+    const originalRows = Array.from(tbody.querySelectorAll('tr')).filter(tr => !tr.classList.contains('nenhuma-obra'));
+    if (!originalRows.length){
+      if (resultCount) resultCount.textContent = '0 resultados';
+      // Preenche selects mesmo com zero
+      initStatusOptions();
+      initTipoOptions([]);
+      return;
+    }
+
+    // Garante data-idx
+    originalRows.forEach((tr, idx)=> tr.setAttribute('data-idx', idx));
+
+    // Índices das colunas:
+    // 0:numero, 1:nome, 2:cidade, 3:tipo, 4:padrão, 5:início, 6:etapas, 7:visitas, 8:status, 9:ações
+    const COL = { NUM:0, NOME:1, CIDADE:2, TIPO:3, PADRAO:4, INICIO:5, STATUS:8 };
+
+    function getStatusFromHTML(html){
+      const m = html.match(/class="status-badge[^"]*"[^>]*>([^<]+)<\/button>/i);
+      return m ? (m[1] || '').trim().toUpperCase() : '';
+    }
+
+    const data = originalRows.map(tr => {
+      const tds = tr.querySelectorAll('td');
+      const numero   = (tds[COL.NUM]?.textContent || '').trim();
+      const nome     = (tds[COL.NOME]?.textContent || '').trim();
+      const cidade   = (tds[COL.CIDADE]?.textContent || '').trim();
+      const tipo     = (tds[COL.TIPO]?.textContent || '').trim();
+      const padrao   = (tds[COL.PADRAO]?.textContent || '').trim();
+      const dataTxt  = (tds[COL.INICIO]?.textContent || '').trim();
+      const statusTxt= (tds[COL.STATUS]?.querySelector('.status-badge')?.textContent || '').trim().toUpperCase();
+
+      const idx = tr.getAttribute('data-idx');
+      let html = tr.outerHTML;
+      if (idx && !html.includes('data-idx=')) {
+        html = html.replace('<tr', `<tr data-idx="${idx}"`);
+      }
+
+      return {
+        numero, nome, cidade, tipo, padrao, status: statusTxt,
+        numeroN: norm(numero),
+        nomeN: norm(nome),
+        cidadeN: norm(cidade),
+        tipoN: norm(tipo),
+        padraoN: norm(padrao),
+        statusN: norm(statusTxt),
+        dateVal: parseDateBRorISO(dataTxt),
+        html,
+        idx: parseInt(idx,10)
+      };
+    });
+
+    // Popula selects (Status fixo; Tipo dinâmico)
+    initStatusOptions();
+    initTipoOptions([...new Set(data.map(d => d.tipo).filter(Boolean))].sort());
+
+    window.__OBRAS_DATA = data.slice();
+
+    // Ordena inicialmente por data (desc)
+    data.sort(compareByDateDesc);
+
+    let filtered = data.slice();
+    let currentPage = 1;
+
+    render();
+
+    // Eventos
+    if (btnFiltrar) btnFiltrar.addEventListener('click', applyFilter);
+    if (btnLimpar)  btnLimpar.addEventListener('click', () => {
+      busca.value = '';
+      if (selectStatus) selectStatus.value = '';
+      if (selectTipo) selectTipo.value = '';
+      applyFilter();
+    });
+
+    if (busca){
+      busca.addEventListener('keydown', (e) => { if (e.key === 'Enter') { e.preventDefault(); applyFilter(); }});
+      busca.addEventListener('input', debounce(applyFilter, 120));
+    }
+    if (selectStatus) selectStatus.addEventListener('change', applyFilter);
+    if (selectTipo) selectTipo.addEventListener('change', applyFilter);
+
+    // ======= STATUS DINÂMICO (clique) =======
+    const nextStatus = (cur) => {
+      const i = STATUSES.indexOf((cur || '').toUpperCase());
+      return i >= 0 ? STATUSES[(i+1) % STATUSES.length] : STATUSES[0];
+    };
+
+    tbody.addEventListener('click', (ev) => {
+      const btn = ev.target.closest('.status-badge');
+      if (btn) advanceStatus(btn);
+    });
+    tbody.addEventListener('keydown', (ev) => {
+      const btn = ev.target.closest('.status-badge');
+      if (btn && (ev.key === 'Enter' || ev.key === ' ')){
+        ev.preventDefault();
+        advanceStatus(btn);
+      }
+    });
+
+    async function advanceStatus(btn){
+      const obraId = btn.getAttribute('data-obra-id');
+      const tr = btn.closest('tr');
+      const idxStr = tr ? tr.getAttribute('data-idx') : null;
+      const current = (btn.getAttribute('data-status') || btn.textContent || 'INICIANDO').toUpperCase();
+      if (!obraId) return;
+
+      btn.disabled = true;
+      try {
+        const resp = await fetch(`/api/obras/${obraId}/status/advance`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ current })
+        });
+        if (!resp.ok) throw new Error('Falha ao alterar status');
+
+        const dataResp = await resp.json();
+        const novo = (dataResp.status || nextStatus(current)).toUpperCase();
+
+        btn.textContent = novo;
+        btn.setAttribute('data-status', novo);
+        btn.classList.remove('st-iniciando','st-andamento','st-concluida','st-parada','st-cancelada');
+        const cls = (novo==='INICIANDO') ? 'st-iniciando' :
+                    (novo==='ANDAMENTO') ? 'st-andamento' :
+                    (novo==='CONCLUIDA') ? 'st-concluida' :
+                    (novo==='PARADA')    ? 'st-parada' :
+                    (novo==='CANCELADA') ? 'st-cancelada' : 'st-iniciando';
+        btn.classList.add(cls);
+
+        // Atualiza o HTML & status do item no dataset
+        if (idxStr !== null) {
+          const idx = parseInt(idxStr, 10);
+          const updatedHTML = tr.outerHTML;
+          if (window.__OBRAS_DATA && window.__OBRAS_DATA[idx]) {
+            window.__OBRAS_DATA[idx].html = updatedHTML;
+            window.__OBRAS_DATA[idx].status = novo;
+            window.__OBRAS_DATA[idx].statusN = norm(novo);
+          }
+          const item = data.find(d => d.idx === idx);
+          if (item){
+            item.html = updatedHTML;
+            item.status = novo;
+            item.statusN = norm(novo);
+          }
+        }
+
+        // Se há filtro de status ativo, re-renderiza para refletir
+        applyFilter();
+
+      } catch (e) {
+        console.error(e);
+        alert('Não foi possível alterar o status agora.');
+      } finally {
+        btn.disabled = false;
+      }
+    }
+
+    // ======= Filtro / Render =======
+    function applyFilter(){
+      const q = norm(busca?.value || '');
+      const statusSel = (selectStatus?.value || '').toUpperCase();
+      const tipoSelN = norm(selectTipo?.value || '');
+
+      if (!q && !statusSel && !tipoSelN){
+        filtered = data.slice();
+      } else {
+        filtered = data.filter(item => {
+          // Busca livre
+          const passSearch = !q || (
+            item.nomeN.includes(q)   ||
+            item.numeroN.includes(q) ||
+            item.cidadeN.includes(q) ||
+            item.tipoN.includes(q)   ||
+            item.padraoN.includes(q)
+          );
+          // Status (pega do campo atualizado)
+          const passStatus = !statusSel || (item.status || '').toUpperCase() === statusSel;
+          // Tipo
+          const passTipo = !tipoSelN || item.tipoN === tipoSelN;
+
+          return passSearch && passStatus && passTipo;
+        });
+      }
+
+      filtered.sort(compareByDateDesc);
+      currentPage = 1;
+      render();
+    }
+
+    function render(){
+      const total = filtered.length;
+      const totalPages = Math.max(Math.ceil(total / PAGE_SIZE), 1);
+      currentPage = Math.min(Math.max(currentPage, 1), totalPages);
+
+      const start = (currentPage - 1) * PAGE_SIZE;
+      const pageItems = filtered.slice(start, start + PAGE_SIZE);
+
+      tbody.innerHTML = pageItems.map(it => it.html).join('') || `
+        <tr class="nenhuma-obra">
+          <td colspan="10" class="text-center">Nenhuma obra encontrada.</td>
+        </tr>
+      `;
+
+      if (resultCount) resultCount.textContent = `${total} resultado${total===1?'':'s'}`;
+      renderPagination(totalPages);
+    }
+
+    function renderPagination(totalPages){
+      if (!pag) return;
+      if (totalPages <= 1){ pag.innerHTML = ''; return; }
+
+      const parts = [];
+      const disabledPrev = (currentPage <= 1) ? ' disabled' : '';
+      const disabledNext = (currentPage >= totalPages) ? ' disabled' : '';
+
+      parts.push(`
+        <li class="page-item${disabledPrev}">
+          <a class="page-link" href="#" aria-label="Primeira" data-page="first">&laquo;&laquo;</a>
+        </li>
+        <li class="page-item${disabledPrev}">
+          <a class="page-link" href="#" aria-label="Anterior" data-page="prev">&laquo;</a>
+        </li>
+      `);
+
+      const winStart = Math.max(1, currentPage - 2);
+      const winEnd   = Math.min(totalPages, currentPage + 2);
+      for (let p = winStart; p <= winEnd; p++){
+        parts.push(`
+          <li class="page-item ${p===currentPage ? 'active':''}">
+            <a class="page-link" href="#" data-page="${p}">${p}</a>
+          </li>
+        `);
+      }
+
+      parts.push(`
+        <li class="page-item${disabledNext}">
+          <a class="page-link" href="#" aria-label="Próxima" data-page="next">&raquo;</a>
+        </li>
+        <li class="page-item${disabledNext}">
+          <a class="page-link" href="#" aria-label="Última" data-page="last">&raquo;&raquo;</a>
+        </li>
+      `);
+
+      pag.innerHTML = parts.join('');
+      pag.querySelectorAll('a.page-link').forEach(a => {
+        a.addEventListener('click', (e) => {
+          e.preventDefault();
+          const go = a.getAttribute('data-page');
+          const totalPages = Math.max(Math.ceil(filtered.length / PAGE_SIZE), 1);
+          if (go === 'first') currentPage = 1;
+          else if (go === 'prev') currentPage = Math.max(1, currentPage - 1);
+          else if (go === 'next') currentPage = Math.min(totalPages, currentPage + 1);
+          else if (go === 'last') currentPage = totalPages;
+          else currentPage = parseInt(go, 10) || 1;
+          render();
+        });
+      });
+    }
+
+    // --- datas: aceita "dd/mm/aaaa" ou "aaaa-mm-dd" ---
+    function parseDateBRorISO(txt){
+      const s = (txt || '').trim();
+      if (!s || s === '-') return null;
+
+      const iso = s.match(/^(\d{4})-(\d{2})-(\d{2})$/);
+      if (iso){
+        const d = new Date(+iso[1], +iso[2]-1, +iso[3]);
+        return isValidDate(d) ? d : null;
+      }
+      const br = s.match(/^(\d{2})\/(\d{2})\/(\d{4})$/);
+      if (br){
+        const d = new Date(+br[3], +br[2]-1, +br[1]);
+        return isValidDate(d) ? d : null;
+      }
+      const d = new Date(s);
+      return isValidDate(d) ? d : null;
+    }
+    function isValidDate(d){ return d instanceof Date && !isNaN(d.getTime()); }
+    function compareByDateDesc(a, b){
+      const ad = a.dateVal, bd = b.dateVal;
+      if (ad && bd) return bd - ad;
+      if (ad && !bd) return -1;
+      if (!ad && bd) return 1;
+      return (b.numero || '').localeCompare(a.numero || '');
+    }
+
+    function debounce(fn, ms){
+      let t; return (...args)=>{ clearTimeout(t); t=setTimeout(()=>fn.apply(null,args), ms); };
+    }
+
+    // ====== opções dos selects ======
+    function initStatusOptions(){
+      if (!selectStatus) return;
+      const opts = ['<option value="">Todos</option>']
+        .concat(STATUSES.map(s => `<option value="${s}">${s}</option>`));
+      selectStatus.innerHTML = opts.join('');
+      selectStatus.value = '';
+    }
+
+    function initTipoOptions(tipos){
+      if (!selectTipo) return;
+      const opts = ['<option value="">Todos</option>']
+        .concat(tipos.map(t => `<option value="${escapeHtml(t)}">${escapeHtml(t)}</option>`));
+      selectTipo.innerHTML = opts.join('');
+      selectTipo.value = '';
+    }
+
+    function escapeHtml(str){
+      return (str || '').replace(/[&<>"']/g, m => ({
+        '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'
+      }[m]));
+    }
+
+  })();
+
+async function delete_obra(obra_id){
+  if(!obra_id) return alert("ID da obra inválido.");
+
+  const ok = confirm("Tem certeza que deseja excluir esta obra e TODOS os dados relacionados (visitas, fotos, etapas, profissionais, vendedores, etc)?");
+  if(!ok) return;
+
+  try{
+    const resp = await fetch(`/api/obras/${obra_id}/delete`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' }
+    });
+
+    const data = await resp.json().catch(()=>({}));
+
+    if(!resp.ok || !data.ok){
+      throw new Error(data.error || "Falha ao excluir a obra.");
+    }
+
+    // Remove a linha da tabela
+    const tr = document.querySelector(`tr[data-obra-id="${obra_id}"]`);
+    if(tr) tr.remove();
+
+    // Atualiza contador e paginação se existirem
+    const resultCount = document.getElementById('resultCount');
+    if(resultCount){
+      const linhas = document.querySelectorAll('#tbodyObras tr');
+      resultCount.textContent = `${linhas.length} resultado${linhas.length === 1 ? '' : 's'}`;
+    }
+
+    alert("Obra excluída com sucesso!");
+  }catch(e){
+    console.error(e);
+    alert("Erro ao excluir a obra: " + e.message);
+  }
+}
+
+  </script>
+
+</body>
+</html>

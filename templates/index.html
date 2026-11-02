@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Portal | Empresa Exemplo</title>
+    <link rel="icon" type="image/png" href="{{ url_for('static', filename='img/PLACEHOLDER-FAVICON.png') }}">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <style>
+        body {
+            background-color: #f8f9fa;
+        }
+        
+        .portal-container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+        
+        .logo-container {
+            text-align: center;
+            margin-bottom: 3rem;
+        }
+        
+        .logo-container img {
+            max-width: 300px;
+            height: auto;
+        }
+        
+        .menu-card {
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+            cursor: pointer;
+            height: 100%;
+        }
+        
+        .menu-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+        
+        .menu-icon {
+            font-size: 2rem;
+            margin-bottom: 1rem;
+            color: #0d6efd;
+        }
+        
+        .card-body {
+            text-align: center;
+            padding: 2rem 1rem;
+        }
+        
+        .card-title {
+            margin-bottom: 1rem;
+            font-weight: 600;
+        }
+        
+        .card-text {
+            color: #6c757d;
+            font-size: 0.9rem;
+        }
+    </style>
+</head>
+<body>
+    <div class="portal-container">
+        <div class="row g-4">
+            <!-- Cadastro de Obras -->
+            <div class="col-md-3">
+                <a href="cadastro-obras.html" class="text-decoration-none">
+                    <div class="card menu-card">
+                        <div class="card-body">
+                            <i class="fas fa-building menu-icon"></i>
+                            <h5 class="card-title">Cadastro de Obras</h5>
+                            <p class="card-text">Gerencie obras, profissionais e vendedores</p>
+                        </div>
+                    </div>
+                </a>
+            </div>
+            
+            <!-- Relatório de Obras -->
+            <div class="col-md-3">
+                <a href="relatorio-obras.html" class="text-decoration-none">
+                    <div class="card menu-card">
+                        <div class="card-body">
+                            <i class="fas fa-chart-bar menu-icon"></i>
+                            <h5 class="card-title">Relatório de Obras</h5>
+                            <p class="card-text">Visualize estatísticas e relatórios</p>
+                        </div>
+                    </div>
+                </a>
+            </div>
+            
+            <!-- Pesquisa de Arquitetos -->
+            <div class="col-md-3">
+                <a href="pesquisa/pesquisa-arquiteto.html" class="text-decoration-none">
+                    <div class="card menu-card">
+                        <div class="card-body">
+                            <i class="fas fa-drafting-compass menu-icon"></i>
+                            <h5 class="card-title">Pesquisa de Arquitetos</h5>
+                            <p class="card-text">Entreviste e cadastre arquitetos</p>
+                        </div>
+                    </div>
+                </a>
+            </div>
+            
+            <!-- Pesquisa de Profissionais -->
+            <div class="col-md-3">
+                <a href="pesquisa/pesquisa-profissional.html" class="text-decoration-none">
+                    <div class="card menu-card">
+                        <div class="card-body">
+                            <i class="fas fa-hard-hat menu-icon"></i>
+                            <h5 class="card-title">Pesquisa de Profissionais</h5>
+                            <p class="card-text">Entreviste e cadastre profissionais</p>
+                        </div>
+                    </div>
+                </a>
+            </div>
+            
+            <!-- Administração -->
+            <div class="col-md-3">
+                <a href="admin.html" class="text-decoration-none">
+                    <div class="card menu-card">
+                        <div class="card-body">
+                            <i class="fas fa-cog menu-icon"></i>
+                            <h5 class="card-title">Administração</h5>
+                            <p class="card-text">Configure e gerencie o sistema</p>
+                        </div>
+                    </div>
+                </a>
+            </div>
+        </div>
+        
+        <div class="logo-container">
+            <img src="images/PLACEHOLDER-IMAGE.png" alt="Empresa Exemplo" class="img-fluid" 
+                 style="max-width: 300px; height: auto;">
+        </div>
+        
+        <footer class="text-center mt-5">
+            <p class="text-muted">&copy; 2024 Empresa Exemplo. Todos os direitos reservados.</p>
+        </footer>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html> 

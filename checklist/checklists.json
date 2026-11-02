@@ -1,0 +1,326 @@
+[
+ {
+  "id": "veiculos",
+  "titulo": "Checklist Diário - Veículos",
+  "icone": "🚚",
+  "freq": "Diário",
+  "descricao": "Garantir que o caminhão esteja em condições seguras para a operação diária: inspeção dos sistemas mecânicos, elétricos e de segurança.",
+  "campos": [
+   {
+    "t": "select",
+    "k": "motorista",
+    "label": "Nome do motorista",
+    "req": true,
+    "opcoes": [
+     "Funcionário 1",
+     "Funcionário 2",
+     "Funcionário 3",
+     "Funcionário 4",
+     "Funcionário 5",
+     "Funcionário 6",
+     "Funcionário 7"
+    ]
+   },
+   {
+    "t": "select",
+    "k": "veiculo",
+    "label": "Veículo",
+    "req": true,
+    "opcoes": [
+     "FIAT STRADA",
+     "MERCEDES BENZ 710",
+     "VOLKSWAGEN 9150",
+     "MERCEDES BENZ 915-C",
+     "VOLKSWAGEN 11.180"
+    ]
+   },
+   {
+    "t": "itens",
+    "k": "uso",
+    "label": "Checklist de Uso",
+    "itens": [
+     "Nível de óleo do motor",
+     "Nível de água/líquido de arrefecimento",
+     "Estado e calibragem dos pneus (incluindo estepe)",
+     "Luzes: faróis, setas, luz de freio, luz de ré",
+     "Limpeza de para-brisas e espelhos",
+     "Estado do para-choque e retrovisores",
+     "Vazamentos aparentes",
+     "Funcionamento do painel de instrumentos",
+     "Limpeza do veículo"
+    ]
+   },
+   {
+    "t": "foto",
+    "k": "fotos",
+    "label": "Fotos do veículo",
+    "ajuda": "Tirar fotos do veículo limpo",
+    "req": false
+   },
+   {
+    "t": "textarea",
+    "k": "obs",
+    "label": "Observações e Ações",
+    "ajuda": "Descreva qualquer problema encontrado e necessidade de reparos",
+    "req": false,
+    "req_se_nok": true
+   }
+  ]
+ },
+ {
+  "id": "motos",
+  "titulo": "Checklist Diário - Motos",
+  "icone": "🏍️",
+  "freq": "Diário",
+  "descricao": "Garantir que a motocicleta esteja em condições seguras para operação diária, prevenindo falhas e assegurando a continuidade das entregas.",
+  "campos": [
+   {
+    "t": "text",
+    "k": "motorista",
+    "label": "Nome do motorista",
+    "req": true
+   },
+   {
+    "t": "select",
+    "k": "veiculo",
+    "label": "Veículo",
+    "req": true,
+    "opcoes": [
+     "MOTO 125 - AAA-0000 PRETA",
+     "MOTO 125 - BBB-0000 VERMELHA"
+    ]
+   },
+   {
+    "t": "itens",
+    "k": "uso",
+    "label": "Checklist de Uso",
+    "itens": [
+     "Nível de óleo do motor",
+     "Estado e calibragem dos pneus",
+     "Funcionamento dos freios (dianteiro e traseiro)",
+     "Funcionamento da embreagem",
+     "Funcionamento das luzes (farol alto/baixo, lanterna, freio e setas)",
+     "Funcionamento da buzina",
+     "Retrovisores em boas condições",
+     "Corrente de transmissão lubrificada e tensionada",
+     "Vazamentos aparentes (óleo ou combustível)",
+     "Painel de instrumentos funcionando",
+     "Bateria e partida elétrica funcionando",
+     "Bagageiro ou baú de entrega em boas condições",
+     "Capacete em bom estado e com viseira íntegra"
+    ]
+   },
+   {
+    "t": "itens",
+    "k": "prev",
+    "label": "Manutenção Preventiva Periódica",
+    "itens": [
+     "Troca de óleo no tempo?",
+     "Revisão preventiva realizada?",
+     "Kit relação (corrente, coroa e pinhão) em boas condições?",
+     "Pastilhas/Lonas de freio em condição adequada?",
+     "Pneus dentro do limite de desgaste?"
+    ]
+   },
+   {
+    "t": "textarea",
+    "k": "obs",
+    "label": "Observações e Ações",
+    "ajuda": "Descreva qualquer problema encontrado e necessidade de reparos",
+    "req": false,
+    "req_se_nok": true
+   }
+  ]
+ },
+ {
+  "id": "empilhadeira",
+  "titulo": "Checklist Semanal - Empilhadeira",
+  "icone": "🏗️",
+  "freq": "Semanal (segunda-feira)",
+  "descricao": "Inspeção semanal dos sistemas mecânicos, hidráulicos, elétricos e de segurança da empilhadeira.",
+  "campos": [
+   {
+    "t": "text",
+    "k": "operador",
+    "label": "Nome do operador",
+    "req": true
+   },
+   {
+    "t": "itens",
+    "k": "pre",
+    "label": "Inspeção Pré-Operacional",
+    "itens": [
+     "Nível de óleo do motor",
+     "Nível de água/líquido de arrefecimento",
+     "Nível de óleo hidráulico",
+     "Estado dos pneus (desgaste, calibragem)",
+     "Funcionamento dos freios",
+     "Funcionamento da buzina",
+     "Luzes de sinalização e alerta",
+     "Cinto de segurança",
+     "Estado dos garfos (trincas, desgaste)",
+     "Correntes e rolos de elevação",
+     "Vazamentos aparentes (óleo, água, combustível)",
+     "Extintor de incêndio (presença e validade)",
+     "Capacete e EPIs do operador",
+     "Gás suficiente (combustão)",
+     "Funcionamento do painel de instrumentos",
+     "Sistema de elevação sem ruídos anormais",
+     "Graxeiras aplicadas nos pontos indicados?",
+     "Limpeza da Empilhadeira"
+    ]
+   },
+   {
+    "t": "textarea",
+    "k": "obs",
+    "label": "Observações e Ações",
+    "ajuda": "Descreva qualquer anomalia encontrada e a ação a ser realizada.",
+    "req": false,
+    "req_se_nok": true
+   }
+  ]
+ },
+ {
+  "id": "estribadeira",
+  "titulo": "Manutenção Mensal - Estribadeira",
+  "icone": "🔧",
+  "freq": "Mensal",
+  "descricao": "Manutenção preventiva mensal da estribadeira: funcionamento seguro, preciso e contínuo na fabricação de estribos e peças dobradas.",
+  "campos": [
+   {
+    "t": "text",
+    "k": "responsavel",
+    "label": "Nome do técnico responsável",
+    "req": true
+   },
+   {
+    "t": "itens",
+    "k": "limpeza",
+    "label": "Limpeza e Lubrificação",
+    "itens": [
+     "Limpeza geral da máquina realizada",
+     "Lubrificação aplicada nos pontos indicados",
+     "Remoção de resíduos de material e poeira"
+    ]
+   },
+   {
+    "t": "itens",
+    "k": "comp",
+    "label": "Inspeção de Componentes",
+    "itens": [
+     "Facas de corte (afiadas, sem desgaste excessivo)",
+     "Pinos de dobra (sem folgas, em bom estado)",
+     "Guias (alinhadas, sem desgaste)",
+     "Rolamentos (sem ruídos, lubrificados)",
+     "Motor (funcionamento normal, sem superaquecimento)",
+     "Sistema elétrico (conexões, fiação, sem sobreaquecimento)",
+     "Dispositivos de segurança (funcionando corretamente)"
+    ]
+   },
+   {
+    "t": "textarea",
+    "k": "ajustes",
+    "label": "Ajustes e Substituições Preventivas",
+    "ajuda": "Descreva os ajustes e as peças substituídas.",
+    "req": true
+   },
+   {
+    "t": "textarea",
+    "k": "obs",
+    "label": "Observações",
+    "req": false,
+    "req_se_nok": true,
+    "ajuda": "Descreva o problema encontrado e a ação a ser realizada."
+   }
+  ]
+ },
+ {
+  "id": "telha",
+  "titulo": "Manutenção Mensal - Máquina de Telha",
+  "icone": "🏭",
+  "freq": "Quinzenal / Mensal",
+  "descricao": "Confiabilidade, segurança e disponibilidade da máquina de telha por meio do registro da manutenção preventiva (a cada 15 dias).",
+  "campos": [
+   {
+    "t": "text",
+    "k": "responsavel",
+    "label": "Nome do responsável",
+    "req": true
+   },
+   {
+    "t": "itens",
+    "k": "limpeza",
+    "label": "Limpeza e Lubrificação",
+    "itens": [
+     "Limpeza geral da máquina realizada",
+     "Lubrificação aplicada nos pontos indicados",
+     "Remoção de resíduos de material e poeira"
+    ]
+   },
+   {
+    "t": "itens",
+    "k": "comp",
+    "label": "Inspeção de Componentes",
+    "itens": [
+     "Rolos conformadores (sem desgaste, alinhados)",
+     "Facas de corte (afiadas, sem desgaste excessivo)",
+     "Sistema hidráulico (sem vazamentos, pressão adequada)",
+     "Motor (funcionamento normal, sem superaquecimento)",
+     "Correntes (tensionadas, sem desgaste)",
+     "Rolamentos (sem ruídos, lubrificados)",
+     "Componentes elétricos (conexões, fiação, sem sobreaquecimento)",
+     "Dispositivos de segurança (funcionando corretamente)"
+    ]
+   },
+   {
+    "t": "textarea",
+    "k": "ajustes",
+    "label": "Ajustes e Substituições Preventivas",
+    "ajuda": "Descreva os ajustes e as peças substituídas.",
+    "req": true
+   },
+   {
+    "t": "textarea",
+    "k": "obs",
+    "label": "Observações",
+    "req": false,
+    "req_se_nok": true,
+    "ajuda": "Descreva o problema encontrado e a ação a ser realizada."
+   }
+  ]
+ },
+ {
+  "id": "gondolas",
+  "titulo": "Limpeza, Organização e Reposição de Gôndolas",
+  "icone": "🛒",
+  "freq": "Conforme escala",
+  "descricao": "Registrar com fotos a limpeza, organização e reposição das gôndolas, assegurando disponibilidade dos produtos e qualidade da exposição.",
+  "campos": [
+   {
+    "t": "select",
+    "k": "colaborador",
+    "label": "Nome do colaborador",
+    "req": true,
+    "opcoes": [
+     "Operador 1",
+     "Operador 2",
+     "Operador 3",
+     "Operador 4"
+    ]
+   },
+   {
+    "t": "foto",
+    "k": "fotos",
+    "label": "Foto depois da reposição",
+    "ajuda": "Registro do estado final da gôndola para comprovação do abastecimento",
+    "req": true
+   },
+   {
+    "t": "textarea",
+    "k": "obs",
+    "label": "Observações gerais",
+    "req": false
+   }
+  ]
+ }
+]
